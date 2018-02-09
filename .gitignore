@@ -1,0 +1,9 @@
+# Config files
+config.ini
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# swap files
+*.swp

@@ -1,0 +1,5 @@
+[Credentials]
+token = ; Insert your token here
+
+[Settings]
+prefix = ! ; Insert your prefix here
