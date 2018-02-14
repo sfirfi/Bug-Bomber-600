@@ -2,6 +2,7 @@ import discord
 import configparser
 import sys
 import traceback
+import pymysql.cursors
 from discord.ext import commands
 from pathlib import Path
 
@@ -17,17 +18,31 @@ if config_file.exists() is not True:
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+
+connection = pymysql.connect(host=config['Credentials']['host'],
+                             user=config['Credentials']['user'],
+                             password=config['Credentials']['password'],
+                             db=config['Credentials']['database'],
+                             charset='utf8',
+                             cursorclass=pymysql.cursors.DictCursor)
+
+with open('db-setup.sql', 'r') as inserts:
+    for statement in inserts:
+        connection.cursor().execute(statement)
+        connection.commit()
+
+# Preparing the cogs
 initial_extensions = ['cogs.moderation',
                       'cogs.modlog',
                       'cogs.serverutils',
                       'cogs.fun',
                       'cogs.reminder']
 
-
+# Preparing the bot
 bot = commands.Bot(command_prefix=config['Settings']['prefix'],
                    description='A Bot which watches Bug Hunters')
 
-
+# Adding the cogs to the bot
 if __name__ == '__main__':
     for extension in initial_extensions:
         try:

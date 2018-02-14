@@ -1,5 +1,12 @@
 [Credentials]
-token = ; Insert your token here
+; Enter the token of the bot you want to use
+token = 
+; Enter the Credentials of the Database you want use
+host = 
+user = 
+password = 
+database = 
 
 [Settings]
-prefix = ! ; Insert your prefix here
+; Set the prefix which the bot should listen to for its commands
+prefix = !
