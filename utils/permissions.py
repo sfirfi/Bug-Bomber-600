@@ -3,7 +3,10 @@ import configparser
 
 
 # creates a connection to the DB
-def Connection():
+from discord.ext import commands
+
+
+def get_connection():
     config = configparser.ConfigParser()
     config.read('config.ini')
     connection = pymysql.connect(host=config['Credentials']['host'],
@@ -17,19 +20,18 @@ def Connection():
 
 # Receives a permissions and the roles of a user
 # Checks if any of the roles has the needed Permission
-def hasPermission(roles, permission):
-    res = False
-    conn = Connection()
-    splits = permission.split('.')
+def hasPermission(roles, cog, command):
+    conn = get_connection()
     for crole in roles:
-        if conn.cursor().execute("SELECT id, permission" +
-                                 " FROM permissions where " +
-                                 "id='" + str(crole.id) + "' AND permission = '" +
-                                 permission + "' OR id ='" + str(crole.id) +
-                                 "' AND permission = '" + splits[0] + ".*' " +
-                                 " OR id ='" + str(crole.id) +
-                                 "' AND permission = '*'") is not 0:
-            res = True
-            break
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT id, permission FROM permissions where role_id='{crole.id}' AND (permission = '*' OR permission = '{cog}.*' OR permission = '{cog}.{command}');")
+        if len(cursor.fetchall()) is not 0:
+            return True
 
-    return res
+    return False
+
+
+def owner_only():
+    async def predicate(ctx):
+        return ctx.bot.is_owner(ctx.author)
+    return commands.check(predicate)

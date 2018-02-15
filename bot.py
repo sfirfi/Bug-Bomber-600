@@ -36,7 +36,8 @@ initial_extensions = ['cogs.moderation',
                       'cogs.modlog',
                       'cogs.serverutils',
                       'cogs.fun',
-                      'cogs.reminder']
+                      'cogs.reminder',
+                      'cogs.maintenance']
 
 # Preparing the bot
 bot = commands.Bot(command_prefix=config['Settings']['prefix'],
@@ -58,5 +59,10 @@ async def on_ready():
           + '\nVersion: {discord.__version__}\n')
     await bot.change_presence(game=discord.Game(name='BugHunters',
                                                 type=3))
+
+@bot.event
+async def on_command_error(ctx:commands.Context, error):
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("ACCESS DENIED")
 
 bot.run(config['Credentials']['Token'], bot=True)
