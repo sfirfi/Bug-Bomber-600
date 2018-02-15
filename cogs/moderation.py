@@ -11,10 +11,10 @@ class ModerationCog:
     # the Permissions system
     @commands.command(name='kick')
     async def kick(self, ctx):
-        if permissions.hasPermission(ctx.author.roles, 'moderation.kick'):
-            await ctx.send('valid')
-        else:
-            await ctx.send('invalid')
+        if not permissions.hasPermission(ctx.author.roles, 'moderation.kick'):
+            return
+
+        await ctx.send('valid')
 
 
 def setup(bot):

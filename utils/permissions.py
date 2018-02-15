@@ -1,6 +1,7 @@
 import pymysql.cursors
 import configparser
 
+
 # creates a connection to the DB
 def Connection():
     config = configparser.ConfigParser()
@@ -15,15 +16,19 @@ def Connection():
 
 
 # Receives a permissions and the roles of a user
-# Checks if any of the roles as the needed Permission
+# Checks if any of the roles has the needed Permission
 def hasPermission(roles, permission):
     res = False
     conn = Connection()
+    splits = permission.split('.')
     for crole in roles:
         if conn.cursor().execute("SELECT id, permission" +
                                  " FROM permissions where " +
                                  "id='" + str(crole.id) + "' AND permission = '" +
-                                 permission + "'") is not 0:
+                                 permission + "' OR id ='" + str(crole.id) +
+                                 "' AND permission = '" + splits[0] + ".*' " +
+                                 " OR id ='" + str(crole.id) +
+                                 "' AND permission = '*'") is not 0:
             res = True
             break
 
