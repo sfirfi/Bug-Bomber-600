@@ -56,6 +56,7 @@ if __name__ == '__main__':
 async def on_ready():
     print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}'
           + '\nVersion: {discord.__version__}\n')
-    await bot.change_presence(game=discord.Game(name='Watching BugHunters'))
+    await bot.change_presence(game=discord.Game(name='BugHunters',
+                                                type=3))
 
 bot.run(config['Credentials']['Token'], bot=True)
