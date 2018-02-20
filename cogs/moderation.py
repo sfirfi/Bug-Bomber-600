@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from utils import permissions
 
@@ -15,6 +16,19 @@ class ModerationCog:
     @commands.command(name='kick')
     async def kick(self, ctx):
         await ctx.send('valid')
+
+    @commands.command()
+    async def roles(selfs, ctx:commands.Context):
+        roles = ""
+        ids = ""
+        for role in ctx.guild.roles:
+            roles += f"<@&{role.id}>\n\n"
+            ids += str(role.id) + "\n\n"
+        embed = discord.Embed(title=ctx.guild.name + " roles", color=0x54d5ff)
+        embed.add_field(name="\u200b", value=roles, inline=True)
+        embed.add_field(name="\u200b", value=ids, inline=True)
+        await ctx.send(ctx.channel, embed=embed)
+
 
 
 def setup(bot):
