@@ -10,7 +10,7 @@ class FunCog:
         self.bot = bot
 
     async def __local_check(self, ctx: commands.Context):
-        return permissions.hasPermission(ctx.author.roles, "moderation", ctx.command)
+        return permissions.hasPermission(ctx.author.roles, "fun", ctx.command)
 
 
 def setup(bot):
