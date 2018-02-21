@@ -16,8 +16,7 @@ from utils import BugLog
 config_file = Path('config.ini')
 if config_file.exists() is not True:
     sys.exit("I'm sorry, but i can't find your config file. Make sure to copy"
-             + "the Config.ini.example as config.ini and insert insert"
-             + "your settings")
+             + "the Config.ini.example as config.ini and insert your settings")
 
 # parsing our config
 config = configparser.ConfigParser()
