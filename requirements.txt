@@ -1,0 +1,4 @@
+aiohttp>=2.0.0,<2.3.0
+websockets>=4.0,<5.0
+discord.py==1.0.0a1431+gd53c3a6
+PyYAML==3.12

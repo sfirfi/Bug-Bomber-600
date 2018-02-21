@@ -5,9 +5,15 @@ __pycache__/
 # Config files
 config.ini
 
+.idea/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
 # swap files
 *.swp
+
+#runtime and cache files
+*.json
+*.log

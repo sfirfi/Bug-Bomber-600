@@ -1,0 +1,2 @@
+-- Creating the table for the permssions system
+CREATE TABLE IF NOT EXISTS permissions(role_id VARCHAR(20) NOT NULL,permission TEXT NOT NULL,ID INT PRIMARY KEY NOT NULL AUTO_INCREMENT) ENGINE = InnoDB;
