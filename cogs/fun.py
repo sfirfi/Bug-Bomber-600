@@ -21,7 +21,7 @@ class FunCog:
             await ctx.send("You must be realy lonely if you need to hug yourself, have one from me instead!")
             ctx.command.reset_cooldown(ctx)
         else:
-            await ctx.send(self.hugs[random.randint(0, len(self.hugs))].format(friend.mention, ctx.author.mention))
+            await ctx.send(self.hugs[random.randint(0, len(self.hugs)-1)].format(friend.mention, ctx.author.mention))
 
     @commands.command()
     @commands.guild_only()
@@ -31,7 +31,7 @@ class FunCog:
             await ctx.send("How would you even do that?")
             ctx.command.reset_cooldown(ctx)
         else:
-            await ctx.send(self.fights[random.randint(0, len(self.fights))].format(friend.mention, ctx.author.mention))
+            await ctx.send(self.fights[random.randint(0, len(self.fights)-1)].format(friend.mention, ctx.author.mention))
 
     def __init__(self, bot):
         self.bot = bot
