@@ -64,9 +64,11 @@ async def on_command_error(ctx: commands.Context, error):
         await ctx.send("This command does not work in private messages")
     elif isinstance(error, commands.MissingRequiredArgument)\
             or isinstance(error, commands.BadArgument)\
-            or isinstance(error, commands.CommandOnCooldown)\
             or isinstance(error, commands.MissingPermissions)\
             or isinstance(error, commands.BotMissingPermissions):
+        await ctx.send(error)
+        ctx.command.reset_cooldown(ctx)
+    elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(error)
 
     else:
