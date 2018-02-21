@@ -49,6 +49,8 @@ bot = commands.Bot(command_prefix=config['Settings']['prefix'],
 
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
+    if (isinstance(error, commands.CommandNotFound)):
+        pass
     if isinstance(error, commands.CheckFailure):
         # just a random user trying something he's not allowed to do
         await ctx.send(":lock: You do not have the required permissions to run this command")
@@ -116,7 +118,7 @@ async def on_error(event, *args, **kwargs):
     try:
         pass
     except Exception as ex:
-        BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}")
+        BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}", ex)
 
 # Adding the cogs to the bot
 if __name__ == '__main__':
