@@ -50,7 +50,7 @@ bot = commands.Bot(command_prefix=config['Settings']['prefix'],
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
     if (isinstance(error, commands.CommandNotFound)):
-        pass
+        return
     if isinstance(error, commands.CheckFailure):
         # just a random user trying something he's not allowed to do
         await ctx.send(":lock: You do not have the required permissions to run this command")
