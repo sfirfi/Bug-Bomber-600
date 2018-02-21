@@ -101,6 +101,7 @@ async def on_command_error(ctx: commands.Context, error):
 async def on_error(event, *args, **kwargs):
     #something went wrong and it might have been in on_command_error, make sure we log to the log file first
     BugLog.error(f"error in {event}\n{args}\n{kwargs}")
+    BugLog.error(traceback.format_exc())
     embed = discord.Embed(colour=discord.Colour(0xff0000),
                           timestamp=datetime.datetime.utcfromtimestamp(time.time()))
 
@@ -122,8 +123,7 @@ if __name__ == '__main__':
         try:
             bot.load_extension(extension)
         except Exception as e:
-            print(f'Failed to load extension', {extension}, file=sys.stderr)
-            traceback.print_exc()
+            BugLog.startupError(f"Failed to load extention {extension}", e)
 
 
 @bot.event

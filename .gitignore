@@ -13,3 +13,7 @@ pip-delete-this-directory.txt
 
 # swap files
 *.swp
+
+#runtime and cache files
+*.json
+*.log

@@ -20,9 +20,11 @@ def get_connection():
 
 # Receives a permissions and the roles of a user
 # Checks if any of the roles has the needed Permission
-def hasPermission(roles, cog, command):
+def hasPermission(user, cog, command):
+    if not hasattr(user, 'roles'):
+        return False
     conn = get_connection()
-    for crole in roles:
+    for crole in user.roles:
         cursor = conn.cursor()
         cursor.execute(f"SELECT id, permission FROM permissions where role_id='{crole.id}' AND (permission = '*' OR permission = '{cog}.*' OR permission = '{cog}.{command}');")
         if len(cursor.fetchall()) is not 0:
