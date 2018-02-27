@@ -11,7 +11,8 @@ from pathlib import Path
 from discord import abc
 
 # Checking if the example config was copied
-from utils import BugLog
+from cogs.fun import FunCog
+from utils import BugLog, Database
 
 config_file = Path('config.ini')
 if config_file.exists() is not True:
@@ -23,17 +24,15 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 
-connection = pymysql.connect(host=config['Credentials']['host'],
+connection = Database.SQLDB(host=config['Credentials']['host'],
                              user=config['Credentials']['user'],
                              password=config['Credentials']['password'],
-                             db=config['Credentials']['database'],
-                             charset='utf8',
-                             cursorclass=pymysql.cursors.DictCursor)
-
+                             database=config['Credentials']['database'])
+#TODO: wrap in try catch
 with open('db-setup.sql', 'r') as inserts:
     for statement in inserts:
-        connection.cursor().execute(statement)
-        connection.commit()
+        connection.query(statement)
+
 
 # Preparing the cogs
 initial_extensions = ['cogs.moderation',
@@ -43,9 +42,13 @@ initial_extensions = ['cogs.moderation',
                       'cogs.reminder',
                       'cogs.maintenance']
 
+
+
 # Preparing the bot
 bot = commands.Bot(command_prefix=config['Settings']['prefix'],
                    description='A Bot which watches Bug Hunters')
+
+bot.DBC = connection
 
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
@@ -119,6 +122,41 @@ async def on_error(event, *args, **kwargs):
         pass
     except Exception as ex:
         BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}", ex)
+
+
+positiveID = 0
+negativeID = 0
+@bot.event
+async def on_message(message:discord.Message):
+    if message.channel.id == 414716941131841549:
+        positive = None
+
+        negative = None
+
+        for emoji in message.guild.emoji:
+            if emoji.id == positiveID:
+                positive = emoji
+            elif emoji.id == negativeID:
+                negative = emoji
+
+        await message.add_reaction(positive)
+        await message.add_reaction(negative)
+    await bot.process_commands(message)
+
+@bot.event
+async def on_raw_reaction_add(emoji:discord.PartialEmoji, message_id, channel_id, user_id):
+    message:discord.Message = await bot.get_channel(channel_id).get_message(message_id)
+    positiveCount = 0
+    negativeCount = 0
+    for reaction in message.reactions:
+        if reaction.emoji.id == positiveID:
+            positiveCount = reaction.count
+        elif reaction.emoji.id == negativeID:
+            negativeCount = reaction.count
+    if positiveCount > 5:
+        FunCog.fights.append(message.content)
+        await message.delete()
+    pass
 
 # Adding the cogs to the bot
 if __name__ == '__main__':
