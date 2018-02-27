@@ -1,4 +1,5 @@
 import discord
+import time
 from discord.ext import commands
 from utils import permissions
 
@@ -28,6 +29,13 @@ class ModerationCog:
         embed.add_field(name="\u200b", value=roles, inline=True)
         embed.add_field(name="\u200b", value=ids, inline=True)
         await ctx.send(ctx.channel, embed=embed)
+
+    @commands.command()
+    async def ping(self, ctx: commands.Context):
+        t1 = time.perf_counter()
+        await ctx.trigger_typing()
+        t2 = time.perf_counter()
+        await ctx.send(f":hourglass: Gateway ping is {round((t2 - t1) * 1000)}ms :hourglass:")
 
 
 
