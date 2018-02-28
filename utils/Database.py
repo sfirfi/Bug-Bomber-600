@@ -21,7 +21,7 @@ class SQLDB:
         try:
             self.connection = pymysql.connect(host=self.host, user=self.user, password=self.password,
                                               database=self.database, charset='utf8',
-                             cursorclass=pymysql.cursors.DictCursor)
+                             cursorclass=pymysql.cursors.DictCursor, autocommit=True)
         except pymysql.Error as error:
             raise SQLException("The database connection failed: " + str(error))
 

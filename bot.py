@@ -98,8 +98,12 @@ async def on_command_error(ctx: commands.Context, error):
         embed.add_field(name="Exception", value=error)
         v = ""
         for line in traceback.format_tb(error.__traceback__):
+            if len(v) + len(line) > 1024:
+                embed.add_field(name="Stacktrace", value=v)
+                v = ""
             v = f"{v}\n{line}"
-        embed.add_field(name="Stacktrace", value=v)
+        if len(v) > 0:
+            embed.add_field(name="Stacktrace", value=v)
         await BugLog.logToBotlog(embed=embed)
 
 
@@ -115,11 +119,11 @@ async def on_error(event, *args, **kwargs):
 
     embed.add_field(name="args", value=str(args))
     embed.add_field(name="kwargs", value=str(kwargs))
+
     embed.add_field(name="Stacktrace", value=traceback.format_exc())
-    await BugLog.logToBotlog(embed=embed)
     #try logging to botlog, wrapped in an try catch as there is no higher lvl catching to prevent taking donwn the bot (and if we ended here it might have even been due to trying to log to botlog
     try:
-        pass
+        await BugLog.logToBotlog(embed=embed)
     except Exception as ex:
         BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}", ex)
 
