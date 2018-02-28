@@ -20,8 +20,8 @@ def listPermissions(ctx, role):
     perms = ""
     conn.query(f"SELECT permission FROM permissions where role_id='{role.id}' ORDER BY permission;")
     for perm in conn.fetch_rows():
-        perms += f"{perm['permission']}\n"
-    return perms
+        perms += f"{perms['permission']}\n"
+    print(perms)
 
 
 def owner_only():

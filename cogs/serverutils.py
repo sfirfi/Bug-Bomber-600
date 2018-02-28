@@ -9,7 +9,7 @@ class ServerutilsCog:
         self.bot = bot
 
     async def __local_check(self, ctx:commands.Context):
-        return permissions.hasPermission(ctx.author.roles, "utils", ctx.command)
+        return permissions.hasPermission(ctx, "utils")
 
 
 def setup(bot):

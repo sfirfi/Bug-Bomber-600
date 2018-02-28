@@ -8,7 +8,7 @@ class MaintenanceCog:
         self.bot = bot
 
     async def __local_check(self, ctx:commands.Context):
-        return permissions.hasPermission(ctx.author.roles, "maintenance", ctx.command)
+        return permissions.hasPermission(ctx, "maintenance")
 
     @permissions.owner_only()
     @commands.command()
