@@ -12,7 +12,7 @@ class FunCog:
     hugs = []
     fights = []
     async def __local_check(self, ctx: commands.Context):
-        return permissions.hasPermission(ctx, "fun")
+        return await permissions.hasPermission(ctx, "fun")
 
     @commands.command()
     @commands.guild_only()

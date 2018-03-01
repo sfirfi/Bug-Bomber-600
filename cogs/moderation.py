@@ -10,7 +10,7 @@ class ModerationCog:
         self.bot = bot
 
     async def __local_check(self, ctx:commands.Context):
-        return permissions.hasPermission(ctx, "moderation")
+        return await permissions.hasPermission(ctx, "moderation")
 
     @commands.command()
     async def roles(selfs, ctx:commands.Context):

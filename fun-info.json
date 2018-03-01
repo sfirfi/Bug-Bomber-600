@@ -3,15 +3,11 @@
     "{0}, {1} just gave you a big fat hug!",
     "{0}, {1} hugs you with much much love",
     "{0}, You feel the pure wonder of a hug by {1}",
-    "{0}, I have a delivery of a thousand hugs by {1} for you",
-    "I'm searching a Person called {0}, {1} gave me some hugs for you",
-    "{0}, {1} teleports behind you... and hugs you."
+    "{0}, I have a delivery of a thousand hugs by {1} for you"
 ],
   "fights": [
     "{0}, {1} fights you with cotton candy!",
     "{0}, You are attacked by a horde of cute puppies released by {1}",
-    "{0}, {1} steps behind you with a toothpick",
-    "{0}, {1} throws Jelly bears at you",
-    "{0}, {1} stabs you with a carrot"
+    "{0}, {1} throws Jelly bears at you"
 ]
 }
