@@ -56,7 +56,7 @@ class ModerationCog:
         """Shows all available permissions"""
         perms = permissions.listPermissions(ctx, role)
         if perms == '':
-            perms = "This doesn't have any permissions"
+            perms = "This role doesn't has any permissions"
         embed = discord.Embed(title=f"Permissions of {role.name}", color=0x7c519f)
         embed.add_field(name='\u200b', value=perms, inline=True)
         await ctx.send(embed=embed)
@@ -64,8 +64,16 @@ class ModerationCog:
     @perms.command(name='available', aliases=['avbl', 'avail', 'avl', 'av'])
     async def available(self, ctx:commands.Context):
         """Shows the current permissions of the given role"""
-        permissions.verifyPermission(ctx, 'moderation')
-        await ctx.send("This command isn't finished yet")
+        info =  "`*`    - Grants access to all commands\n"\
+                "`cog.*`    - Grants access to all commands of the cog \n"\
+                "`cog.command`  - Grants access to command"
+        avail = ""
+        for perm in permissions.listAvailable(ctx):
+            avail += f"{perm}\n"
+        embed = discord.Embed(title='Available permissions', color=0x7c519f)
+        embed.add_field(name='Information', value=info, inline=True)
+        embed.add_field(name='Available permissions', value=avail, inline=False)
+        await ctx.send(embed=embed)
 
     @perms.command()
     async def rmv(self, ctx:commands.Context, role: discord.Role, permission):

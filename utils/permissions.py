@@ -32,6 +32,12 @@ def listPermissions(ctx, role):
     return perms
 
 def verifyPermission(ctx, permission):
+    if permission in listAvailable(ctx):
+        return True
+    else:
+        return False
+
+def listAvailable(ctx):
     perms = list()
     perms.append('*')
     bot = ctx.bot
@@ -40,11 +46,7 @@ def verifyPermission(ctx, permission):
 
     for command in bot.all_commands:
         perms.append(f"{formatPermission(str(bot.all_commands.get(command).cog_name))}.{command}")
-
-    if permission in perms:
-        return True
-    else:
-        return False
+    return perms
 
 def addPermission(ctx, role, permission):
     conn = ctx.bot.DBC
