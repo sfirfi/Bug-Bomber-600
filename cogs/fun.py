@@ -18,6 +18,7 @@ class FunCog:
     @commands.guild_only()
     @commands.cooldown(1, 5 * 60, BucketType.user)
     async def hug(self, ctx: commands.Context, friend: discord.Member):
+        """Hugs a Person"""
         if friend == ctx.author:
             await ctx.send("You must be realy lonely if you need to hug yourself, have one from me instead!")
             ctx.command.reset_cooldown(ctx)
@@ -27,17 +28,19 @@ class FunCog:
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, 5 * 60, BucketType.user)
-    async def fight(self, ctx: commands.Context, friend: discord.Member):
-        if friend == ctx.author:
+    async def fight(self, ctx: commands.Context, victim: discord.Member):
+        """Fights a Person"""
+        if victim == ctx.author:
             await ctx.send("How would you even do that?")
             ctx.command.reset_cooldown(ctx)
         else:
-            await ctx.send(FunCog.fights[random.randint(0, len(FunCog.fights)-1)].format(friend.mention, ctx.author.mention))
+            await ctx.send(FunCog.fights[random.randint(0, len(FunCog.fights)-1)].format(victim.mention, ctx.author.mention))
 
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, 2.5 * 60, BucketType.user)
     async def pet(self, ctx: commands.Context, friend: discord.Member):
+        """Pets a person"""
         if friend == ctx.author:
             await ctx.send("Petting yourself, how would you even do that?")
             ctx.command.reset_cooldown(ctx)

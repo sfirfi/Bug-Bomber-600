@@ -12,14 +12,9 @@ class ModerationCog:
     async def __local_check(self, ctx:commands.Context):
         return permissions.hasPermission(ctx, "moderation")
 
-    # The kick command isn't finished yet, it currently is a way to test
-    # the Permissions system
-    @commands.command(name='kick')
-    async def kick(self, ctx):
-        await ctx.send('valid')
-
     @commands.command()
     async def roles(selfs, ctx:commands.Context):
+        """Shows all roles of the Server and their ids"""
         roles = ""
         ids = ""
         for role in ctx.guild.roles:
@@ -32,6 +27,7 @@ class ModerationCog:
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
+        """Shows the Gateway ping"""
         t1 = time.perf_counter()
         await ctx.trigger_typing()
         t2 = time.perf_counter()
@@ -39,31 +35,42 @@ class ModerationCog:
 
     @commands.group(name='perms', aliases=['permissions'])
     async def perms(self, ctx:commands.Context):
+        """Allows to manage the permissions"""
         if ctx.invoked_subcommand is None:
             permshelp = "`perms` - Shows this help text"\
-                        "\n\n`perms add <role> <permission>` -  Adds the given permission to the role **unfinished**" \
+                        "\n\n`perms add <role> <permission>` -  Adds the given permission to the role" \
                         "\n\n`perms available` - Shows all available permissions **unfinished**"\
                         "\n\n`perms list <role>` - Shows the current permissions of the given role"\
-                        "\n\n`perms rmv <role> <permission>` - Removes the given permission form the role **unfinished**"
+                        "\n\n`perms rmv <role> <permission>` - Removes the given permission form the role"
             embed = discord.Embed(title='Permissions help', color=0x7c519f)
             embed.add_field(name='\u200b', value=permshelp, inline=True)
             await ctx.send(embed=embed)
 
     @perms.command()
     async def add(self, ctx:commands.Context, role: discord.Role, permission):
-        await ctx.send("Add command")
+        """Adds the given permission to the role"""
+        await ctx.send(permissions.addPermission(ctx, role, permission))
 
     @perms.command()
     async def list(self, ctx:commands.Context, role: discord.Role):
-        await ctx.send(f"**Permissions of {role.name}**```{permissions.listPermissions(ctx, role)}```")
+        """Shows all available permissions"""
+        perms = permissions.listPermissions(ctx, role)
+        if perms == '':
+            perms = "This doesn't have any permissions"
+        embed = discord.Embed(title=f"Permissions of {role.name}", color=0x7c519f)
+        embed.add_field(name='\u200b', value=perms, inline=True)
+        await ctx.send(embed=embed)
 
     @perms.command(name='available', aliases=['avbl', 'avail', 'avl', 'av'])
     async def available(self, ctx:commands.Context):
-        await ctx.send("available")
+        """Shows the current permissions of the given role"""
+        permissions.verifyPermission(ctx, 'moderation')
+        await ctx.send("This command isn't finished yet")
 
     @perms.command()
     async def rmv(self, ctx:commands.Context, role: discord.Role, permission):
-        await ctx.send("rmv")
+        """Removes the given permission from the role"""
+        await ctx.send(permissions.rmvPermission(ctx, role, permission))
 
 
 
