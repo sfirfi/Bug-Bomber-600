@@ -11,7 +11,7 @@ def hasPermission(ctx, cog):
         if len(conn.fetch_rows()) is not 0:
             return True
 
-    return False
+    return ctx.bot.is_owner(ctx.author)
 
 #recives a role and a permission and checks if the role has that permission
 def roleHasPermission(ctx, role, permission):
