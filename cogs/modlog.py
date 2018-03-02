@@ -9,7 +9,7 @@ class ModlogCog:
         self.bot = bot
 
     async def __local_check(self, ctx:commands.Context):
-        return permissions.hasPermission(ctx.author.roles, "modlog", ctx.command)
+        return await permissions.hasPermission(ctx, "modlog")
 
 
 def setup(bot):

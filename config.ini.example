@@ -1,13 +1,23 @@
 [Credentials]
 ; Enter the token of the bot you want to use
-token = 
+token =
 ; Enter the Credentials of the Database you want use
-host = 
-user = 
-password = 
-database = 
+host =
+user =
+password =
+database =
 
 [Settings]
 ; Set the prefix which the bot should listen to for its commands
 prefix = !
 botlog =
+
+[Events]
+scoreboardChannel =
+
+[Cooldowns]
+hug =
+fight =
+pet =
+dog =
+cat =

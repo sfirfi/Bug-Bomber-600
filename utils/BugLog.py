@@ -75,7 +75,7 @@ async def onReady(client:commands.Bot, channelID):
             if len(stacktrace) > 0:
                 embed.add_field(name="Stacktrace", value=stacktrace)
             await logToBotlog(embed=embed)
-    await logToBotlog(message=f"{info.name} ready get to work!")
+    await logToBotlog(message=f"{info.name} ready to take off!")
 
 
 async def logToBotlog(message = None, embed = None, log = True):

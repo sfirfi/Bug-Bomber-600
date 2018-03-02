@@ -11,7 +11,8 @@ from pathlib import Path
 from discord import abc
 
 # Checking if the example config was copied
-from utils import BugLog
+from cogs.fun import FunCog
+from utils import BugLog, Database
 
 config_file = Path('config.ini')
 if config_file.exists() is not True:
@@ -23,29 +24,36 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 
-connection = pymysql.connect(host=config['Credentials']['host'],
+connection = Database.SQLDB(host=config['Credentials']['host'],
                              user=config['Credentials']['user'],
                              password=config['Credentials']['password'],
-                             db=config['Credentials']['database'],
-                             charset='utf8',
-                             cursorclass=pymysql.cursors.DictCursor)
-
+                             database=config['Credentials']['database'])
+#TODO: wrap in try catch
 with open('db-setup.sql', 'r') as inserts:
     for statement in inserts:
-        connection.cursor().execute(statement)
-        connection.commit()
+        connection.query(statement)
+        pass
+
 
 # Preparing the cogs
-initial_extensions = ['cogs.moderation',
-                      'cogs.modlog',
-                      'cogs.serverutils',
-                      'cogs.fun',
-                      'cogs.reminder',
-                      'cogs.maintenance']
+initial_extensions = ['moderation',
+                      'modlog',
+                      'serverutils',
+                      'fun',
+                      'reminder',
+                      'maintenance',
+                      "events"]
+
+
 
 # Preparing the bot
 bot = commands.Bot(command_prefix=config['Settings']['prefix'],
                    description='A Bot which watches Bug Hunters')
+
+bot.DBC = connection
+bot.config = config
+bot.starttime = datetime.datetime.now()
+
 
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
@@ -95,8 +103,12 @@ async def on_command_error(ctx: commands.Context, error):
         embed.add_field(name="Exception", value=error)
         v = ""
         for line in traceback.format_tb(error.__traceback__):
+            if len(v) + len(line) > 1024:
+                embed.add_field(name="Stacktrace", value=v)
+                v = ""
             v = f"{v}\n{line}"
-        embed.add_field(name="Stacktrace", value=v)
+        if len(v) > 0:
+            embed.add_field(name="Stacktrace", value=v)
         await BugLog.logToBotlog(embed=embed)
 
 
@@ -112,19 +124,21 @@ async def on_error(event, *args, **kwargs):
 
     embed.add_field(name="args", value=str(args))
     embed.add_field(name="kwargs", value=str(kwargs))
+
     embed.add_field(name="Stacktrace", value=traceback.format_exc())
-    await BugLog.logToBotlog(embed=embed)
     #try logging to botlog, wrapped in an try catch as there is no higher lvl catching to prevent taking donwn the bot (and if we ended here it might have even been due to trying to log to botlog
     try:
-        pass
+        await BugLog.logToBotlog(embed=embed)
     except Exception as ex:
         BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}", ex)
+
+
 
 # Adding the cogs to the bot
 if __name__ == '__main__':
     for extension in initial_extensions:
         try:
-            bot.load_extension(extension)
+            bot.load_extension(f"cogs.{extension}")
         except Exception as e:
             BugLog.startupError(f"Failed to load extention {extension}", e)
 
@@ -132,9 +146,11 @@ if __name__ == '__main__':
 @bot.event
 async def on_ready():
     print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}'
-          + '\nVersion: {discord.__version__}\n')
+          + f'\nVersion: {discord.__version__}\n')
     await BugLog.onReady(bot, config["Settings"]["botlog"])
     await bot.change_presence(game=discord.Game(name='BugHunters',
                                                 type=3))
 
 bot.run(config['Credentials']['Token'], bot=True)
+
+time.sleep(5)
