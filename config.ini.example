@@ -11,3 +11,6 @@ database =
 ; Set the prefix which the bot should listen to for its commands
 prefix = !
 botlog =
+
+[Events]
+scoreboardChannel =

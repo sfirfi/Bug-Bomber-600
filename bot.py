@@ -31,16 +31,18 @@ connection = Database.SQLDB(host=config['Credentials']['host'],
 #TODO: wrap in try catch
 with open('db-setup.sql', 'r') as inserts:
     for statement in inserts:
-        connection.query(statement)
+        #connection.query(statement)
+        pass
 
 
 # Preparing the cogs
-initial_extensions = ['cogs.moderation',
-                      'cogs.modlog',
-                      'cogs.serverutils',
-                      'cogs.fun',
-                      'cogs.reminder',
-                      'cogs.maintenance']
+initial_extensions = ['moderation',
+                      'modlog',
+                      'serverutils',
+                      'fun',
+                      'reminder',
+                      'maintenance',
+                      "events"]
 
 
 
@@ -49,6 +51,8 @@ bot = commands.Bot(command_prefix=config['Settings']['prefix'],
                    description='A Bot which watches Bug Hunters')
 
 bot.DBC = connection
+bot.config = config
+
 
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
@@ -128,45 +132,12 @@ async def on_error(event, *args, **kwargs):
         BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}", ex)
 
 
-positiveID = 0
-negativeID = 0
-@bot.event
-async def on_message(message:discord.Message):
-    if message.channel.id == 414716941131841549:
-        positive = None
-
-        negative = None
-
-        for emoji in message.guild.emoji:
-            if emoji.id == positiveID:
-                positive = emoji
-            elif emoji.id == negativeID:
-                negative = emoji
-
-        await message.add_reaction(positive)
-        await message.add_reaction(negative)
-    await bot.process_commands(message)
-
-@bot.event
-async def on_raw_reaction_add(emoji:discord.PartialEmoji, message_id, channel_id, user_id):
-    message:discord.Message = await bot.get_channel(channel_id).get_message(message_id)
-    positiveCount = 0
-    negativeCount = 0
-    for reaction in message.reactions:
-        if reaction.emoji.id == positiveID:
-            positiveCount = reaction.count
-        elif reaction.emoji.id == negativeID:
-            negativeCount = reaction.count
-    if positiveCount > 5:
-        FunCog.fights.append(message.content)
-        await message.delete()
-    pass
-
+            
 # Adding the cogs to the bot
 if __name__ == '__main__':
     for extension in initial_extensions:
         try:
-            bot.load_extension(extension)
+            bot.load_extension(f"cogs.{extension}")
         except Exception as e:
             BugLog.startupError(f"Failed to load extention {extension}", e)
 
@@ -174,9 +145,11 @@ if __name__ == '__main__':
 @bot.event
 async def on_ready():
     print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}'
-          + '\nVersion: {discord.__version__}\n')
+          + f'\nVersion: {discord.__version__}\n')
     await BugLog.onReady(bot, config["Settings"]["botlog"])
     await bot.change_presence(game=discord.Game(name='BugHunters',
                                                 type=3))
 
 bot.run(config['Credentials']['Token'], bot=True)
+
+time.sleep(5)

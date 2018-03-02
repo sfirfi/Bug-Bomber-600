@@ -75,5 +75,5 @@ def formatPermission(permission):
 
 def owner_only():
     async def predicate(ctx):
-        return ctx.bot.is_owner(ctx.author)
+        return await ctx.bot.is_owner(ctx.author)
     return commands.check(predicate)

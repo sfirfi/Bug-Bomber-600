@@ -66,3 +66,6 @@ class SQLDB:
     def fetch_columns(self):
         res = self.cursor.description
         return res
+
+    def escape(self, text):
+        return self.connection.escape_string(text)
