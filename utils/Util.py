@@ -1,4 +1,8 @@
 import json
+import aiohttp
+import asyncio
+import async_timeout
+import datetime
 
 from discord.ext import commands
 
@@ -36,4 +40,17 @@ def convertToSeconds(value: int, type: str):
         raise commands.BadArgument(f"Invalid duration: `{type}`\nValid identifiers: week(s), day(s), hour(s), minute(s), second(s)")
     else:
         return value
+
+async def fetchFromWeb(session, url):
+    async with async_timeout.timeout(10):
+        async with session.get(url) as response:
+            return await response.text()
+
+async def grepJsonFromWeb(url):
+    async with aiohttp.ClientSession() as session:
+        content = await fetchFromWeb(session, url)
+        return json.loads(content)
+
+def chop_microseconds(delta):
+    return delta - datetime.timedelta(microseconds=delta.microseconds)
 

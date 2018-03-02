@@ -11,7 +11,11 @@ from utils import permissions, BugLog
 from utils.Database import SQLDB
 from utils import Util
 
+import configparser
+
 class FunCog:
+    config = configparser.ConfigParser()
+    config.read('config.ini')
     hugs = []
     fights = []
     async def __local_check(self, ctx: commands.Context):
@@ -19,7 +23,7 @@ class FunCog:
 
     @commands.command()
     @commands.guild_only()
-    @commands.cooldown(1, 1.5 * 60, BucketType.user)
+    @commands.cooldown(1, config['Cooldowns']['hug'], BucketType.user)
     async def hug(self, ctx: commands.Context, friend: discord.Member):
         """Hugs a Person"""
         if friend == ctx.author:
@@ -32,7 +36,7 @@ class FunCog:
 
     @commands.command()
     @commands.guild_only()
-    @commands.cooldown(1, 1.5 * 60, BucketType.user)
+    @commands.cooldown(1, config['Cooldowns']['fight'], BucketType.user)
     async def fight(self, ctx: commands.Context, victim: discord.Member):
         """Fights a Person"""
         if victim == ctx.author:
@@ -41,18 +45,18 @@ class FunCog:
         elif victim == self.bot.user:
             await ctx.send("You sure you want to do that? <:GhoulBan:417535190051586058>")
         else:
-            await ctx.send(FunCog.fights[random.randint(0, len(FunCog.fights)-1)].format(victim.mention, ctx.author.mention))
+            await ctx.send(FunCog.fights[random.randint(0, len(FunCog.fights)-1)].format(victim.mention, ctx.author.name))
 
     @commands.command()
     @commands.guild_only()
-    @commands.cooldown(1, 1 * 60, BucketType.user)
+    @commands.cooldown(1, config['Cooldowns']['pet'], BucketType.user)
     async def pet(self, ctx: commands.Context, friend: discord.Member):
         """Pets a person"""
         if friend == ctx.author:
             await ctx.send("Petting yourself, how would you even do that?")
             ctx.command.reset_cooldown(ctx)
         else:
-            await ctx.send("{0}: {1} pets you".format(friend.mention, ctx.author.mention))
+            await ctx.send("{0}: {1} pets you".format(friend.mention, ctx.author.name))
 
     @commands.command()
     @commands.guild_only()
@@ -77,9 +81,31 @@ class FunCog:
             else:
                 await ctx.send(f"{member.name} is already a member of this server, do the ping youself, lazy humans")
 
+    @commands.command()
+    @commands.cooldown(1,config['Cooldowns']['cat'] , BucketType.user)
+    async def cat(self, ctx: commands.Context):
+        """Sends a cat image"""
+        img = await Util.grepJsonFromWeb('http://random.cat/meow')
+        embed = discord.Embed(color=0x3dede6)
+        embed.set_image(url=img['file'])
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.cooldown(1, config['Cooldowns']['dog'], BucketType.user)
+    async def dog(self, ctx: commands.Context):
+        """Sends a dog image"""
+        img = await Util.grepJsonFromWeb('https://random.dog/woof.json')
+        embed = discord.Embed(color=0x136955)
+        if img['url'].endswith('mp4'):
+           await ctx.send(img['url'])
+        else:
+            embed.set_image(url=img['url'])
+            await ctx.send(embed=embed)
+
     def __init__(self, bot):
         self.bot = bot
         conn: SQLDB = self.bot.DBC
+        config = bot.config
         #loading hugs
         conn.query("SELECT * FROM hugs")
         hugs = conn.fetch_rows()
@@ -96,7 +122,7 @@ class FunCog:
         #loading fights
         conn.query("SELECT * FROM fights")
         fights = conn.fetch_rows()
-        FunCog.hugs = []
+        FunCog.fights = []
         for fight in fights:
             FunCog.fights.append(fight["fight"])
         if len(FunCog.fights) == 0:

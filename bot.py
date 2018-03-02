@@ -31,7 +31,7 @@ connection = Database.SQLDB(host=config['Credentials']['host'],
 #TODO: wrap in try catch
 with open('db-setup.sql', 'r') as inserts:
     for statement in inserts:
-        #connection.query(statement)
+        connection.query(statement)
         pass
 
 
@@ -52,6 +52,7 @@ bot = commands.Bot(command_prefix=config['Settings']['prefix'],
 
 bot.DBC = connection
 bot.config = config
+bot.starttime = datetime.datetime.now()
 
 
 @bot.event
@@ -132,7 +133,7 @@ async def on_error(event, *args, **kwargs):
         BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}", ex)
 
 
-            
+
 # Adding the cogs to the bot
 if __name__ == '__main__':
     for extension in initial_extensions:
