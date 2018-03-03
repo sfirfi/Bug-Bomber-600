@@ -22,7 +22,7 @@ def saveToDisk(filename, dict):
 
 def convertToSeconds(value: int, type: str):
     type = type.lower()
-    if type[-1:] == 's': # plural -> singular
+    if len(type) > 1 and type[-1:] == 's': # plural -> singular
         type = type[:-1]
     if type == 'w' or type == 'week':
         value = value * 7
