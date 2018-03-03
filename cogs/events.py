@@ -159,7 +159,7 @@ class EventsCog:
                     await BugLog.logToBotlog(message=f"New hug added: ```\n ID: {self.bot.DBC.connection.insert_id()}\nText: {content}\nAuthor: {message.author.name}#{message.author.discriminator}```")
                     FunCog.hugs.append(content)
                     try:
-                        await message.author.send(f"Congratulation, your hug sugestion ```{content}``` has been added to the list!")
+                        await message.author.send(f"Congratulation, your hug suggestion ```{content}``` has been added to the list!")
                     except Exception:
                         pass
                 elif message.channel.id == self.eventChannels["fightSubmissions"]["channel"]:
@@ -167,7 +167,7 @@ class EventsCog:
                     await BugLog.logToBotlog(message=f"New fight added: ```\n ID: {self.bot.DBC.connection.insert_id()}\nText: {content}\nAuthor: {message.author.name}#{message.author.discriminator}```")
                     FunCog.fights.append(content)
                     try:
-                        await message.author.send(f"Congratulation, your fight sugestion ```{content}``` has been added to the list!")
+                        await message.author.send(f"Congratulation, your fight suggestion ```{content}``` has been added to the list!")
                     except Exception:
                         pass
                 await self.updateScoreboard('Post Pick-Up Hug / Fight Strings!')
