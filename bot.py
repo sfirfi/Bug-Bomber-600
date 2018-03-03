@@ -31,7 +31,7 @@ connection = Database.SQLDB(host=config['Credentials']['host'],
 #TODO: wrap in try catch
 with open('db-setup.sql', 'r') as inserts:
     for statement in inserts:
-        connection.query(statement)
+        #connection.query(statement)
         pass
 
 

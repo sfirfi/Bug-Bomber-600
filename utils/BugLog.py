@@ -35,7 +35,7 @@ def error(message):
 
 def exception(message, error):
     logger.error(message)
-    traceback.format_tb(error.__traceback__)
+    logger.error(traceback.format_tb(error.__traceback__))
 
 
 # for errors during startup before the bot fully loaded and can't log to botlog yet
