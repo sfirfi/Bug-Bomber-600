@@ -116,6 +116,44 @@ class FunCog:
         embed.set_image(url=img)
         await ctx.send(embed=embed)
 
+    @commands.command()
+    @commands.cooldown(1, config['Cooldowns']['lizard'], BucketType.user)
+    async def lizard(self, ctx: commands.Context):
+        """Sends a lizard image"""
+        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/lizard')
+        embed = discord.Embed(color=0x198c19)
+        embed.set_image(url=img['url'])
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.cooldown(1, config['Cooldowns']['neko'], BucketType.user)
+    async def neko(self, ctx: commands.Context):
+        """Sends a catgirl image"""
+        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/neko')
+        embed = discord.Embed(color=0xffffff)
+        embed.set_image(url=img['url'])
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
+    async def ahug(self, ctx: commands.Context):
+        """Sends a anime hug image"""
+        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
+        embed = discord.Embed(color=0xe59400)
+        embed.set_image(url=img['url'])
+        await ctx.send(embed=embed)
+
+
+    @commands.command()
+    @commands.cooldown(1, config['Cooldowns']['pat'], BucketType.user)
+    async def pat(self, ctx: commands.Context):
+        """Sends a anime pat image"""
+        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/pat')
+        embed = discord.Embed(color=0x730073)
+        embed.set_image(url=img['url'])
+        await ctx.send(embed=embed)
+
+
     def __init__(self, bot):
         self.bot = bot
         conn: SQLDB = self.bot.DBC
