@@ -98,11 +98,23 @@ class FunCog:
         """Sends a dog image"""
         img = await Util.grepJsonFromWeb('http://random.dog/woof.json')
         embed = discord.Embed(color=0x136955)
-        if img['url'].endswith('mp4', 'webm'):
+        if img['url'].endswith(('mp4', 'webm')):
            await ctx.send(img['url'])
         else:
             embed.set_image(url=img['url'])
             await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.cooldown(1, config['Cooldowns']['fox'], BucketType.user)
+    async def fox(self, ctx: commands.Context):
+        """Sends a fox image"""
+        html = await Util.grepFromWeb('http://www.thedailyfox.org/random')
+        html = html.split('<img src="')
+        html = html[1].split('" alt="')
+        img = html[0]
+        embed = discord.Embed(color=0xa52a2a)
+        embed.set_image(url=img)
+        await ctx.send(embed=embed)
 
     def __init__(self, bot):
         self.bot = bot
