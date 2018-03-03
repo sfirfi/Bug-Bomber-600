@@ -51,6 +51,12 @@ async def grepJsonFromWeb(url):
         content = await fetchFromWeb(session, url)
         return json.loads(content)
 
+async def grepFromWeb(url):
+     async with aiohttp.ClientSession() as session:
+        content = await fetchFromWeb(session, url)
+        return content
+
+
 def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 

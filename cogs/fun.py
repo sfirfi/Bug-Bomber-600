@@ -85,18 +85,20 @@ class FunCog:
     @commands.cooldown(1,config['Cooldowns']['cat'] , BucketType.user)
     async def cat(self, ctx: commands.Context):
         """Sends a cat image"""
-        img = await Util.grepJsonFromWeb('http://random.cat/meow')
+        html = await Util.grepFromWeb('https://thecatapi.com/api/images/get?format=html')
+        html = html.split('src="')
+        img = html[1].replace('"></a>', '').replace('http', 'https')
         embed = discord.Embed(color=0x3dede6)
-        embed.set_image(url=img['file'])
+        embed.set_image(url=img)
         await ctx.send(embed=embed)
 
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['dog'], BucketType.user)
     async def dog(self, ctx: commands.Context):
         """Sends a dog image"""
-        img = await Util.grepJsonFromWeb('https://random.dog/woof.json')
+        img = await Util.grepJsonFromWeb('http://random.dog/woof.json')
         embed = discord.Embed(color=0x136955)
-        if img['url'].endswith('mp4'):
+        if img['url'].endswith('mp4', 'webm'):
            await ctx.send(img['url'])
         else:
             embed.set_image(url=img['url'])
