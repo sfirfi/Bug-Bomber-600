@@ -5,6 +5,7 @@ import json
 import discord
 import time
 from discord.ext import commands
+from collections import deque
 
 from cogs.fun import FunCog
 from utils import permissions, BugLog, Util
@@ -27,6 +28,7 @@ class EventsCog:
         bot.loop.create_task(eventsChecker(self))
         self.active = True
         self.processing = [] #stopDoubleVotes!
+        self.approved = deque(maxlen=20)
 
     def __unload(self):
         self.active = False #mark as terminated for the checking loop to terminate cleanly
@@ -153,7 +155,6 @@ class EventsCog:
                     else:
                         await message.remove_reaction(reaction.emoji, message.author)
                 if negativeCount > 3:
-
                     try:
                         await message.author.send(f"I'm sorry but the folowing submission has been denied:```\n{message.content}```")
                     except Exception as e:
@@ -161,9 +162,10 @@ class EventsCog:
                         pass
                     await message.delete()
                 elif positiveCount > 3:
+                    self.approved.append(message.id)
                     content = self.bot.DBC.escape(message.content)
                     eventID = self.events['Post Pick-Up Hug / Fight Strings!']["ID"]
-                    self.bot.DBC.query("UPDATE submissions SET points=1 WHERE event=%d AND user=%d AND message=%d" % (eventID, message.author.id, message.id))
+                    self.bot.DBC.query("UPDATE submissions SET points=1 WHERE event=%d AND message=%d" % (eventID, message.id))
                     if message.channel.id == self.eventChannels["hugSubmissions"]["channel"]:
                         self.bot.DBC.query('INSERT INTO hugs (hug, author) VALUES ("%s", "%d")' % (content, message.author.id))
                         await BugLog.logToBotlog(message=f"New hug added: ```\n ID: {self.bot.DBC.connection.insert_id()}\nText: {content}\nAuthor: {message.author.name}#{message.author.discriminator}```")
@@ -185,6 +187,9 @@ class EventsCog:
                 self.processing.remove(message_id)
 
     async def on_raw_message_delete(self, message_id, channel_id):
+        if message_id in self.approved:
+            BugLog.info("Caught a submision before it fell into the void!")
+            return
         self.bot.DBC.query(f"DELETE FROM submissions WHERE message = {message_id} AND points = 0")
         await self.updateScoreboard('Post Pick-Up Hug / Fight Strings!')
 
@@ -210,9 +215,8 @@ class EventsCog:
 
 
     async def updateScoreboard(self, event):
-        if not event in self.events:
-            return
-        self.bot.DBC.query('SELECT count(*) as score, user from submissions WHERE event = %d AND points > 0 GROUP BY user ORDER BY score DESC' % (self.events[event]["ID"]))
+        event = Event().realConvert(self.bot, event)
+        self.bot.DBC.query('SELECT count(*) as score, user from submissions WHERE event = %d AND points > 0 GROUP BY user ORDER BY score DESC' % (event["ID"]))
         originaltop = self.bot.DBC.fetch_rows()
         top = originaltop[:5]
         desc = ""
@@ -231,9 +235,9 @@ class EventsCog:
             count = count + 1
         if len(desc) == 0:
             desc = "No participants so far :disappointed: "
-        self.bot.DBC.query('SELECT count(*) as total from submissions WHERE event = %d' % (self.events[event]["ID"]))
+        self.bot.DBC.query('SELECT count(*) as total from submissions WHERE event = %d' % (event["ID"]))
         total = self.bot.DBC.fetch_onerow()["total"]
-        self.bot.DBC.query('SELECT count(*) as accepted from submissions WHERE event = %d AND points > 0' % (self.events[event]["ID"]))
+        self.bot.DBC.query('SELECT count(*) as accepted from submissions WHERE event = %d AND points > 0' % (event["ID"]))
         accepted = self.bot.DBC.fetch_onerow()["accepted"]
         embed = discord.Embed(title=f"{event} leaderboard", colour=discord.Colour(0xfe9d3d),
                               description=desc,
