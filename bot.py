@@ -44,8 +44,12 @@ initial_extensions = ['moderation',
                       'maintenance',
                       "events"]
 
+def prefix_callable(bot, msg):
+    user_id = bot.user.id
+    return [f'<@!{user_id}> ', f'<@{user_id}> ', config['Settings']['prefix']]
+
 # Preparing the bot
-bot = commands.Bot(command_prefix=[f'<@!{user_id}> ', f'<@{user_id}> ',config['Settings']['prefix']],
+bot = commands.Bot(command_prefix=prefix_callable,
                    description='A Bot which watches Bug Hunters')
 
 bot.DBC = connection
