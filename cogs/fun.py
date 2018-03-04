@@ -31,6 +31,7 @@ class FunCog:
             ctx.command.reset_cooldown(ctx)
         elif friend == self.bot.user:
             await ctx.send("Thanks for the hug!")
+            ctx.command.reset_cooldown(ctx)
         else:
             await ctx.send(FunCog.hugs[random.randint(0, len(FunCog.hugs)-1)].format(friend.mention, ctx.author.name))
 
@@ -44,19 +45,23 @@ class FunCog:
             ctx.command.reset_cooldown(ctx)
         elif victim == self.bot.user:
             await ctx.send("You sure you want to do that? <:GhoulBan:417535190051586058>")
+            ctx.command.reset_cooldown(ctx)
         else:
             await ctx.send(FunCog.fights[random.randint(0, len(FunCog.fights)-1)].format(victim.mention, ctx.author.name))
 
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['pet'], BucketType.user)
-    async def pet(self, ctx: commands.Context, friend: discord.Member):
+    async def pet(self, ctx: commands.Context, pet: discord.Member):
         """Pets a person"""
-        if friend == ctx.author:
+        if pet == ctx.author:
             await ctx.send("Petting yourself, how would you even do that?")
             ctx.command.reset_cooldown(ctx)
+        elif pet == self.bot.user:
+            await ctx.send("<a:typing:393881558169288716>")
+            ctx.command.reset_cooldown(ctx)
         else:
-            await ctx.send("{0}: {1} pets you".format(friend.mention, ctx.author.name))
+            await ctx.send("{0}: {1} pets you".format(pet.mention, ctx.author.name))
 
     @commands.command()
     @commands.guild_only()
