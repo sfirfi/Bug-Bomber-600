@@ -243,7 +243,7 @@ class EventsCog:
         total = self.bot.DBC.fetch_onerow()["total"]
         self.bot.DBC.query('SELECT count(*) as accepted from submissions WHERE event = %d AND points > 0' % (event["ID"]))
         accepted = self.bot.DBC.fetch_onerow()["accepted"]
-        embed = discord.Embed(title=f"{event} leaderboard", colour=discord.Colour(0xfe9d3d),
+        embed = discord.Embed(title=f"{event['name']} leaderboard", colour=discord.Colour(0xfe9d3d),
                               description=desc,
                               timestamp=datetime.datetime.utcfromtimestamp(time.time()))
         footer = "This event is in progress"
