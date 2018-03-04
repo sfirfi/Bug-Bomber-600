@@ -44,10 +44,8 @@ initial_extensions = ['moderation',
                       'maintenance',
                       "events"]
 
-
-
 # Preparing the bot
-bot = commands.Bot(command_prefix=config['Settings']['prefix'],
+bot = commands.Bot(command_prefix=[f'<@!{user_id}> ', f'<@{user_id}> ',config['Settings']['prefix']],
                    description='A Bot which watches Bug Hunters')
 
 bot.DBC = connection
