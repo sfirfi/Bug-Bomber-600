@@ -142,7 +142,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
     async def ahug(self, ctx: commands.Context):
-        """Sends a anime hug image"""
+        """Sends an anime hug image"""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
         embed = discord.Embed(color=0xe59400)
         embed.set_image(url=img['url'])
@@ -152,7 +152,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['pat'], BucketType.user)
     async def pat(self, ctx: commands.Context):
-        """Sends a anime pat image"""
+        """Sends an anime pat image"""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/pat')
         embed = discord.Embed(color=0x730073)
         embed.set_image(url=img['url'])
