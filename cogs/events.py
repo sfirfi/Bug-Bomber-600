@@ -95,6 +95,10 @@ class EventsCog:
         self.bot.DBC.query("INSERT INTO eventchannels (channel, event, type, name) VALUES (%d, %d, %d, '%s')" % (channel.id, event["ID"], type, codename))
         await ctx.send("Channel assigned")
 
+    @eventCommand.command()
+    async def updateBoard(self, ctx: commands.Context, event: Event):
+        await self.updateScoreboard(event["ID"])
+
     positiveID = 418865687365287956
     negativeID = 418865725449437205
 
@@ -243,21 +247,21 @@ class EventsCog:
                               description=desc,
                               timestamp=datetime.datetime.utcfromtimestamp(time.time()))
         footer = "This event is in progress"
-        if time.time() > self.events[event]["closingTime"]:
+        if time.time() > event["closingTime"]:
             footer = "Submissions are now closed but you can still vote"
-        if self.events[event]["ended"] == 1:
+        if event["ended"] == 1:
             footer = "This event has ended"
         embed.set_footer(text=footer)
         embed.add_field(name="Total submissions", value=total)
         embed.add_field(name="Approved", value=accepted)
-        if self.events[event]["leaderboard"] is None:
+        if event["leaderboard"] is None:
             message = await self.bot.get_channel(int(self.bot.config["Events"]["scoreboardChannel"])).send(embed=embed)
             self.bot.DBC.query(
                 'UPDATE events SET leaderboard=%d WHERE ID = %d' % (
-                message.id, self.events[event]["ID"]))
-            self.events[event]["leaderboard"] = message.id
+                message.id, event["ID"]))
+            event["leaderboard"] = message.id
         else:
-            message:discord.Message = await self.bot.get_channel(int(self.bot.config["Events"]["scoreboardChannel"])).get_message(self.events[event]["leaderboard"])
+            message:discord.Message = await self.bot.get_channel(int(self.bot.config["Events"]["scoreboardChannel"])).get_message(event["leaderboard"])
             await message.edit(embed=embed)
 
 
