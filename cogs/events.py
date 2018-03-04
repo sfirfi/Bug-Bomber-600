@@ -26,6 +26,7 @@ class EventsCog:
                 self.eventChannels[name] = c
         bot.loop.create_task(eventsChecker(self))
         self.active = True
+        self.processing = [] #stopDoubleVotes!
 
     def __unload(self):
         self.active = False #mark as terminated for the checking loop to terminate cleanly
@@ -121,57 +122,67 @@ class EventsCog:
                 await self.updateScoreboard('Post Pick-Up Hug / Fight Strings!')
 
     async def on_raw_reaction_add(self, emoji: discord.PartialEmoji, message_id, channel_id, user_id):
-        message: discord.Message = await self.bot.get_channel(channel_id).get_message(message_id)
-        if "Post Pick-Up Hug / Fight Strings!" in self.events and (message.channel.id == self.eventChannels["hugSubmissions"]["channel"] or message.channel.id == self.eventChannels["fightSubmissions"]["channel"]):
-            positiveCount = 0
-            negativeCount = 0
-            for reaction in message.reactions:
-                async for user in reaction.users():
-                    if user == message.author:
+        while message_id in self.processing:
+            await asyncio.sleep(1)
+        self.processing.append(message_id)
+        try:
+            message: discord.Message = await self.bot.get_channel(channel_id).get_message(message_id)
+        except discord.NotFound:
+            #already processed
+            pass
+        else:
+            if "Post Pick-Up Hug / Fight Strings!" in self.events and (message.channel.id == self.eventChannels["hugSubmissions"]["channel"] or message.channel.id == self.eventChannels["fightSubmissions"]["channel"]):
+                positiveCount = 0
+                negativeCount = 0
+                for reaction in message.reactions:
+                    async for user in reaction.users():
+                        if user == message.author:
+                            await message.remove_reaction(reaction.emoji, message.author)
+                            reply = await message.channel.send(f"Voting on your own submission is not allowed {message.author.mention}!")
+                            await asyncio.sleep(10)
+                            await reply.delete()
+                        if 396322114208137217 in message.author.roles:
+                            await message.remove_reaction(reaction.emoji, message.author)
+                            reply = await message.channel.send(f"Test dummies are not allowed to vote {message.author.mention}!")
+                            await asyncio.sleep(10)
+                            await reply.delete()
+                    if not isinstance(reaction.emoji, str) and reaction.emoji.id == self.positiveID:
+                        positiveCount = reaction.count
+                    elif not isinstance(reaction.emoji, str) and reaction.emoji.id == self.negativeID:
+                        negativeCount = reaction.count
+                    else:
                         await message.remove_reaction(reaction.emoji, message.author)
-                        reply = await message.channel.send(f"Voting on your own submission is not allowed {message.author.mention}!")
-                        await asyncio.sleep(10)
-                        await reply.delete()
-                    if 396322114208137217 in message.author.roles:
-                        await message.remove_reaction(reaction.emoji, message.author)
-                        reply = await message.channel.send(f"Test dummies are not allowed to vote {message.author.mention}!")
-                        await asyncio.sleep(10)
-                        await reply.delete()
-                if reaction.emoji.id == self.positiveID:
-                    positiveCount = reaction.count
-                elif reaction.emoji.id == self.negativeID:
-                    negativeCount = reaction.count
-                else:
-                    await message.remove_reaction(reaction.emoji, message.author)
-            if negativeCount > 3:
-                try:
-                    await message.author.send(f"I'm sorry but the folowing submission has been denied:```\n{message.content}```")
-                except Exception as e:
-                    #user probably doesn't allow DMs
-                    pass
-                await message.delete()
-            elif positiveCount > 3:
-                content = self.bot.DBC.escape(message.content)
-                eventID = self.events['Post Pick-Up Hug / Fight Strings!']["ID"]
-                self.bot.DBC.query("UPDATE submissions SET points=1 WHERE event=%d AND user=%d AND message=%d" % (eventID, message.author.id, message.id))
-                if message.channel.id == self.eventChannels["hugSubmissions"]["channel"]:
-                    self.bot.DBC.query('INSERT INTO hugs (hug, author) VALUES ("%s", "%d")' % (content, message.author.id))
-                    await BugLog.logToBotlog(message=f"New hug added: ```\n ID: {self.bot.DBC.connection.insert_id()}\nText: {content}\nAuthor: {message.author.name}#{message.author.discriminator}```")
-                    FunCog.hugs.append(content)
+                if negativeCount > 3:
+
                     try:
-                        await message.author.send(f"Congratulation, your hug suggestion ```{content}``` has been added to the list!")
-                    except Exception:
+                        await message.author.send(f"I'm sorry but the folowing submission has been denied:```\n{message.content}```")
+                    except Exception as e:
+                        #user probably doesn't allow DMs
                         pass
-                elif message.channel.id == self.eventChannels["fightSubmissions"]["channel"]:
-                    self.bot.DBC.query('INSERT INTO fights (fight, author) VALUES ("%s", "%d")' % (content, message.author.id))
-                    await BugLog.logToBotlog(message=f"New fight added: ```\n ID: {self.bot.DBC.connection.insert_id()}\nText: {content}\nAuthor: {message.author.name}#{message.author.discriminator}```")
-                    FunCog.fights.append(content)
-                    try:
-                        await message.author.send(f"Congratulation, your fight suggestion ```{content}``` has been added to the list!")
-                    except Exception:
-                        pass
-                await self.updateScoreboard('Post Pick-Up Hug / Fight Strings!')
-                await message.delete()
+                    await message.delete()
+                elif positiveCount > 3:
+                    content = self.bot.DBC.escape(message.content)
+                    eventID = self.events['Post Pick-Up Hug / Fight Strings!']["ID"]
+                    self.bot.DBC.query("UPDATE submissions SET points=1 WHERE event=%d AND user=%d AND message=%d" % (eventID, message.author.id, message.id))
+                    if message.channel.id == self.eventChannels["hugSubmissions"]["channel"]:
+                        self.bot.DBC.query('INSERT INTO hugs (hug, author) VALUES ("%s", "%d")' % (content, message.author.id))
+                        await BugLog.logToBotlog(message=f"New hug added: ```\n ID: {self.bot.DBC.connection.insert_id()}\nText: {content}\nAuthor: {message.author.name}#{message.author.discriminator}```")
+                        FunCog.hugs.append(content)
+                        try:
+                            await message.author.send(f"Congratulation, your hug suggestion ```{content}``` has been added to the list!")
+                        except Exception:
+                            pass
+                    elif message.channel.id == self.eventChannels["fightSubmissions"]["channel"]:
+                        self.bot.DBC.query('INSERT INTO fights (fight, author) VALUES ("%s", "%d")' % (content, message.author.id))
+                        await BugLog.logToBotlog(message=f"New fight added: ```\n ID: {self.bot.DBC.connection.insert_id()}\nText: {content}\nAuthor: {message.author.name}#{message.author.discriminator}```")
+                        FunCog.fights.append(content)
+                        try:
+                            await message.author.send(f"Congratulation, your fight suggestion ```{content}``` has been added to the list!")
+                        except Exception:
+                            pass
+                    await self.updateScoreboard('Post Pick-Up Hug / Fight Strings!')
+                    await message.delete()
+                self.processing.remove(message_id)
 
     async def on_raw_message_delete(self, message_id, channel_id):
         self.bot.DBC.query(f"DELETE FROM submissions WHERE message = {message_id} AND points = 0")
@@ -199,6 +210,8 @@ class EventsCog:
 
 
     async def updateScoreboard(self, event):
+        if not event in self.events:
+            return
         self.bot.DBC.query('SELECT count(*) as score, user from submissions WHERE event = %d AND points > 0 GROUP BY user ORDER BY score DESC' % (self.events[event]["ID"]))
         originaltop = self.bot.DBC.fetch_rows()
         top = originaltop[:5]
