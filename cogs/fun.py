@@ -25,7 +25,7 @@ class FunCog:
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['hug'], BucketType.user)
     async def hug(self, ctx: commands.Context, friend: discord.Member):
-        """Hugs a Person"""
+        """Hugs a person."""
         if friend == ctx.author:
             await ctx.send("You must be realy lonely if you need to hug yourself, have one from me instead!")
             ctx.command.reset_cooldown(ctx)
@@ -39,7 +39,7 @@ class FunCog:
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['fight'], BucketType.user)
     async def fight(self, ctx: commands.Context, victim: discord.Member):
-        """Fights a Person"""
+        """Fights a person."""
         if victim == ctx.author:
             await ctx.send("How would you even do that?")
             ctx.command.reset_cooldown(ctx)
@@ -53,7 +53,7 @@ class FunCog:
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['pet'], BucketType.user)
     async def pet(self, ctx: commands.Context, pet: discord.Member):
-        """Pets a person"""
+        """Pets a person."""
         if pet == ctx.author:
             await ctx.send("Petting yourself, how would you even do that?")
             ctx.command.reset_cooldown(ctx)
@@ -66,11 +66,11 @@ class FunCog:
     @commands.command()
     @commands.guild_only()
     async def summon(self, ctx, *, target: str):
-        """Summons a person"""
+        """Summons a person."""
         try:
             member = await commands.MemberConverter().convert(ctx, target)
         except BadArgument as ex:
-            await ctx.send(f"**I have summoned the one known as {target}!**")
+            await ctx.send("**I have summoned the one known as {target}!**")
             await asyncio.sleep(5)
             await ctx.send("Be prepared as there is no stopping this summoning!")
             await asyncio.sleep(5)
@@ -89,7 +89,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1,config['Cooldowns']['cat'] , BucketType.user)
     async def cat(self, ctx: commands.Context):
-        """Sends a cat image"""
+        """Sends a cat image."""
         html = await Util.grepFromWeb('https://thecatapi.com/api/images/get?format=html')
         html = html.split('src="')
         img = html[1].replace('"></a>', '').replace('http', 'https')
@@ -100,7 +100,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['dog'], BucketType.user)
     async def dog(self, ctx: commands.Context):
-        """Sends a dog image"""
+        """Sends a dog image."""
         img = await Util.grepJsonFromWeb('http://random.dog/woof.json')
         embed = discord.Embed(color=0x136955)
         if img['url'].endswith(('mp4', 'webm')):
@@ -112,7 +112,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['fox'], BucketType.user)
     async def fox(self, ctx: commands.Context):
-        """Sends a fox image"""
+        """Sends a fox image."""
         html = await Util.grepFromWeb('http://www.thedailyfox.org/random')
         html = html.split('<img src="')
         html = html[1].split('" alt="')
@@ -124,7 +124,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['lizard'], BucketType.user)
     async def lizard(self, ctx: commands.Context):
-        """Sends a lizard image"""
+        """Sends a lizard image."""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/lizard')
         embed = discord.Embed(color=0x198c19)
         embed.set_image(url=img['url'])
@@ -133,7 +133,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['neko'], BucketType.user)
     async def neko(self, ctx: commands.Context):
-        """Sends a catgirl image"""
+        """Sends a catgirl image."""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/neko')
         embed = discord.Embed(color=0xffffff)
         embed.set_image(url=img['url'])
@@ -142,7 +142,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
     async def ahug(self, ctx: commands.Context):
-        """Sends an anime hug image"""
+        """Sends an anime hug gif."""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
         embed = discord.Embed(color=0xe59400)
         embed.set_image(url=img['url'])
@@ -152,7 +152,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['pat'], BucketType.user)
     async def pat(self, ctx: commands.Context):
-        """Sends an anime pat image"""
+        """Sends an anime pat gif."""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/pat')
         embed = discord.Embed(color=0x730073)
         embed.set_image(url=img['url'])

@@ -50,7 +50,7 @@ def prefix_callable(bot, msg):
 
 # Preparing the bot
 bot = commands.Bot(command_prefix=prefix_callable,
-                   description='A Bot which watches Bug Hunters')
+                   description='A bot who watches Bug Hunters')
 
 bot.DBC = connection
 bot.config = config
