@@ -99,8 +99,8 @@ class EventsCog:
     async def updateBoard(self, ctx: commands.Context, event: Event):
         await self.updateScoreboard(event["ID"])
 
-    positiveID = 418865687365287956
-    negativeID = 418865725449437205
+    positiveID = 420578888947859457
+    negativeID = 420578888947859457
 
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:

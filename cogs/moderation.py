@@ -80,6 +80,14 @@ class ModerationCog:
         """Removes the given permission from the role"""
         await ctx.send(permissions.rmvPermission(ctx, role, permission))
 
+    @commands.group(name='announcehelp', aliases=['announce'])
+    async def perms(self, ctx:commands.Context):
+        """Creates an announcement!"""
+        if ctx.invoked_subcommand is None:
+            permshelp = "`announcehelp` - Shows this help text"
+            embed = discord.Embed(title='Announcements help', color=0x7c519f)
+            embed.add_field(name='\u200b', value=permshelp, inline=True)
+            await ctx.send(embed=embed)
 
 
 def setup(bot):
