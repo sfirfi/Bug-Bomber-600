@@ -5,9 +5,6 @@ from utils import permissions
 
 
 class ModerationCog:
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    announce = []
     """This cog includes the mod utils like ban, kick, mute, warn, etc"""
     def __init__(self, bot):
         self.bot = bot
@@ -83,22 +80,12 @@ class ModerationCog:
         """Removes the given permission from the role."""
         await ctx.send(permissions.rmvPermission(ctx, role, permission))
 
-    @commands.group(name='announcehelp', aliases=['announce'])
-    async def announcement(self, ctx:commands.Context):
-        """Shows announcement help"""
-        if ctx.invoked_subcommand is None:
-            permshelp = "`announcehelp` - Shows this help text." \
-                        "\n\n`announce` - Creates an announcement."
-            embed = discord.Embed(title='Announcements', color=0x7c519f)
-            embed.add_field(name='\u200b', value=permshelp, inline=True)
-            await ctx.send(embed=embed)
-            
-   ## @commands.group(name='announce', aliases=['announcing'])
-   ## async def announce(self, ctx, target: str):
-     ##   """Announces."""
-    ##    try channel = client.get_channel(420586792467693589)
-     ##       await message.channel.send("{target}")   
-     ##   if perms == '':
-     ##       perms = "This role doesn't has any permissions."
+    @commands.command()
+    async def announce(self, ctx: commands.Context, text: str):
+        """Announces the given text in the set announcement channel."""
+        channel = ctx.bot.get_channel(str(ctx.bot.config['Settings']['announce']))
+        await ctx.send(channel.name)
+        await channel.send(text)
+           
 def setup(bot):
     bot.add_cog(ModerationCog(bot))

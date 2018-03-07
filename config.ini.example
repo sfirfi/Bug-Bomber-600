@@ -11,6 +11,7 @@ database =
 ; Set the prefix which the bot should listen to for its commands
 prefix = !
 botlog =
+announce = <channel ID of the announcements.>
 
 [Events]
 scoreboardChannel =
@@ -26,6 +27,3 @@ lizard =
 neko =
 ahug =
 pat =
-
-[Announcements]
-announce = 
