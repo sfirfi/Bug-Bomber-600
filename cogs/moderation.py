@@ -81,11 +81,14 @@ class ModerationCog:
         await ctx.send(permissions.rmvPermission(ctx, role, permission))
 
     @commands.command()
-    async def announce(self, ctx: commands.Context, text: str):
+    async def announce(self, ctx: commands.Context):
         """Announces the given text in the set announcement channel."""
-        channel = ctx.bot.get_channel(str(ctx.bot.config['Settings']['announce']))
-        await ctx.send(channel.name)
-        await channel.send(text)
-           
+        channel = ctx.bot.get_channel(int(ctx.bot.config['Settings']['announce']))
+        message = ctx.message.content.replace(f"{ctx.prefix}announce", "").strip()
+        if(message != ""):
+            await channel.send(message)
+        else:
+            await ctx.send("You need to give me a message that i can announce.")
+
 def setup(bot):
     bot.add_cog(ModerationCog(bot))
