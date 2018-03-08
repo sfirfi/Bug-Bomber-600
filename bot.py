@@ -31,7 +31,7 @@ connection = Database.SQLDB(host=config['Credentials']['host'],
 #TODO: wrap in try catch
 with open('db-setup.sql', 'r') as inserts:
     for statement in inserts:
-        #connection.query(statement)
+        connection.query(statement)
         pass
 
 
@@ -50,7 +50,7 @@ def prefix_callable(bot, msg):
 
 # Preparing the bot
 bot = commands.Bot(command_prefix=prefix_callable,
-                   description='A Bot which watches Bug Hunters')
+                   description='A bot who watches Bug Hunters')
 
 bot.DBC = connection
 bot.config = config
