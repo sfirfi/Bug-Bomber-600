@@ -42,7 +42,7 @@ initial_extensions = ['moderation',
                       'fun',
                       'reminder',
                       'maintenance',
-                      "events"]
+                      'events']
 
 def prefix_callable(bot, msg):
     user_id = bot.user.id

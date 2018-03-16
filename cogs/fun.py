@@ -21,7 +21,7 @@ class FunCog:
     async def __local_check(self, ctx: commands.Context):
         return await permissions.hasPermission(ctx, "fun")
 
-    @commands.command()
+    @commands.command(name='hug', aliases=['huh','hugh'])
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['hug'], BucketType.user)
     async def hug(self, ctx: commands.Context, friend: discord.Member):

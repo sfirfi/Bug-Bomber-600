@@ -1,5 +1,6 @@
 import discord
 import time
+import math
 from discord.ext import commands
 from utils import permissions
 
@@ -15,15 +16,27 @@ class ModerationCog:
     @commands.command()
     async def roles(selfs, ctx:commands.Context):
         """Shows all roles of the server and their IDs"""
+        rolesPerPage = 3
         roles = ""
         ids = ""
-        for role in ctx.guild.roles:
-            roles += f"<@&{role.id}>\n\n"
-            ids += str(role.id) + "\n\n"
+        pages = math.ceil(len(ctx.guild.roles)/rolesPerPage)
+        page = ctx.message.content.replace(f"{ctx.prefix}roles","").strip()
+        if page == "" or not page.isdigit():
+            page = 1
+        elif int(page) <=1 or int(page) > pages:
+            page = 1
+        for i in range(rolesPerPage*(int(page)-1),rolesPerPage*int(page)):
+            if i < len(ctx.guild.roles)-1:
+                role = ctx.guild.roles[i]
+                roles += f"<@&{role.id}>\n\n"
+                ids += str(role.id) + "\n\n"
+            else:
+                break
         embed = discord.Embed(title=ctx.guild.name + " roles", color=0x54d5ff)
         embed.add_field(name="\u200b", value=roles, inline=True)
         embed.add_field(name="\u200b", value=ids, inline=True)
-        await ctx.send(ctx.channel, embed=embed)
+        embed.set_footer(text=f"Page {page} of {pages}")
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
