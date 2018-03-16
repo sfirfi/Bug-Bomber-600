@@ -16,7 +16,7 @@ class ModerationCog:
     @commands.command()
     async def roles(selfs, ctx:commands.Context):
         """Shows all roles of the server and their IDs"""
-        rolesPerPage = 3
+        rolesPerPage = 20
         roles = ""
         ids = ""
         pages = math.ceil(len(ctx.guild.roles)/rolesPerPage)
