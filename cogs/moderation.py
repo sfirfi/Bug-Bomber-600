@@ -94,21 +94,20 @@ class ModerationCog:
     async def kick(self, ctx, user: discord.User, reason: str):
         """Kicks an user from the server."""
         await ctx.guild.kick(user, reason=reason)
-        await ctx.send(":ok_hand: This user has been kicked!")
-
+        await ctx.send(":ok_hand: {0.name} ({0.id}) has been kicked!".format(user))
+		
     @commands.command()
     async def ban(self, ctx, user: discord.User, reason: str):
         """Bans an user from the server."""
         await ctx.guild.ban(user, reason=reason)
-        await ctx.send(":ok_hand: This user has been banned!")
+        await ctx.send(":ok_hand: {0.name} ({0.id}) has been banned!".format(user))
 
-   ### @commands.command()
-   # async def unban(self, ctx, user: discord.User, reason: str):
-     #   """Unbans an user from the server."""
-      #  await ctx.guild.unban(user, reason=reason)
-      #  await ctx.send(":ok_hand: This user has been unbanned.")###
-
-     #Currently does not work at the moment, as it is under progress. 
+    @commands.command()
+    async def unban(self, ctx, user: discord.User, reason: str):
+        """Unbans an user from the server."""
+        await ctx.guild.unban(user, reason=reason)
+        await ctx.send(":ok_hand: {0.name} ({0.id}) has been unbanned.".format(user))
+		#This will only work if the user is cached, i'm working on a version that grabs from ban list.
    
 def setup(bot):
     bot.add_cog(ModerationCog(bot))
