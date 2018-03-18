@@ -95,7 +95,20 @@ class ModerationCog:
         """Kicks an user from the server."""
         await ctx.guild.kick(user, reason=reason)
         await ctx.send(":ok_hand: This user has been kicked!")
-         
+
+    @commands.command()
+    async def ban(self, ctx, user: discord.User, reason: str):
+        """Bans an user from the server."""
+        await ctx.guild.ban(user, reason=reason)
+        await ctx.send(":ok_hand: This user has been banned!")
+
+   ### @commands.command()
+   # async def unban(self, ctx, user: discord.User, reason: str):
+     #   """Unbans an user from the server."""
+      #  await ctx.guild.unban(user, reason=reason)
+      #  await ctx.send(":ok_hand: This user has been unbanned.")###
+
+     #Currently does not work at the moment, as it is under progress. 
    
 def setup(bot):
     bot.add_cog(ModerationCog(bot))
