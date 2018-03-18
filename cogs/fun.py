@@ -141,10 +141,13 @@ class FunCog:
 
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
-    async def ahug(self, ctx: commands.Context):
+    async def ahug(self, ctx: commands.Context, member: discord.Member = None):
         """Sends an anime hug gif."""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
         embed = discord.Embed(color=0xe59400)
+        if member is not None:
+            embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b") 
+
         embed.set_image(url=img['url'])
         await ctx.send(embed=embed)
 
