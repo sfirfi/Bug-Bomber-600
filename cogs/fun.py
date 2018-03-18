@@ -162,7 +162,7 @@ class FunCog:
         if message.author == self.bot.user:
             return
         if self.bot.user in message.mentions and (":point_left:" in message.content or ":point_right:" in message.content or 'poke' in message.content):
-            muted = await commands.RoleConverter().convert("<RoleID>")
+            muted = discord.utils.get(message.guild.roles, id=<Put Muted Role ID>)
             await message.author.add_roles(muted)
             await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked")
             await asyncio.sleep(2)
