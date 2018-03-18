@@ -91,9 +91,9 @@ class ModerationCog:
             await ctx.send("You need to give me a message that I can announce.")
  
     @commands.command()
-    async def kick(self, ctx, user: discord.Member, reason: str):
+    async def kick(self, ctx, user: discord.User, reason: str):
         """Kicks an user from the server."""
-        await ctx.guild.kick(user, reason)
+        await ctx.guild.kick(user, reason=reason)
         await ctx.send(":ok_hand: This user has been kicked!")
          
    
