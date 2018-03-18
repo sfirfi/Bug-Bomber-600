@@ -70,7 +70,7 @@ class FunCog:
         try:
             member = await commands.MemberConverter().convert(ctx, target)
         except BadArgument as ex:
-            await ctx.send("**I have summoned the one known as {target}!**")
+            await ctx.send(f"**I have summoned the one known as {target}!**")
             await asyncio.sleep(5)
             await ctx.send("Be prepared as there is no stopping this summoning!")
             await asyncio.sleep(5)

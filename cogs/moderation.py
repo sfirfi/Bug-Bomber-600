@@ -103,25 +103,22 @@ class ModerationCog:
             await ctx.send("You need to give me a message that I can announce.")
 
     @commands.command()
-    async def kick(self, ctx, user: discord.User, *, reason = "None"):
+    async def kick(self, ctx, user: discord.User, *, reason = "No reason given."):
         """Kicks an user from the server."""
-        if reason != "":
-            await ctx.guild.kick(user, reason=reason)
-        else:
-            await ctx.guild.kick(user)
+        await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
 
     @commands.command()
-    async def ban(self, ctx, user: discord.User, *, reason):
+    async def ban(self, ctx, user: discord.User, *, reason = "No reason given"):
         """Bans an user from the server."""
-        await ctx.guild.ban(user, reason=reason)
+        await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
 
     @commands.command()
-    async def unban(self, ctx, user: discord.User, reason: str):
+    async def unban(self, ctx, user: discord.User, *, reason = "No reason given"):
         """Unbans an user from the server."""
-        await ctx.guild.unban(user, reason=reason)
-        await ctx.send(":ok_hand: {0.name} ({0.id}) has been unbanned.".format(user))
+        await ctx.guild.unban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+        await ctx.send(f":ok_hand: {user.name} ({user.id}) has been unbanned. Reason: `{reason}`")
         #This will only work if the user is cached, i'm working on a version that grabs from ban list.
 
 def setup(bot):
