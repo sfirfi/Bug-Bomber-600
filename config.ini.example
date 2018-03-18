@@ -12,6 +12,7 @@ database =
 prefix = !
 botlog =
 announce = <channel ID of the announcements.>
+muted = ;Muted role id
 
 [Events]
 scoreboardChannel =

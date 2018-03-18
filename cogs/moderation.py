@@ -3,6 +3,7 @@ import time
 import math
 from discord.ext import commands
 from utils import permissions
+from utils import Util
 
 
 class ModerationCog:
@@ -14,13 +15,12 @@ class ModerationCog:
         return await permissions.hasPermission(ctx, "moderation")
 
     @commands.command()
-    async def roles(selfs, ctx:commands.Context):
+    async def roles(selfs, ctx:commands.Context, *, page = ""):
         """Shows all roles of the server and their IDs"""
         rolesPerPage = 20
         roles = ""
         ids = ""
         pages = math.ceil(len(ctx.guild.roles)/rolesPerPage)
-        page = ctx.message.content.replace(f"{ctx.prefix}roles","").strip()
         if page == "" or not page.isdigit():
             page = 1
         elif int(page) <=1 or int(page) > pages:
@@ -51,10 +51,10 @@ class ModerationCog:
         """Manages the permissions."""
         if ctx.invoked_subcommand is None:
             permshelp = "`perms` - Shows this help text"\
-                        "\n\n`perms add <role> <permission>` -  Adds the given permission to the role" \
-                        "\n\n`perms available` - Shows all available permissions **unfinished**"\
-                        "\n\n`perms list <role>` - Shows the current permissions of the given role"\
-                        "\n\n`perms rmv <role> <permission>` - Removes the given permission form the role"
+                    "\n\n`perms add <role> <permission>` -  Adds the given permission to the role" \
+                    "\n\n`perms available` - Shows all available permissions **unfinished**"\
+                    "\n\n`perms list <role>` - Shows the current permissions of the given role"\
+                    "\n\n`perms rmv <role> <permission>` - Removes the given permission form the role"
             embed = discord.Embed(title='Permissions help', color=0x7c519f)
             embed.add_field(name='\u200b', value=permshelp, inline=True)
             await ctx.send(embed=embed)
@@ -70,9 +70,9 @@ class ModerationCog:
         perms = permissions.listPermissions(ctx, role)
         if perms == '':
             perms = "This role doesn't has any permissions."
-        embed = discord.Embed(title=f"Permissions of {role.name}", color=0x7c519f)
-        embed.add_field(name='\u200b', value=perms, inline=True)
-        await ctx.send(embed=embed)
+            embed = discord.Embed(title=f"Permissions of {role.name}", color=0x7c519f)
+            embed.add_field(name='\u200b', value=perms, inline=True)
+            await ctx.send(embed=embed)
 
     @perms.command(name='available', aliases=['avbl', 'avail', 'avl', 'av'])
     async def available(self, ctx:commands.Context):
@@ -83,10 +83,10 @@ class ModerationCog:
         avail = ""
         for perm in permissions.listAvailable(ctx):
             avail += f"{perm}\n"
-        embed = discord.Embed(title='Available permissions', color=0x7c519f)
-        embed.add_field(name='Information', value=info, inline=True)
-        embed.add_field(name='Available permissions', value=avail, inline=False)
-        await ctx.send(embed=embed)
+            embed = discord.Embed(title='Available permissions', color=0x7c519f)
+            embed.add_field(name='Information', value=info, inline=True)
+            embed.add_field(name='Available permissions', value=avail, inline=False)
+            await ctx.send(embed=embed)
 
     @perms.command()
     async def rmv(self, ctx:commands.Context, role: discord.Role, permission):
@@ -94,33 +94,35 @@ class ModerationCog:
         await ctx.send(permissions.rmvPermission(ctx, role, permission))
 
     @commands.command()
-    async def announce(self, ctx: commands.Context):
+    async def announce(self, ctx: commands.Context,*,announce = ""):
         """Announces the given text in the set announcement channel."""
         channel = ctx.bot.get_channel(int(ctx.bot.config['Settings']['announce']))
-        message = ctx.message.content.replace(f"{ctx.prefix}announce", "").strip()
-        if(message != ""):
-            await channel.send(message)
+        if(announce != ""):
+            await channel.send(announce)
         else:
             await ctx.send("You need to give me a message that I can announce.")
- 
+
     @commands.command()
-    async def kick(self, ctx, user: discord.User, reason: str):
+    async def kick(self, ctx, user: discord.User, *, reason = "None"):
         """Kicks an user from the server."""
-        await ctx.guild.kick(user, reason=reason)
-        await ctx.send(":ok_hand: {0.name} ({0.id}) has been kicked!".format(user))
-		
+        if reason != "":
+            await ctx.guild.kick(user, reason=reason)
+        else:
+            await ctx.guild.kick(user)
+        await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
+
     @commands.command()
-    async def ban(self, ctx, user: discord.User, reason: str):
+    async def ban(self, ctx, user: discord.User, *, reason):
         """Bans an user from the server."""
         await ctx.guild.ban(user, reason=reason)
-        await ctx.send(":ok_hand: {0.name} ({0.id}) has been banned!".format(user))
+        await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
 
     @commands.command()
     async def unban(self, ctx, user: discord.User, reason: str):
         """Unbans an user from the server."""
         await ctx.guild.unban(user, reason=reason)
         await ctx.send(":ok_hand: {0.name} ({0.id}) has been unbanned.".format(user))
-		#This will only work if the user is cached, i'm working on a version that grabs from ban list.
-   
+        #This will only work if the user is cached, i'm working on a version that grabs from ban list.
+
 def setup(bot):
     bot.add_cog(ModerationCog(bot))
