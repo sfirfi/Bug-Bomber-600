@@ -25,6 +25,7 @@ class ModerationCog:
             page = 1
         elif int(page) <=1 or int(page) > pages:
             page = 1
+
         for i in range(rolesPerPage*(int(page)-1),rolesPerPage*int(page)):
             if i < len(ctx.guild.roles)-1:
                 role = ctx.guild.roles[i]
@@ -32,6 +33,7 @@ class ModerationCog:
                 ids += str(role.id) + "\n\n"
             else:
                 break
+
         embed = discord.Embed(title=ctx.guild.name + " roles", color=0x54d5ff)
         embed.add_field(name="\u200b", value=roles, inline=True)
         embed.add_field(name="\u200b", value=ids, inline=True)
@@ -70,9 +72,10 @@ class ModerationCog:
         perms = permissions.listPermissions(ctx, role)
         if perms == '':
             perms = "This role doesn't has any permissions."
-            embed = discord.Embed(title=f"Permissions of {role.name}", color=0x7c519f)
-            embed.add_field(name='\u200b', value=perms, inline=True)
-            await ctx.send(embed=embed)
+
+        embed = discord.Embed(title=f"Permissions of {role.name}", color=0x7c519f)
+        embed.add_field(name='\u200b', value=perms, inline=True)
+        await ctx.send(embed=embed)
 
     @perms.command(name='available', aliases=['avbl', 'avail', 'avl', 'av'])
     async def available(self, ctx:commands.Context):
@@ -83,10 +86,11 @@ class ModerationCog:
         avail = ""
         for perm in permissions.listAvailable(ctx):
             avail += f"{perm}\n"
-            embed = discord.Embed(title='Available permissions', color=0x7c519f)
-            embed.add_field(name='Information', value=info, inline=True)
-            embed.add_field(name='Available permissions', value=avail, inline=False)
-            await ctx.send(embed=embed)
+
+        embed = discord.Embed(title='Available permissions', color=0x7c519f)
+        embed.add_field(name='Information', value=info, inline=True)
+        embed.add_field(name='Available permissions', value=avail, inline=False)
+        await ctx.send(embed=embed)
 
     @perms.command()
     async def rmv(self, ctx:commands.Context, role: discord.Role, permission):
