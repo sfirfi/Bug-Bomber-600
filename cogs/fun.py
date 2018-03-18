@@ -161,7 +161,7 @@ class FunCog:
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return
-        if self.bot.user in message.mentions and (":point_left:" in message.content or ":point_right:" in message.content or 'poke' in message.content):
+        if self.bot.user in message.mentions and ("👈" in message.content or "👉" in message.content or 'poke' in message.content):
             muted = discord.utils.get(message.guild.roles, id=<Put Muted Role ID>)
             await message.author.add_roles(muted)
             await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked")
