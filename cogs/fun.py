@@ -80,7 +80,7 @@ class FunCog:
             await asyncio.sleep(5)
             await ctx.send("Have a nice day!")
         else:
-            if target == ctx.author:
+            if member == ctx.author:
                 await ctx.send("Summoning yourself? That's cheating!")
                 ctx.command.reset_cooldown(ctx)
             else:
