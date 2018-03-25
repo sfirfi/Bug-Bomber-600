@@ -141,8 +141,8 @@ async def on_ready():
     print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}'
           + f'\nVersion: {discord.__version__}\n')
     await BugLog.onReady(bot, config["Settings"]["botlog"])
-    await bot.change_presence(game=discord.Game(name='BugHunters',
-                                                type=3))
+    await bot.change_presence(activity=discord.Activity(name='BugHunters',
+                                                type=discord.ActivityType.watching))
 
 bot.run(config['Credentials']['Token'], bot=True)
 
