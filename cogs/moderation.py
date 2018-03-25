@@ -41,7 +41,7 @@ class ModerationCog:
             page = 1
 
         for i in range(rolesPerPage*(int(page)-1),rolesPerPage*int(page)):
-            if i < len(ctx.guild.roles)-1:
+            if i < len(ctx.guild.roles):
                 role = ctx.guild.roles[i]
                 roles += f"<@&{role.id}>\n\n"
                 ids += str(role.id) + "\n\n"
@@ -121,6 +121,46 @@ class ModerationCog:
             await ctx.send("You need to give me a message that I can announce.")
 
     @commands.command()
+    async def warn(self, ctx: commands.Context, member: discord.Member, *, warning = ""):
+        if warning != "" and member.id != ctx.author.id and member.id != ctx.bot.user.id:
+            ctx.bot.DBC.query(f"INSERT INTO warnings (guild,member,warning,moderator, time) VALUES ({ctx.guild.id}, {member.id},'{warning}',{ctx.message.author.id}, UTC_TIMESTAMP())")
+            await ctx.send(f":warning: {member.name} ({member.id}) has been warned. Warn message: `{warning}`")
+        elif member.id == ctx.author.id or member.id == ctx.bot.user.id:
+            await ctx.send("You can't warn that user!")
+        else:
+            await ctx.send("You need to enter a Warning message.")
+
+    @commands.group()
+    async def warnings(self, ctx: commands.Context, member: discord.Member = None, page: str = ""):
+         if ctx.invoked_subcommand is None and member is None:
+            await ctx.send("Help message is in Work in Progress")
+         else:
+            conn = ctx.bot.DBC
+            conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
+            warnings = conn.fetch_rows()
+            if(len(warnings) is 0):
+                await ctx.send("This user doesn't has any warnings.")
+            else:
+                warningsPerPage = 5
+                warns = "```\n"
+                pages = math.ceil(len(warnings)/warningsPerPage)
+                if page == "" or not page.isdigit():
+                    page = 1
+                elif int(page) <=1 or int(page) > pages:
+                    page = 1
+
+                for i in range(warningsPerPage*(int(page)-1),warningsPerPage*int(page)):
+                    if i < len(warnings):
+                        warns += f"{warnings[i]['id']}: {warnings[i]['warning']}\n"
+                    else:
+                        break
+
+                embed = discord.Embed(title=f"Warnings of {member.name}", color=0x54ffff)
+                embed.add_field(name="\u200b", value=warns + "```", inline=True)
+                embed.set_footer(text=f"Page {page} of {pages}")
+                await ctx.send(embed=embed)
+
+    @commands.command()
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.User, *, reason = "No reason given."):
         """Kicks an user from the server."""
@@ -133,7 +173,7 @@ class ModerationCog:
         """Bans an user from the server."""
         await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
-        
+
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
     async def forceban(self, ctx, user_id: int, *, reason = "No reason given"):
