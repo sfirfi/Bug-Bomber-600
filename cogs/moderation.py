@@ -125,6 +125,7 @@ class ModerationCog:
         if warning != "" and member.id != ctx.author.id and member.id != ctx.bot.user.id:
             ctx.bot.DBC.query(f"INSERT INTO warnings (guild,member,warning,moderator, time) VALUES ({ctx.guild.id}, {member.id},'{warning}',{ctx.message.author.id}, UTC_TIMESTAMP())")
             await ctx.send(f":warning: {member.name} ({member.id}) has been warned. Warn message: `{warning}`")
+            await member.send(f"A moderator warned you in {ctx.guild.name} for {warning}")
         elif member.id == ctx.author.id or member.id == ctx.bot.user.id:
             await ctx.send("You can't warn that user!")
         else:
