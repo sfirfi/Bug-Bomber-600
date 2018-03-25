@@ -1,6 +1,6 @@
 from discord.ext import commands
 from utils import permissions
-
+import os
 
 class MaintenanceCog:
     """Cog for all things related to bot operation"""
@@ -17,6 +17,7 @@ class MaintenanceCog:
         cog = cog.lower()
         for c in ctx.bot.cogs:
             cogs.append(c.replace('Cog', '').lower())
+
         if cog in cogs:
             self.bot.unload_extension(f"cogs.{cog}")
             self.bot.load_extension(f"cogs.{cog}")
@@ -27,6 +28,29 @@ class MaintenanceCog:
     @commands.command(hidden=True)
     async def miniupdate(self, ctx,):
         pass
+
+    @commands.command(hidden=True)
+    async def load(self, ctx, cog: str):
+        if os.path.isfile(f"cogs/{cog}.py"):
+            self.bot.load_extension(f"cogs.{cog}")
+            await ctx.send(f"**{cog}** has been loaded!")
+        else:
+            await ctx.send(f"I can't find that cog.")
+
+    @commands.command(hidden=True)
+    async def unload(self, ctx, cog:str):
+        cogs = []
+        cog = cog.lower()
+        for c in ctx.bot.cogs:
+            cogs.append(c.replace('Cog', '').lower())
+
+        if cog in cogs:
+            self.bot.unload_extension(f"cogs.{cog}")
+            await ctx.send(f'**{cog}** has been unloaded')
+        else:
+            await ctx.send(f"I can't find that cog.")
+
+
 
 
 
