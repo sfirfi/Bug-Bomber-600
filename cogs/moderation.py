@@ -5,7 +5,21 @@ from discord.ext import commands
 from utils import permissions
 from utils import Util
 
+#Converters
+class BannedMember(commands.Converter):
+    async def convert(self, ctx, argument):
+        ban_list = await ctx.guild.bans()
+        try:
+            member_id = int(argument, base=10)
+            entity = discord.utils.find(lambda u: u.user.id == member_id, ban_list)
+        except ValueError:
+            entity = discord.utils.find(lambda u: str(u.user) == argument, ban_list)
 
+        if entity is None:
+            raise commands.BadArgument("Not a valid previously-banned member.")
+        return entity
+
+#Actual Cog
 class ModerationCog:
     """This cog includes the mod utils like ban, kick, mute, warn, etc"""
     def __init__(self, bot):
@@ -107,23 +121,37 @@ class ModerationCog:
             await ctx.send("You need to give me a message that I can announce.")
 
     @commands.command()
+    @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.User, *, reason = "No reason given."):
         """Kicks an user from the server."""
         await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
 
     @commands.command()
+    @commands.bot_has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.User, *, reason = "No reason given"):
         """Bans an user from the server."""
         await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
+        
+    @commands.command()
+    @commands.bot_has_permissions(ban_members=True)
+    async def forceban(self, ctx, user_id: int, *, reason = "No reason given"):
+        """Bans a user even if they are not in the server"""
+        user = await ctx.bot.get_user_info(user_id)
+        if user == ctx.author or user == ctx.bot.user:
+            await ctx.send("You cannot ban that user!")
+        else:
+            await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+            await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
 
     @commands.command()
-    async def unban(self, ctx, user: discord.User, *, reason = "No reason given"):
+    @commands.bot_has_permissions(ban_members=True)
+    async def unban(self, ctx, member: BannedMember, *, reason = "No reason given"):
         """Unbans an user from the server."""
-        await ctx.guild.unban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-        await ctx.send(f":ok_hand: {user.name} ({user.id}) has been unbanned. Reason: `{reason}`")
-        #This will only work if the user is cached, i'm working on a version that grabs from ban list.
+        await ctx.guild.unban(member.user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+        await ctx.send(f":ok_hand: {member.user.name} ({member.user.id}) has been unbanned. Reason: `{reason}`")
+        #This should work even if the user isn't cached
 
 def setup(bot):
     bot.add_cog(ModerationCog(bot))
