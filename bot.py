@@ -59,43 +59,35 @@ bot.starttime = datetime.datetime.now()
 
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
-    if (isinstance(error, commands.CommandNotFound)):
-        return
-    if isinstance(error, commands.CheckFailure):
-        # just a random user trying something he's not allowed to do
-        await ctx.send(":lock: You do not have the required permissions to run this command")
-    elif isinstance(error, discord.Forbidden):
-        # permission misconfigurations
+    if isinstance(error, commands.NoPrivateMessage):
+        await ctx.send("This command cannot be used in private messages.")
+    elif isinstance(error, commands.BotMissingPermissions):
         BugLog.error(f"Encountered a permissions error while executing {ctx.command}")
-        await ctx.send("Something does not seem to be configured right, i do not have all the permissions required by this command")
-    elif isinstance(error, commands.TooManyArguments):
-        await ctx.send("More arguments where supplied then i know how to handle")
-    elif isinstance(error, commands.DisabledCommand):
-        await ctx.send("This command is dissabled")
-    elif isinstance(error, commands.NoPrivateMessage):
-        await ctx.send("This command does not work in private messages")
-    elif isinstance(error, commands.MissingRequiredArgument)\
-            or isinstance(error, commands.BadArgument)\
-            or isinstance(error, commands.MissingPermissions)\
-            or isinstance(error, commands.BotMissingPermissions):
         await ctx.send(error)
-        ctx.command.reset_cooldown(ctx)
+    elif isinstance(error, commands.DisabledCommand):
+        await ctx.send("Sorry. This command is disabled and cannot be used.")
+    elif isinstance(error, commands.CheckFailure):
+        await ctx.send(":lock: You do not have the required permissions to run this command")
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(error)
-
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"You are missing a required argument!(See !help {ctx.command.qualified_name} for info on how to use this command)")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send(f"Invalid argument given! (See !help {ctx.command.qualified_name} for info on how to use this commmand)")
+    elif isinstance(error, commands.CommandNotFound):
+        return
     else:
+        await ctx.send(":rotating_light: Something went wrong while executing that command :rotating_light:")
         # log to logger first just in case botlog logging fails as well
         BugLog.exception(f"Command execution failed:"
-                                 f"    Command: {ctx.command}"
-                                 f"    Message: {ctx.message.content}"
-                                 f"    Channel: {'Private Message' if isinstance(ctx.channel, abc.PrivateChannel) else ctx.channel.name}"
-                                 f"    Sender: {ctx.author.name}#{ctx.author.discriminator}"
-                                 f"    Exception: {error}", error)
-        #notify caller
-        await ctx.send(":rotating_light: Something went wrong while executing that command :rotating_light:")
+                                f"    Command: {ctx.command}"
+                                f"    Message: {ctx.message.content}"
+                                f"    Channel: {'Private Message' if isinstance(ctx.channel, abc.PrivateChannel) else ctx.channel.name}"
+                                f"    Sender: {ctx.author.name}#{ctx.author.discriminator}"
+                                f"    Exception: {error}", error)
 
         embed = discord.Embed(colour=discord.Colour(0xff0000),
-                              timestamp=datetime.datetime.utcfromtimestamp(time.time()))
+                            timestamp=datetime.datetime.utcfromtimestamp(time.time()))
 
         embed.set_author(name="Command execution failed:")
         embed.add_field(name="Command", value=ctx.command)
@@ -112,7 +104,6 @@ async def on_command_error(ctx: commands.Context, error):
         if len(v) > 0:
             embed.add_field(name="Stacktrace", value=v)
         await BugLog.logToBotlog(embed=embed)
-
 
 @bot.event
 async def on_error(event, *args, **kwargs):
