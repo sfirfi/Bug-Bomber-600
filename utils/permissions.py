@@ -71,7 +71,7 @@ def rmvPermission(ctx, role, permission):
         return "This Permission doesn't seem to exist"
 
 def formatPermission(permission):
-    return permission.replace('Cog', '').replace('Server','').lower()
+    return permission.replace('Cog', '').lower()
 
 def owner_only():
     async def predicate(ctx):

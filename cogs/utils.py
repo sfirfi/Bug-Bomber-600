@@ -5,7 +5,7 @@ from utils import permissions
 from utils import Util
 
 
-class ServerutilsCog:
+class UtilsCog:
     """This cog includes the server utils so self assignable roles and the server"""
     def __init__(self, bot):
         self.bot = bot
@@ -18,7 +18,7 @@ class ServerutilsCog:
         embed.add_field(name='Uptime', value=Util.chop_microseconds(datetime.now()-ctx.bot.starttime),inline=True)
         embed.add_field(name='Description', value="A little, maybe not that little bot build to fullfil the needs of the Bug Hunters of the Bug-Bombing Area 600\nThe bot currently is in Work in progress", inline=True)
         await ctx.send(embed=embed)
-        
+ 
     @commands.command()
     async def userinfo(self, ctx, member: discord.Member = None):
         """Shows information about the chosen user"""
@@ -42,4 +42,4 @@ class ServerutilsCog:
 
 
 def setup(bot):
-    bot.add_cog(ServerutilsCog(bot))
+    bot.add_cog(UtilsCog(bot))

@@ -38,7 +38,7 @@ with open('db-setup.sql', 'r') as inserts:
 # Preparing the cogs
 initial_extensions = ['moderation',
                       'modlog',
-                      'serverutils',
+                      'utils',
                       'fun',
                       'reminder',
                       'maintenance']
