@@ -29,7 +29,7 @@ class ModerationCog:
         return await permissions.hasPermission(ctx, "moderation")
 
     @commands.command()
-    async def roles(selfs, ctx:commands.Context, *, page = ""):
+    async def roles(self, ctx:commands.Context, *, page = ""):
         """Shows all roles of the server and their IDs"""
         rolesPerPage = 20
         roles = ""
