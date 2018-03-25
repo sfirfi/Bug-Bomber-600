@@ -24,6 +24,10 @@ class UtilsCog:
         """Shows information about the chosen user"""
         if member == None:
             member = ctx.author
+        conn = ctx.bot.DBC
+        conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
+        warnings = conn.fetch_rows()
+        warns = len(warnings)
         embed = discord.Embed(color=0x7289DA)
         embed.set_thumbnail(url=member.avatar_url)
         embed.set_footer(text=f"Requested by {ctx.author.name} at {ctx.message.created_at.replace(second=0, microsecond=0)}", icon_url=ctx.author.avatar_url)
@@ -32,6 +36,7 @@ class UtilsCog:
         embed.add_field(name="Nickname", value=member.nick, inline=True)
         embed.add_field(name="Account Created At", value=f"{member.created_at.replace(second=0, microsecond=0)} ({(ctx.message.created_at - member.created_at).days} days ago)", inline=True)
         embed.add_field(name="Joined At", value=f"{member.joined_at.replace(second=0, microsecond=0)} ({(ctx.message.created_at - member.joined_at).days} days ago)", inline=True)
+        embed.add_field(name="Total Warn Count", value=f"{warns}", inline=True)
         embed.add_field(name="Bot Account", value=member.bot, inline=True)
         embed.add_field(name="Avatar URL", value=member.avatar_url)
         await ctx.send(embed=embed)
