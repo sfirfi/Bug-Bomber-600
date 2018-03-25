@@ -145,8 +145,11 @@ class FunCog:
         """Sends an anime hug gif."""
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
         embed = discord.Embed(color=0xe59400)
-        if member is not None:
-            embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b") 
+        if member is not None :
+            if member.id is not ctx.message.author.id:
+                embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
+            else:
+                embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
 
         embed.set_image(url=img['url'])
         await ctx.send(embed=embed)
