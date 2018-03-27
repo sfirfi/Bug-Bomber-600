@@ -135,33 +135,34 @@ class ModerationCog:
     @commands.group()
     async def warnings(self, ctx: commands.Context, member: discord.Member = None, page: str = ""):
          """Shows the warnings of a user."""
-         if ctx.invoked_subcommand is None and member is None:
-            await ctx.send("Help message is in Work in Progress")
-         else:
-            conn = ctx.bot.DBC
-            conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
-            warnings = conn.fetch_rows()
-            if(len(warnings) is 0):
-                await ctx.send("This user doesn't has any warnings.")
+         if ctx.invoked_subcommand is None:
+            if member is None:
+                await ctx.send("Help message is in Work in Progress")
             else:
-                warningsPerPage = 5
-                warns = "```\n"
-                pages = math.ceil(len(warnings)/warningsPerPage)
-                if page == "" or not page.isdigit():
-                    page = 1
-                elif int(page) <=1 or int(page) > pages:
-                    page = 1
+                conn = ctx.bot.DBC
+                conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
+                warnings = conn.fetch_rows()
+                if(len(warnings) is 0):
+                    await ctx.send("This user doesn't has any warnings.")
+                else:
+                    warningsPerPage = 5
+                    warns = "```\n"
+                    pages = math.ceil(len(warnings)/warningsPerPage)
+                    if page == "" or not page.isdigit():
+                        page = 1
+                    elif int(page) <=1 or int(page) > pages:
+                        page = 1
 
-                for i in range(warningsPerPage*(int(page)-1),warningsPerPage*int(page)):
-                    if i < len(warnings):
-                        warns += f"{warnings[i]['id']}: {warnings[i]['warning']}\n"
-                    else:
-                        break
+                    for i in range(warningsPerPage*(int(page)-1),warningsPerPage*int(page)):
+                        if i < len(warnings):
+                            warns += f"{warnings[i]['id']}: {warnings[i]['warning']}\n"
+                        else:
+                            break
 
-                embed = discord.Embed(title=f"Warnings of {member.name}", color=0x54ffff)
-                embed.add_field(name="\u200b", value=warns + "```", inline=True)
-                embed.set_footer(text=f"Page {page} of {pages}")
-                await ctx.send(embed=embed)
+                    embed = discord.Embed(title=f"Warnings of {member.name}", color=0x54ffff)
+                    embed.add_field(name="\u200b", value=warns + "```", inline=True)
+                    embed.set_footer(text=f"Page {page} of {pages}")
+                    await ctx.send(embed=embed)
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
