@@ -20,25 +20,38 @@ class UtilsCog:
         await ctx.send(embed=embed)
  
     @commands.command()
-    async def userinfo(self, ctx, member: discord.Member = None):
+    async def userinfo(self, ctx : commands.Context, user : str = None):
         """Shows information about the chosen user"""
-        if member == None:
-            member = ctx.author
+        if user == None:
+            user = ctx.author
+            member = ctx.guild.get_member(user.id)
+        if user != ctx.author:
+            try:
+                member = await commands.MemberConverter().convert(ctx, user)
+                user = member
+            except:
+                user = await ctx.bot.get_user_info(int(user))
+                member = None
         conn = ctx.bot.DBC
-        conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
+        conn.query(f"SELECT id, warning from warnings where member = {user.id} AND guild = {ctx.guild.id}")
         warnings = conn.fetch_rows()
         warns = len(warnings)
         embed = discord.Embed(color=0x7289DA)
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=user.avatar_url)
         embed.set_footer(text=f"Requested by {ctx.author.name} at {ctx.message.created_at.replace(second=0, microsecond=0)}", icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Name", value=f"{member.name}#{member.discriminator}", inline=True)
-        embed.add_field(name="ID", value=member.id, inline=True)
-        embed.add_field(name="Nickname", value=member.nick, inline=True)
-        embed.add_field(name="Account Created At", value=f"{member.created_at.replace(second=0, microsecond=0)} ({(ctx.message.created_at - member.created_at).days} days ago)", inline=True)
-        embed.add_field(name="Joined At", value=f"{member.joined_at.replace(second=0, microsecond=0)} ({(ctx.message.created_at - member.joined_at).days} days ago)", inline=True)
+        embed.add_field(name="Name", value=f"{user.name}#{user.discriminator}", inline=True)
+        embed.add_field(name="ID", value=user.id, inline=True)
         embed.add_field(name="Total Warn Count", value=f"{warns}", inline=True)
-        embed.add_field(name="Bot Account", value=member.bot, inline=True)
-        embed.add_field(name="Avatar URL", value=member.avatar_url)
+        embed.add_field(name="Bot Account", value=user.bot, inline=True)
+        embed.add_field(name="Animated Avatar", value=user.is_avatar_animated(), inline=True)
+        if member != None:
+            account_joined = member.joined_at.strftime("%d-%m-%Y")
+            embed.add_field(name="Nickname", value=member.nick, inline=True)
+            embed.add_field(name="Top Role", value=member.top_role.name, inline=True)
+            embed.add_field(name="Joined At", value=f"{account_joined} ({(ctx.message.created_at - member.joined_at).days} days ago)", inline=True)
+        account_made = user.created_at.strftime("%d-%m-%Y")
+        embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
+        embed.add_field(name="Avatar URL", value=user.avatar_url)
         await ctx.send(embed=embed)
 
 
