@@ -68,7 +68,7 @@ class ModerationCog:
         if ctx.invoked_subcommand is None:
             permshelp = "`perms` - Shows this help text"\
                     "\n\n`perms add <role> <permission>` -  Adds the given permission to the role" \
-                    "\n\n`perms available` - Shows all available permissions **unfinished**"\
+                    "\n\n`perms available` - Shows all available permissions"\
                     "\n\n`perms list <role>` - Shows the current permissions of the given role"\
                     "\n\n`perms rmv <role> <permission>` - Removes the given permission form the role"
             embed = discord.Embed(title='Permissions help', color=0x7c519f)
@@ -133,36 +133,59 @@ class ModerationCog:
             await ctx.send("You need to enter a Warning message.")
 
     @commands.group()
-    async def warnings(self, ctx: commands.Context, member: discord.Member = None, page: str = ""):
-         """Shows the warnings of a user."""
+    async def warnings(self, ctx: commands.Context):
+         """Show and manage Warnings.."""
          if ctx.invoked_subcommand is None:
-            if member is None:
-                await ctx.send("Help message is in Work in Progress")
-            else:
-                conn = ctx.bot.DBC
-                conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
-                warnings = conn.fetch_rows()
-                if(len(warnings) is 0):
-                    await ctx.send("This user doesn't has any warnings.")
+            warningshelp = "`warnings` - Shows this help text"\
+                    "\n\n`warnings info <id>` - Shows all information of the given warning"\
+                    "\n\n`warnings list <user> [<page>]` - Shows all warnings of the given user"
+            embed = discord.Embed(title='Warnings help', color=0x54ffff)
+            embed.add_field(name='\u200b', value=warningshelp, inline=True)
+            await ctx.send(embed=embed)
+
+    @warnings.command()
+    async def list(self, ctx: commands.Context, member: discord.Member, page: str= ""):
+        conn = ctx.bot.DBC
+        conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
+        warnings = conn.fetch_rows()
+        if(len(warnings) is 0):
+            await ctx.send("This user doesn't has any warnings.")
+        else:
+            warningsPerPage = 5
+            warns = "```\n"
+            pages = math.ceil(len(warnings)/warningsPerPage)
+            if page == "" or not page.isdigit():
+                page = 1
+            elif int(page) <=1 or int(page) > pages:
+                page = 1
+
+            for i in range(warningsPerPage*(int(page)-1),warningsPerPage*int(page)):
+                if i < len(warnings):
+                    warns += f"{warnings[i]['id']}: {warnings[i]['warning']}\n"
                 else:
-                    warningsPerPage = 5
-                    warns = "```\n"
-                    pages = math.ceil(len(warnings)/warningsPerPage)
-                    if page == "" or not page.isdigit():
-                        page = 1
-                    elif int(page) <=1 or int(page) > pages:
-                        page = 1
+                    break
 
-                    for i in range(warningsPerPage*(int(page)-1),warningsPerPage*int(page)):
-                        if i < len(warnings):
-                            warns += f"{warnings[i]['id']}: {warnings[i]['warning']}\n"
-                        else:
-                            break
+            embed = discord.Embed(title=f"Warnings of {member.name}", color=0x54ffff)
+            embed.add_field(name="\u200b", value=warns + "```", inline=True)
+            embed.set_footer(text=f"Page {page} of {pages}")
+            await ctx.send(embed=embed)
 
-                    embed = discord.Embed(title=f"Warnings of {member.name}", color=0x54ffff)
-                    embed.add_field(name="\u200b", value=warns + "```", inline=True)
-                    embed.set_footer(text=f"Page {page} of {pages}")
-                    await ctx.send(embed=embed)
+
+    @warnings.command()
+    async def info(self, ctx: commands.Context, warning: int):
+        conn = ctx.bot.DBC
+        conn.query(f"SELECT * FROM warnings where id = {warning} AND guild = {ctx.guild.id}")
+        warning = conn.fetch_rows()
+        if len(warning) is 0:
+            await ctx.send("I can't find that warning.")
+        else:
+            warning = warning[0]
+            embed = discord.Embed(title=f"Warning {warning['ID']}", color=0x54ffff)
+            embed.add_field(name='Member', value=ctx.bot.get_user(warning['member']).name, inline=True)
+            embed.add_field(name='Moderator', value=ctx.bot.get_user(warning['moderator']).name, inline=True)
+            embed.add_field(name='UTC Time', value=warning['time'], inline=True)
+            embed.add_field(name='Warning', value=warning['warning'], inline=False)
+            await ctx.send(embed=embed)
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
