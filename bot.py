@@ -62,6 +62,7 @@ async def on_command_error(ctx: commands.Context, error):
         await ctx.send("This command cannot be used in private messages.")
     elif isinstance(error, commands.BotMissingPermissions):
         BugLog.error(f"Encountered a permissions error while executing {ctx.command}")
+        ctx.command.reset_cooldown(ctx)
         await ctx.send(error)
     elif isinstance(error, commands.DisabledCommand):
         await ctx.send("Sorry. This command is disabled and cannot be used.")
@@ -71,8 +72,10 @@ async def on_command_error(ctx: commands.Context, error):
         await ctx.send(error)
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send(f"You are missing a required argument!(See !help {ctx.command.qualified_name} for info on how to use this command)")
+        ctx.command.reset_cooldown(ctx)
     elif isinstance(error, commands.BadArgument):
         await ctx.send(f"Invalid argument given! (See !help {ctx.command.qualified_name} for info on how to use this commmand)")
+        ctx.command.reset_cooldown(ctx)
     elif isinstance(error, commands.CommandNotFound):
         return
     else:
