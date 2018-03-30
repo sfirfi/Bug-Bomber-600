@@ -6,6 +6,8 @@ host =
 user =
 password =
 database =
+imgur_client_id =
+imgur_client_secret =
 
 [Settings]
 ; Set the prefix which the bot should listen to for its commands
@@ -21,10 +23,5 @@ scoreboardChannel =
 hug =
 fight =
 pet =
-dog =
-cat =
-fox =
-lizard =
-neko =
+img =
 ahug =
-pat =

@@ -12,7 +12,62 @@ from utils.Database import SQLDB
 from utils import Util
 
 import configparser
+import imgurpython
 
+# Extra stuff for the commands
+class FunExtras:
+
+    async def catImg():
+        html = await Util.grepFromWeb('https://thecatapi.com/api/images/get?format=html')
+        html = html.split('src="')
+        url = html[1].replace('"></a>', '').replace('http', 'https')
+        return url
+
+    async def dogImg():
+        while True:
+            url = await Util.grepJsonFromWeb('http://random.dog/woof.json')
+            if not url['url'].endswith(('mp4', 'webm')):
+                return url['url']
+
+    async def foxImg():
+        html = await Util.grepFromWeb('http://www.thedailyfox.org/random')
+        html = html.split('<img src="')
+        html = html[1].split('" alt="')
+        url = html[0]
+        return url
+
+    async def lizardImg():
+        url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/lizard')
+        return url['url']
+
+    async def nekoImg():
+        url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/neko')
+        return url['url']
+
+    async def patImg():
+        url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/pat')
+        return url['url']
+
+    async def imgurImg(search):
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        client_id = config['Credentials']['imgur_client_id']
+        client_secret = config['Credentials']['imgur_client_secret']
+        imgur = imgurpython.ImgurClient(client_id, client_secret)
+        galleryItems = imgur.gallery_search(search, window='all')
+        images = []
+        for i in galleryItems:
+            if type(i) is imgurpython.imgur.models.gallery_image.GalleryImage and not i.link.endswith(('mp4','webm','avi')):
+                images.append(i)
+
+        if len(images) >0:
+            img = images[random.randint(0, len(images)-1)].link
+            print(img)
+            return img
+        else:
+            return None
+
+#A ctual cog
 class FunCog:
     config = configparser.ConfigParser()
     config.read('config.ini')
@@ -87,57 +142,30 @@ class FunCog:
                 await ctx.send(f"{member.name} is already a member of this server, do the ping youself, lazy humans")
 
     @commands.command()
-    @commands.cooldown(1,config['Cooldowns']['cat'] , BucketType.user)
-    async def cat(self, ctx: commands.Context):
-        """Sends a cat image."""
-        html = await Util.grepFromWeb('https://thecatapi.com/api/images/get?format=html')
-        html = html.split('src="')
-        img = html[1].replace('"></a>', '').replace('http', 'https')
-        embed = discord.Embed(color=0x3dede6)
-        embed.set_image(url=img)
-        await ctx.send(embed=embed)
-
-    @commands.command()
-    @commands.cooldown(1, config['Cooldowns']['dog'], BucketType.user)
-    async def dog(self, ctx: commands.Context):
-        """Sends a dog image."""
-        img = await Util.grepJsonFromWeb('http://random.dog/woof.json')
-        embed = discord.Embed(color=0x136955)
-        if img['url'].endswith(('mp4', 'webm')):
-           await ctx.send(img['url'])
+    @commands.cooldown(1, config['Cooldowns']['img'], BucketType.user)
+    async def img(self, ctx: commands.context, *, search):
+        """Sends a img for the given search term. The Terms [cat,dog,fox,lizard, neko] will random generate, other terms will spit out a Imgur img."""
+        search = search.lower().strip()
+        imgFunctions = {
+            'cat': FunExtras.catImg,
+            'dog': FunExtras.dogImg,
+            'fox': FunExtras.foxImg,
+            'lizard': FunExtras.lizardImg,
+            'neko': FunExtras.nekoImg,
+            'pat': FunExtras.patImg
+        }
+        image = imgFunctions.get(search, None)
+        if image is not None:
+            url = await image()
         else:
-            embed.set_image(url=img['url'])
+            url = await FunExtras.imgurImg(search)
+
+        if url is not None:
+            embed = discord.Embed(color=0x3dede6)
+            embed.set_image(url=url)
             await ctx.send(embed=embed)
-
-    @commands.command()
-    @commands.cooldown(1, config['Cooldowns']['fox'], BucketType.user)
-    async def fox(self, ctx: commands.Context):
-        """Sends a fox image."""
-        html = await Util.grepFromWeb('http://www.thedailyfox.org/random')
-        html = html.split('<img src="')
-        html = html[1].split('" alt="')
-        img = html[0]
-        embed = discord.Embed(color=0xa52a2a)
-        embed.set_image(url=img)
-        await ctx.send(embed=embed)
-
-    @commands.command()
-    @commands.cooldown(1, config['Cooldowns']['lizard'], BucketType.user)
-    async def lizard(self, ctx: commands.Context):
-        """Sends a lizard image."""
-        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/lizard')
-        embed = discord.Embed(color=0x198c19)
-        embed.set_image(url=img['url'])
-        await ctx.send(embed=embed)
-
-    @commands.command()
-    @commands.cooldown(1, config['Cooldowns']['neko'], BucketType.user)
-    async def neko(self, ctx: commands.Context):
-        """Sends a catgirl image."""
-        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/neko')
-        embed = discord.Embed(color=0xffffff)
-        embed.set_image(url=img['url'])
-        await ctx.send(embed=embed)
+        else:
+            await ctx.send("I can't find a Image for that search term.")
 
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
@@ -151,16 +179,6 @@ class FunCog:
             else:
                 embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
 
-        embed.set_image(url=img['url'])
-        await ctx.send(embed=embed)
-
-
-    @commands.command()
-    @commands.cooldown(1, config['Cooldowns']['pat'], BucketType.user)
-    async def pat(self, ctx: commands.Context):
-        """Sends an anime pat gif."""
-        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/pat')
-        embed = discord.Embed(color=0x730073)
         embed.set_image(url=img['url'])
         await ctx.send(embed=embed)
 
