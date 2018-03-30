@@ -62,7 +62,6 @@ class FunExtras:
 
         if len(images) >0:
             img = images[random.randint(0, len(images)-1)].link
-            print(img)
             return img
         else:
             return None
