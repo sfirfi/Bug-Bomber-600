@@ -57,12 +57,12 @@ class FunExtras:
         galleryItems = imgur.gallery_search(search, window='all')
         images = []
         for i in galleryItems:
-            if type(i) is imgurpython.imgur.models.gallery_image.GalleryImage and not i.link.endswith(('mp4','webm','avi')):
+            if type(i) is imgurpython.imgur.models.gallery_image.GalleryImage and not i.link.endswith(('.mp4','.webm')) and not i.link.startswith("http://"):
                 images.append(i)
 
         if len(images) >0:
-            img = images[random.randint(0, len(images)-1)].link
-            return img
+            url = images[random.randint(0, len(images)-1)].link
+            return url
         else:
             return None
 
