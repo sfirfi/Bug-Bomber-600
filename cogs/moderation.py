@@ -143,8 +143,8 @@ class ModerationCog:
             embed.add_field(name='\u200b', value=warningshelp, inline=True)
             await ctx.send(embed=embed)
 
-    @warnings.command()
-    async def list(self, ctx: commands.Context, member: discord.Member, page: str= ""):
+    @warnings.command(name="list")
+    async def list2(self, ctx: commands.Context, member: discord.Member, page: str= ""):
         conn = ctx.bot.DBC
         conn.query(f"SELECT id, warning from warnings where member = {member.id} AND guild = {ctx.guild.id}")
         warnings = conn.fetch_rows()
