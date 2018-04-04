@@ -35,7 +35,7 @@ class EventsCog:
 
     async def __local_check(self, ctx:commands.Context):
         if type(ctx.message.channel) is discord.channel.TextChannel:
-            return await permissions.hasPermission(ctx, "fun")
+            return await permissions.hasPermission(ctx, "events")
         else:
             return ctx.bot.config.getboolean('Settings','allow_dm_commands')
     
