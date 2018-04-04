@@ -32,7 +32,7 @@ class FunExtras:
     async def foxImg():
         html = await Util.grepFromWeb('http://www.thedailyfox.org/random')
         html = html.split('<img src="')
-        html = html[1].split('" alt="')
+        html = html[1].split('"')
         url = html[0]
         return url
 
