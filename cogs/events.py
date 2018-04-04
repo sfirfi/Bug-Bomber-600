@@ -40,7 +40,7 @@ class EventsCog:
             return ctx.bot.config.getboolean('Settings','allow_dm_commands')
     
     @commands.group(name='event')
-        return await permissions.hasPermission(ctx, "events")
+    @commands.guild_only()
     async def eventCommand(self, ctx: commands.Context):
         """Allows to manage events"""
         if ctx.invoked_subcommand is None:
