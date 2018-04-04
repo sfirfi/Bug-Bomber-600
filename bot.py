@@ -67,7 +67,8 @@ async def on_command_error(ctx: commands.Context, error):
     elif isinstance(error, commands.DisabledCommand):
         await ctx.send("Sorry. This command is disabled and cannot be used.")
     elif isinstance(error, commands.CheckFailure):
-        await ctx.send(":lock: You do not have the required permissions to run this command")
+        if type(ctx.message.channel) is discord.channel.TextChannel:
+            await ctx.send(":lock: You do not have the required permissions to run this command")
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(error)
     elif isinstance(error, commands.MissingRequiredArgument):

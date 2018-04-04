@@ -15,13 +15,14 @@ prefix = !
 botlog =
 announce = <channel ID of the announcements.>
 muted = ;Muted role id
+allow_dm_commands = False
 
 [Events]
 scoreboardChannel =
 
 [Cooldowns]
-hug =
-fight =
-pet =
-img =
-ahug =
+hug = 120
+fight = 120
+pet = 120
+img = 15
+ahug = 15

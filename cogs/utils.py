@@ -18,7 +18,7 @@ class UtilsCog:
         embed.add_field(name='Uptime', value=Util.chop_microseconds(datetime.now()-ctx.bot.starttime),inline=True)
         embed.add_field(name='Description', value="A little, maybe not that little bot build to fullfil the needs of the Bug Hunters of the Bug-Bombing Area 600\nThe bot currently is in Work in progress", inline=True)
         await ctx.send(embed=embed)
- 
+
     @commands.command()
     async def userinfo(self, ctx : commands.Context, user : str = None):
         """Shows information about the chosen user"""
@@ -56,8 +56,10 @@ class UtilsCog:
 
 
     async def __local_check(self, ctx:commands.Context):
-        return await permissions.hasPermission(ctx, "utils")
-
+        if type(ctx.message.channel) is discord.channel.TextChannel:
+            return await permissions.hasPermission(ctx, "fun")
+        else:
+            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
 
 def setup(bot):
     bot.add_cog(UtilsCog(bot))

@@ -73,7 +73,10 @@ class FunCog:
     hugs = []
     fights = []
     async def __local_check(self, ctx: commands.Context):
-        return await permissions.hasPermission(ctx, "fun")
+        if type(ctx.message.channel) is discord.channel.TextChannel:
+            return await permissions.hasPermission(ctx, "fun")
+        else:
+            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
 
     @commands.command(name='hug', aliases=['huh','hugh'])
     @commands.guild_only()
@@ -167,6 +170,7 @@ class FunCog:
             await ctx.send("I can't find a Image for that search term.")
 
     @commands.command()
+    @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
     async def ahug(self, ctx: commands.Context, member: discord.Member = None):
         """Sends an anime hug gif."""

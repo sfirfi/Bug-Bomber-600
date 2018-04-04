@@ -9,8 +9,10 @@ class ModlogCog:
         self.bot = bot
 
     async def __local_check(self, ctx:commands.Context):
-        return await permissions.hasPermission(ctx, "modlog")
-
+        if type(ctx.message.channel) is discord.channel.TextChannel:
+            return await permissions.hasPermission(ctx, "fun")
+        else:
+            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
 
 def setup(bot):
     bot.add_cog(ModlogCog(bot))

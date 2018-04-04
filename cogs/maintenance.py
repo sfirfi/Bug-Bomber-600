@@ -9,7 +9,10 @@ class MaintenanceCog:
 
 
     async def __local_check(self, ctx:commands.Context):
-        return await permissions.hasPermission(ctx, "maintenance")
+        if type(ctx.message.channel) is discord.channel.TextChannel:
+            return await permissions.hasPermission(ctx, "fun")
+        else:
+            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
 
     @commands.command(hidden=True)
     async def reload(self, ctx, *, cog: str):

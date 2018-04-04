@@ -26,9 +26,13 @@ class ModerationCog:
         self.bot = bot
 
     async def __local_check(self, ctx:commands.Context):
-        return await permissions.hasPermission(ctx, "moderation")
+        if type(ctx.message.channel) is discord.channel.TextChannel:
+            return await permissions.hasPermission(ctx, "fun")
+        else:
+            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
 
     @commands.command()
+    @commands.guild_only()
     async def roles(self, ctx:commands.Context, *, page = ""):
         """Shows all roles of the server and their IDs"""
         rolesPerPage = 20
@@ -63,6 +67,7 @@ class ModerationCog:
         await ctx.send(f":hourglass: Gateway Ping is {round((t2 - t1) * 1000)}ms :hourglass:")
 
     @commands.group(name='perms', aliases=['permissions'])
+    @commands.guild_only()
     async def perms(self, ctx:commands.Context):
         """Manages the permissions."""
         if ctx.invoked_subcommand is None:
@@ -112,6 +117,7 @@ class ModerationCog:
         await ctx.send(permissions.rmvPermission(ctx, role, permission))
 
     @commands.command()
+    @commands.guild_only()
     async def announce(self, ctx: commands.Context,*,announce = ""):
         """Announces the given text in the set announcement channel."""
         channel = ctx.bot.get_channel(int(ctx.bot.config['Settings']['announce']))
@@ -121,6 +127,7 @@ class ModerationCog:
             await ctx.send("You need to give me a message that I can announce.")
 
     @commands.command()
+    @commands.guild_only()
     async def warn(self, ctx: commands.Context, member: discord.Member, *, warning = ""):
         """Warns a user."""
         if warning != "" and member.id != ctx.author.id and member.id != ctx.bot.user.id:
@@ -133,6 +140,7 @@ class ModerationCog:
             await ctx.send("You need to enter a Warning message.")
 
     @commands.group()
+    @commands.guild_only()
     async def warnings(self, ctx: commands.Context):
          """Show and manage Warnings.."""
          if ctx.invoked_subcommand is None:
@@ -188,6 +196,7 @@ class ModerationCog:
             await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.guild_only()
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.User, *, reason = "No reason given."):
         """Kicks an user from the server."""
@@ -195,6 +204,7 @@ class ModerationCog:
         await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
 
     @commands.command()
+    @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.User, *, reason = "No reason given"):
         """Bans an user from the server."""
@@ -202,6 +212,7 @@ class ModerationCog:
         await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
 
     @commands.command()
+    @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
     async def forceban(self, ctx, user_id: int, *, reason = "No reason given"):
         """Bans a user even if they are not in the server"""
@@ -213,6 +224,7 @@ class ModerationCog:
             await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
 
     @commands.command()
+    @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
     async def unban(self, ctx, member: BannedMember, *, reason = "No reason given"):
         """Unbans an user from the server."""

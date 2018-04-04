@@ -34,9 +34,13 @@ class EventsCog:
         self.active = False #mark as terminated for the checking loop to terminate cleanly
 
     async def __local_check(self, ctx:commands.Context):
-        return await permissions.hasPermission(ctx, "events")
-
+        if type(ctx.message.channel) is discord.channel.TextChannel:
+            return await permissions.hasPermission(ctx, "fun")
+        else:
+            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
+    
     @commands.group(name='event')
+        return await permissions.hasPermission(ctx, "events")
     async def eventCommand(self, ctx: commands.Context):
         """Allows to manage events"""
         if ctx.invoked_subcommand is None:
