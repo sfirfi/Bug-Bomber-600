@@ -17,3 +17,5 @@ pip-delete-this-directory.txt
 #runtime and cache files
 *.json
 *.log
+
+config/*

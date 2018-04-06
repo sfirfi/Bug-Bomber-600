@@ -4,6 +4,7 @@ import math
 from discord.ext import commands
 from utils import permissions
 from utils import Util
+from utils import Configuration
 
 #Converters
 class BannedMember(commands.Converter):
@@ -120,11 +121,14 @@ class ModerationCog:
     @commands.guild_only()
     async def announce(self, ctx: commands.Context,*,announce = ""):
         """Announces the given text in the set announcement channel."""
-        channel = ctx.bot.get_channel(int(ctx.bot.config['Settings']['announce']))
-        if(announce != ""):
-            await channel.send(announce)
+        channel = ctx.bot.get_channel(int(Configuration.getConfigVar(ctx.guild.id, "ANNOUNCE")))
+        if channel != None:
+            if(announce != ""):
+                await channel.send(announce)
+            else:
+                await ctx.send("You need to give me a message that I can announce.")
         else:
-            await ctx.send("You need to give me a message that I can announce.")
+            await ctx.send("There is no announce channel set!")
 
     @commands.command()
     @commands.guild_only()
@@ -160,7 +164,7 @@ class ModerationCog:
             await ctx.send("This user doesn't has any warnings.")
         else:
             warningsPerPage = 5
-            warns = "```\n"
+            warns = "```\nGlobal ID | Warning message\n"
             pages = math.ceil(len(warnings)/warningsPerPage)
             if page == "" or not page.isdigit():
                 page = 1

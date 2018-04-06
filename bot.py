@@ -9,10 +9,12 @@ import pymysql.cursors
 from discord.ext import commands
 from pathlib import Path
 from discord import abc
+from utils import Configuration
 
 # Checking if the example config was copied
 from cogs.fun import FunCog
 from utils import BugLog, Database
+
 
 config_file = Path('config.ini')
 if config_file.exists() is not True:
@@ -41,11 +43,17 @@ initial_extensions = ['moderation',
                       'utils',
                       'fun',
                       'reminder',
-                      'maintenance']
+                      'maintenance',
+                      'serveradmin']
 
 def prefix_callable(bot, msg):
     user_id = bot.user.id
-    return [f'<@!{user_id}> ', f'<@{user_id}> ', config['Settings']['prefix']]
+    prefixes =  [f'<@!{user_id}> ', f'<@{user_id}> ']
+    if msg.guild is None or not bot.startup_done:
+        prefixes.append('!') #use default ! prefix in DMs
+    else:
+        prefixes.append(Configuration.getConfigVar(msg.guild.id, "PREFIX"))
+    return prefixes
 
 # Preparing the bot
 bot = commands.Bot(command_prefix=prefix_callable,
@@ -54,6 +62,7 @@ bot = commands.Bot(command_prefix=prefix_callable,
 bot.DBC = connection
 bot.config = config
 bot.starttime = datetime.datetime.now()
+bot.startup_done = False
 
 
 @bot.event
@@ -140,12 +149,20 @@ if __name__ == '__main__':
 
 
 @bot.event
+async def on_guild_join(guild: discord.Guild):
+    BugLog.info(f"A new guild came up: {guild.name} ({guild.id})")
+    Configuration.loadConfig(guild)
+
+
+
+@bot.event
 async def on_ready():
-    print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}'
-          + f'\nVersion: {discord.__version__}\n')
-    await BugLog.onReady(bot, config["Settings"]["botlog"])
-    await bot.change_presence(activity=discord.Activity(name='BugHunters',
-                                                type=discord.ActivityType.watching))
+    if not bot.startup_done:
+        await Configuration.onReady(bot)
+        print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}' + f'\nVersion: {discord.__version__}\n')
+        await BugLog.onReady(bot, config["Settings"]["botlog"])
+        await bot.change_presence(activity=discord.Activity(name='BugHunters', type=discord.ActivityType.watching))
+        bot.startup_done = True
 
 bot.run(config['Credentials']['Token'], bot=True)
 

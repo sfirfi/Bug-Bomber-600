@@ -10,6 +10,7 @@ import random
 from utils import permissions, BugLog
 from utils.Database import SQLDB
 from utils import Util
+from utils import Configuration
 
 import configparser
 import imgurpython
@@ -189,15 +190,16 @@ class FunCog:
         if message.author == self.bot.user:
             return
         if self.bot.user in message.mentions and ("👈" in message.content or "👉" in message.content or 'poke' in message.content):
-            muted = discord.utils.get(message.guild.roles, id=int(self.bot.config['Settings']['muted']))
-            await message.author.add_roles(muted)
-            await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked")
-            await asyncio.sleep(2)
-            await message.channel.send(f"Please don't do that again!")
-            await asyncio.sleep(13)
-            await message.author.remove_roles(muted)
-            await asyncio.sleep(5*60)
-            await message.channel.send(f"__pokes :point_left:{message.author.mention}:point_right:__")
+            muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTED"))
+            if muted is not None:
+                await message.author.add_roles(muted)
+                await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked")
+                await asyncio.sleep(2)
+                await message.channel.send(f"Please don't do that again!")
+                await asyncio.sleep(13)
+                await message.author.remove_roles(muted)
+                await asyncio.sleep(5*60)
+                await message.channel.send(f"__pokes :point_left:{message.author.mention}:point_right:__")
 
 
     def __init__(self, bot):
