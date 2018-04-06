@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 from utils import permissions
 import os
 

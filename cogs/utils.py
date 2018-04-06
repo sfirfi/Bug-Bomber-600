@@ -47,7 +47,9 @@ class UtilsCog:
         if member != None:
             account_joined = member.joined_at.strftime("%d-%m-%Y")
             embed.add_field(name="Nickname", value=member.nick, inline=True)
-            embed.add_field(name="Top Role", value=member.top_role.name, inline=True)
+            if not member.top_role.is_default():
+                embed.add_field(name="Top Role", value=member.top_role.name, inline=True)
+            embed.add_field(name="Status", value=member.status, inline=True)
             embed.add_field(name="Joined At", value=f"{account_joined} ({(ctx.message.created_at - member.joined_at).days} days ago)", inline=True)
         account_made = user.created_at.strftime("%d-%m-%Y")
         embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
