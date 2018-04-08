@@ -53,5 +53,26 @@ class Serveradmin:
             await channel.set_permissions(role, reason="Automatic mute role setup", speak=False, connect=False)
 
 
+    @commands.group()
+    async def disable(self, ctx:commands.Context):
+        """Base command for disabeling features"""
+        pass
+
+    @disable.command()
+    async def mute(self, ctx:commands.Context):
+        """Disable the mute feature"""
+        role = discord.utils.get(ctx.guild.roles, id=Configuration.getConfigVar(ctx.guild.id, "MUTED"))
+        if role is not None:
+            for member in role.members:
+                await member.remove_roles(role, reason=f"Mute feature has been dissabled")
+        Configuration.setConfigVar(ctx.guild.id, "MUTED", 0)
+        await ctx.send("Mute feature has been dissabled, all people muted have been unmuted and the role can now be removed")
+
+    @disable.command(name="announce")
+    async def announce1(self, ctx:commands.Context):
+        Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", 0)
+        await ctx.send("The announce channel has been reseted.")
+
+
 def setup(bot):
     bot.add_cog(Serveradmin(bot))
