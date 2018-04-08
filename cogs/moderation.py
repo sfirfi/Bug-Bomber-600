@@ -124,7 +124,10 @@ class ModerationCog:
         channel = ctx.bot.get_channel(int(Configuration.getConfigVar(ctx.guild.id, "ANNOUNCE")))
         if channel != None:
             if(announce != ""):
-                await channel.send(announce)
+                try:
+                    await channel.send(announce)
+                except:
+                    await ctx.send("I wasn't able to send a message in the set announce channel. Maybe check the permissions.")
             else:
                 await ctx.send("You need to give me a message that I can announce.")
         else:
@@ -208,16 +211,28 @@ class ModerationCog:
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.User, *, reason = "No reason given."):
         """Kicks an user from the server."""
-        await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-        await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
+        if user == ctx.author or user == ctx.bot.user:
+            await ctx.send("You cannot kick that user!")
+        else:
+            try:
+                await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+                await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
+            except:
+                await ctx.send("I cannot kick that user.")
 
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.User, *, reason = "No reason given"):
         """Bans an user from the server."""
-        await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-        await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
+        if user == ctx.author or user == ctx.bot.user:
+            await ctx.send("You cannot ban that user!")
+        else:
+            try:
+                await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+                await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
+            except:
+                await ctx.send("I cannot ban that user.")
 
     @commands.command()
     @commands.guild_only()

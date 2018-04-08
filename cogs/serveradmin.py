@@ -32,10 +32,10 @@ class Serveradmin:
         await ctx.send(f"The server prefix is now `{newPrefix}`")
 
     @configure.command()
-    async def announce(self, ctx: commands.Context, channelID):
+    async def announce(self, ctx: commands.Context, channel: discord.TextChannel):
         """Sets the announce channel"""
-        Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", channelID)
-        await ctx.send(f"The announces channel now is <#{channelID}>")
+        Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", channel.id)
+        await ctx.send(f"The announces channel now is <#{channel.id}>")
 
     @configure.command()
     @commands.bot_has_permissions(manage_roles=True)
