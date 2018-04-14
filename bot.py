@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import asyncio
 import datetime
 import time
 
@@ -10,7 +11,9 @@ import pymysql.cursors
 from discord.ext import commands
 from pathlib import Path
 from discord import abc
-from utils import Configuration
+from peewee import MySQLDatabase
+
+from utils import Configuration, DatabaseConnector
 
 # Checking if the example config was copied
 from cogs.fun import FunCog
@@ -162,9 +165,16 @@ async def on_ready():
         await Configuration.onReady(bot)
         print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}' + f'\nVersion: {discord.__version__}\n')
         await BugLog.onReady(bot, config["Settings"]["botlog"])
+        bot.loop.create_task(keepDBalive())  # ping DB every hour so it doesn't run off
         await bot.change_presence(activity=discord.Activity(name='BugHunters', type=discord.ActivityType.watching))
         bot.startup_done = True
 
+async def keepDBalive():
+    while not bot.is_closed():
+        bot.database_connection.connection().ping(True)
+        await asyncio.sleep(3600)
+DatabaseConnector.init()
+bot.database_connection: MySQLDatabase = DatabaseConnector.connection
 bot.run(config['Credentials']['Token'], bot=True)
 
 time.sleep(5)
