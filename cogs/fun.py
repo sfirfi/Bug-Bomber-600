@@ -1,5 +1,6 @@
 # This cog includes the fun comments so !hug, fight, cat etc
 import asyncio
+from datetime import datetime
 
 import discord
 import time
@@ -16,36 +17,39 @@ import configparser
 import imgurpython
 
 # Extra stuff for the commands
+from utils.DatabaseConnector import LoggedAttachment, LoggedMessage
+
+
 class FunExtras:
 
-    async def catImg():
+    async def catImg(self):
         html = await Util.grepFromWeb('https://thecatapi.com/api/images/get?format=html')
         html = html.split('src="')
         url = html[1].replace('"></a>', '').replace('http', 'https')
         return url
 
-    async def dogImg():
+    async def dogImg(self):
         while True:
             url = await Util.grepJsonFromWeb('http://random.dog/woof.json')
             if not url['url'].endswith(('mp4', 'webm')):
                 return url['url']
 
-    async def foxImg():
+    async def foxImg(self):
         html = await Util.grepFromWeb('http://www.thedailyfox.org/random')
         html = html.split('<img src="')
         html = html[1].split('"')
         url = html[0]
         return url
 
-    async def lizardImg():
+    async def lizardImg(self):
         url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/lizard')
         return url['url']
 
-    async def nekoImg():
+    async def nekoImg(self):
         url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/neko')
         return url['url']
 
-    async def patImg():
+    async def patImg(self):
         url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/pat')
         return url['url']
 
@@ -185,6 +189,62 @@ class FunCog:
 
         embed.set_image(url=img['url'])
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def quote(self, ctx: commands.Context, messageid: int):
+        """Quotes the requested message"""
+        async with ctx.typing():
+            message = LoggedMessage.get_or_none(messageid=messageid)
+            if message is None:
+                for guild in self.bot.guilds:
+                    for channel in guild.text_channels:
+                        try:
+                            dmessage: discord.Message = await channel.get_message(messageid)
+                            for a in dmessage.attachments:
+                                LoggedAttachment.get_or_create(id=a.id, url=a.url,
+                                                               isImage=(a.width is not None or a.width is 0),
+                                                               messageid=message.id)
+                            message = LoggedMessage.create(messageid=messageid, content=dmessage.content,
+                                                           author=dmessage.author.id,
+                                                           timestamp=dmessage.created_at.timestamp(),
+                                                           channel=channel.id)
+                        except Exception as ex:
+                            # wrong channel
+                            pass
+                        if message is not None:
+                            break
+            if message is None:
+                await ctx.send("I was unable to find that message anywhere, is it somewhere i can't see?")
+            else:
+                attachment = None
+                attachments = LoggedAttachment.select().where(LoggedAttachment.messageid == messageid)
+                if len(attachments) == 1:
+                    attachment = attachments[0]
+                embed = discord.Embed(colour=discord.Color(0xd5fff),
+                                      timestamp=datetime.utcfromtimestamp(message.timestamp))
+                if message.content is None or message.content == "":
+                    if attachment is not None:
+                        if attachment.isImage:
+                            embed.set_image(url=attachment.url)
+                        else:
+                            embed.add_field(name="Attachment link", value=attachment.url)
+                else:
+                    embed = discord.Embed(colour=discord.Color(0xd5fff), description=message.content,
+                                          timestamp=datetime.utcfromtimestamp(message.timestamp))
+                    if attachment is not None:
+                        if attachment.isImage:
+                            embed.set_image(url=attachment.url)
+                        else:
+                            embed.add_field(name="Attachment link", value=attachment.url)
+                try:
+                    user = await commands.MemberConverter().convert(ctx, message.author)
+                except:
+                    user = await ctx.bot.get_user_info(message.author)
+                embed.set_author(name=user.name, icon_url=user.avatar_url)
+                embed.set_footer(
+                    text=f"Send in #{self.bot.get_channel(message.channel).name} | Quote requested by {ctx.author.display_name} | {messageid}")
+                await ctx.send(embed=embed)
+                await ctx.message.delete()
 
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:

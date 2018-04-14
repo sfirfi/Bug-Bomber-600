@@ -12,7 +12,10 @@ SERVER_CONFIGS = dict()
 CONFIG_TEMPLATE = {
     "PREFIX": "!",
     "ANNOUNCE": 0,
-    "MUTED": 0
+    "MUTED": 0,
+    "MINOR_LOGS": 0,
+    "JOIN_LOGS": 0,
+    "MOD_LOGS": 0,
 }
 
 
