@@ -169,6 +169,20 @@ async def on_ready():
         await bot.change_presence(activity=discord.Activity(name='BugHunters', type=discord.ActivityType.watching))
         bot.startup_done = True
 
+@bot.event
+async def on_message(message:discord.Message):
+    if message.author.bot:
+        return
+    ctx:commands.Context = await bot.get_context(message)
+    if ctx.command is not None:
+        if isinstance(ctx.channel, discord.TextChannel) and not ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
+            try:
+                await ctx.author.send("Hey, you tried triggering a command in a channel i'm not allowed to send messages in. Please grant me permissions to reply and try again.")
+            except Exception:
+                pass #closed DMs
+        else:
+            await bot.invoke(ctx)
+
 async def keepDBalive():
     while not bot.is_closed():
         bot.database_connection.connection().ping(True)
