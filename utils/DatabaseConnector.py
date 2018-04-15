@@ -5,7 +5,7 @@ from peewee import *
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-connection = MySQLDatabase(config["Database"]["DATABASE_NAME"], user=config["Database"]["DATABASE_USER"], password=config["Database"]["DATABASE_PASS"], host=config["Database"]["DATABASE_HOST"], port=int(config["Database"]["DATABASE_PORT"]), use_unicode=True, charset="utf8mb4")
+connection = MySQLDatabase(config["Credentials"]["database"], user=config["Credentials"]["user"], password=config["Credentials"]["password"], host=config["Credentials"]["host"], use_unicode=True, charset="utf8mb4")
 
 
 class LoggedMessage(Model):
