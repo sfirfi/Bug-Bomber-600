@@ -22,34 +22,34 @@ from utils.DatabaseConnector import LoggedAttachment, LoggedMessage
 
 class FunExtras:
 
-    async def catImg(self):
+    async def catImg():
         html = await Util.grepFromWeb('https://thecatapi.com/api/images/get?format=html')
         html = html.split('src="')
         url = html[1].replace('"></a>', '').replace('http', 'https')
         return url
 
-    async def dogImg(self):
+    async def dogImg():
         while True:
             url = await Util.grepJsonFromWeb('http://random.dog/woof.json')
             if not url['url'].endswith(('mp4', 'webm')):
                 return url['url']
 
-    async def foxImg(self):
+    async def foxImg():
         html = await Util.grepFromWeb('http://www.thedailyfox.org/random')
         html = html.split('<img src="')
         html = html[1].split('"')
         url = html[0]
         return url
 
-    async def lizardImg(self):
+    async def lizardImg():
         url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/lizard')
         return url['url']
 
-    async def nekoImg(self):
+    async def nekoImg():
         url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/neko')
         return url['url']
 
-    async def patImg(self):
+    async def patImg():
         url = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/pat')
         return url['url']
 

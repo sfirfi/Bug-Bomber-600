@@ -10,11 +10,9 @@ imgur_client_id =
 imgur_client_secret =
 
 [Settings]
-; Set the prefix which the bot should listen to for its commands
+; Set the default prefix which the bot should listen to for its commands
 prefix = !
 botlog =
-announce = <channel ID of the announcements.>
-muted = ;Muted role id
 allow_dm_commands = False
 
 [Events]
