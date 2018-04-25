@@ -32,9 +32,9 @@ def loadGlobalConfig():
         with open('config/master.json', 'r') as jsonfile:
             MASTER_CONFIG = json.load(jsonfile)
     except FileNotFoundError:
-        BugLog.error("Unable to load config, running with defaults")
+        BugLog.error("Unable to load config, running with defaults.")
     except Exception as e:
-        BugLog.error("Failed to parse configuration")
+        BugLog.error("Failed to parse configuration.")
         print(e)
         raise e
     # Database.initialize()
@@ -50,7 +50,7 @@ def loadConfig(guild:discord.Guild):
                     config[key] = CONFIG_TEMPLATE[key]
             SERVER_CONFIGS[guild.id] = config
     except FileNotFoundError:
-        BugLog.info(f"No config available for {guild.name} ({guild.id}), creating blank one")
+        BugLog.info(f"No config available for {guild.name} ({guild.id}), creating blank one.")
         SERVER_CONFIGS[guild.id] = copy.deepcopy(CONFIG_TEMPLATE)
         saveConfig(guild.id)
 

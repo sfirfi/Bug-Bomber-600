@@ -57,7 +57,7 @@ async def onReady(client:commands.Bot, channelID):
         await client.logout()
     info = await client.application_info()
     if len(startupErrors) > 0:
-        await logToBotlog(f":rotating_light: Caught {len(startupErrors)} {'exceptions' if len(startupErrors) > 1 else 'exception'} during startup")
+        await logToBotlog(f":rotating_light: Caught {len(startupErrors)} {'exceptions' if len(startupErrors) > 1 else 'exception'} during startup.")
         for error in startupErrors:
             embed = discord.Embed(colour=discord.Colour(0xff0000),
                                   timestamp=datetime.datetime.utcfromtimestamp(time.time()))
