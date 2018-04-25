@@ -52,7 +52,7 @@ def addPermission(ctx, role, permission):
     conn = ctx.bot.DBC
     if verifyPermission(ctx, permission):
         if(roleHasPermission(ctx, role, permission)):
-            return "The role already has that permission"
+            return "The role already has that permission."
         else:
             conn.query(f"INSERT INTO permissions (role_id,permission) VALUES ('{role.id}','{permission}')")
             return ":wrench: The permission was succesfully added."
@@ -64,7 +64,7 @@ def rmvPermission(ctx, role, permission):
     if verifyPermission(ctx, permission):
         if(roleHasPermission(ctx, role, permission)):
             conn.query(f"DELETE FROM permissions WHERE role_id='{role.id}' AND permission='{permission}'")
-            return ":wrench: The permission was succesfully removed"
+            return ":wrench: The permission was succesfully removed."
         else:
             return "The role doesn't has that permission."
     else:

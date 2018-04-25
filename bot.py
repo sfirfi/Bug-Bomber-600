@@ -74,26 +74,26 @@ async def on_command_error(ctx: commands.Context, error):
     if isinstance(error, commands.NoPrivateMessage):
         await ctx.send("This command cannot be used in private messages.")
     elif isinstance(error, commands.BotMissingPermissions):
-        BugLog.error(f"Encountered a permissions error while executing {ctx.command}")
+        BugLog.error(f"Encountered a permissions error while executing {ctx.command}.")
         ctx.command.reset_cooldown(ctx)
         await ctx.send(error)
     elif isinstance(error, commands.DisabledCommand):
         await ctx.send("Sorry. This command is disabled and cannot be used.")
     elif isinstance(error, commands.CheckFailure):
         if type(ctx.message.channel) is discord.channel.TextChannel:
-            await ctx.send(":lock: You do not have the required permissions to run this command")
+            await ctx.send(":lock: You do not have the required permissions to run this command.")
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(error)
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"You are missing a required argument! (See !help {ctx.command.qualified_name} for info on how to use this command)")
+        await ctx.send(f"You are missing a required argument! (See !help {ctx.command.qualified_name} for info on how to use this command).")
         ctx.command.reset_cooldown(ctx)
     elif isinstance(error, commands.BadArgument):
-        await ctx.send(f"Invalid argument given! (See !help {ctx.command.qualified_name} for info on how to use this commmand)")
+        await ctx.send(f"Invalid argument given! (See !help {ctx.command.qualified_name} for info on how to use this commmand).")
         ctx.command.reset_cooldown(ctx)
     elif isinstance(error, commands.CommandNotFound):
         return
     else:
-        await ctx.send(":rotating_light: Something went wrong while executing that command :rotating_light:")
+        await ctx.send(":rotating_light: Something went wrong while executing that command. :rotating_light:")
         # log to logger first just in case botlog logging fails as well
         BugLog.exception(f"Command execution failed:"
                                 f"    Command: {ctx.command}"
@@ -139,7 +139,7 @@ async def on_error(event, *args, **kwargs):
     try:
         await BugLog.logToBotlog(embed=embed)
     except Exception as ex:
-        BugLog.exception(f"Failed to log to botlog, eighter discord broke or something is seriously wrong!\n{ex}", ex)
+        BugLog.exception(f"Failed to log to botlog, either Discord broke or something is seriously wrong!\n{ex}", ex)
 
 
 
@@ -149,12 +149,12 @@ if __name__ == '__main__':
         try:
             bot.load_extension(f"cogs.{extension}")
         except Exception as e:
-            BugLog.startupError(f"Failed to load extention {extension}", e)
+            BugLog.startupError(f"Failed to load extention {extension}.", e)
 
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
-    BugLog.info(f"A new guild came up: {guild.name} ({guild.id})")
+    BugLog.info(f"A new guild came up: {guild.name} ({guild.id}).")
     Configuration.loadConfig(guild)
 
 
@@ -177,7 +177,7 @@ async def on_message(message:discord.Message):
     if ctx.command is not None:
         if isinstance(ctx.channel, discord.TextChannel) and not ctx.channel.permissions_for(ctx.channel.guild.me).send_messages:
             try:
-                await ctx.author.send("Hey, you tried triggering a command in a channel i'm not allowed to send messages in. Please grant me permissions to reply and try again.")
+                await ctx.author.send("Hey, you tried triggering a command in a channel I'm not allowed to send messages in. Please grant me permissions to reply and try again.")
             except Exception:
                 pass #closed DMs
         else:

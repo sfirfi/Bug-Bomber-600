@@ -12,7 +12,7 @@ class Event(commands.Converter):
         dbc.query(f"SELECT * FROM events where ID='{argument}' OR name = '{argument}'")
         event = dbc.fetch_onerow()
         if event is None:
-            raise commands.BadArgument(f"Unable to find event `{argument}`")
+            raise commands.BadArgument(f"Unable to find event `{argument}`.")
         dbc.query(f"SELECT * FROM eventchannels where event={event['ID']}")
         channellist = dbc.fetch_rows()
         channels = dict()
