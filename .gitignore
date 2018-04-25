@@ -18,4 +18,7 @@ pip-delete-this-directory.txt
 *.json
 *.log
 
+#encryption key
+encryption_key.txt
+
 config/*

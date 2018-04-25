@@ -12,8 +12,8 @@ from discord.ext import commands
 from pathlib import Path
 from discord import abc
 from peewee import MySQLDatabase
-
-from utils import Configuration, DatabaseConnector
+from cryptography.fernet import Fernet
+from utils import Configuration, DatabaseConnector, Util, cryption
 
 # Checking if the example config was copied
 from cogs.fun import FunCog
@@ -34,6 +34,23 @@ connection = Database.SQLDB(host=config['Credentials']['host'],
                              user=config['Credentials']['user'],
                              password=config['Credentials']['password'],
                              database=config['Credentials']['database'])
+try:
+    print("Loading AES-Key")
+    keyFile = open('encryption_key.txt', 'r')
+except:
+    print("No stored AES-Key was found. Generatinga new Key.")
+    newKeyFile = open('encryption_key.txt', 'w')
+    newKeyFile.write("This file is used to store the encryption key for end user Data in the DB. Do not edit or remove this file as this would make your stored data forever useless.\n")
+    newKeyFile.write("----- Start of the AES-Key -----\n")
+    newKeyFile.write(Fernet.generate_key().decode() + "\n")
+    newKeyFile.write("-----  End of the AES-key  -----")
+    newKeyFile.close()
+    keyFile = open('encryption_key.txt', 'r')
+
+
+key = str.encode(keyFile.readlines()[2])
+keyFile.close()
+
 #TODO: wrap in try catch
 with open('db-setup.sql', 'r') as inserts:
     for statement in inserts:
@@ -67,6 +84,7 @@ bot.DBC = connection
 bot.config = config
 bot.starttime = datetime.datetime.now()
 bot.startup_done = False
+bot.aes = cryption.FernetEncryption(key)
 
 
 @bot.event
