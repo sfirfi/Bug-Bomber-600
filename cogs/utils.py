@@ -16,7 +16,7 @@ class UtilsCog:
         embed = discord.Embed(color=0x98f5ff)
         embed.add_field(name='Name', value=f"{ctx.bot.user.name}", inline=True)
         embed.add_field(name='Uptime', value=Util.chop_microseconds(datetime.now()-ctx.bot.starttime),inline=True)
-        embed.add_field(name='Description', value="A little, maybe not that little bot build to fullfil the needs of the Bug Hunters of the Bug-Bombing Area 600\nThe bot currently is in Work in progress", inline=True)
+        embed.add_field(name='Description', value="A little, maybe not that little bot build to fullfil the needs of the Bug Hunters of the Bug-Bombing Area 600\nThe bot is currently Work in progress", inline=True)
         await ctx.send(embed=embed)
 
     @commands.command()

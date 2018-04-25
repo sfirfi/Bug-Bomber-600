@@ -142,7 +142,7 @@ class ModerationCog:
             await ctx.send(f":warning: {member.name} ({member.id}) has been warned. Warn message: `{warning}`")
             if not member.bot:
                 try:
-                    await member.send(f"A moderator warned you in {ctx.guild.name} for {warning}")
+                    await member.send(f"A moderator warned you in {ctx.guild.name} for {warning}.")
                 except:
                     pass
         elif member.id == ctx.author.id or member.id == ctx.bot.user.id:
@@ -216,7 +216,7 @@ class ModerationCog:
         else:
             try:
                 await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-                await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
+                await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`.")
             except:
                 await ctx.send("I cannot kick that user.")
 
@@ -230,7 +230,7 @@ class ModerationCog:
         else:
             try:
                 await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-                await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
+                await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`.")
             except:
                 await ctx.send("I cannot ban that user.")
 
@@ -244,7 +244,7 @@ class ModerationCog:
             await ctx.send("You cannot ban that user!")
         else:
             await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-            await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
+            await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`.")
 
     @commands.command()
     @commands.guild_only()
@@ -252,7 +252,7 @@ class ModerationCog:
     async def unban(self, ctx, member: BannedMember, *, reason = "No reason given"):
         """Unbans an user from the server."""
         await ctx.guild.unban(member.user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-        await ctx.send(f":ok_hand: {member.user.name} ({member.user.id}) has been unbanned. Reason: `{reason}`")
+        await ctx.send(f":ok_hand: {member.user.name} ({member.user.id}) has been unbanned. Reason: `{reason}`.")
         #This should work even if the user isn't cached
 
 def setup(bot):

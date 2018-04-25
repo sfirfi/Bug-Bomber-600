@@ -55,7 +55,7 @@ class EventsCog:
         name = dbc.escape(name)
         dbc.query("INSERT INTO events (name, duration, closingTime) VALUES ('%s', %d, %d)" % (name, duration, closingtime))
         id = dbc.connection.insert_id()
-        await ctx.send(f"Event `{name}` created with ID `{id}`")
+        await ctx.send(f"Event `{name}` created with ID `{id}`.")
 
     @eventCommand.command()
     async def info(self, ctx: commands.Context, event:Event):
@@ -70,7 +70,7 @@ class EventsCog:
         newClosing = Util.convertToSeconds(closingtime, closingtimetype)
         dbc = self.bot.DBC
         dbc.query('UPDATE events set duration=%d, closingTime=%d WHERE ID=%d' % (newDuration, newClosing, event["ID"]))
-        await ctx.send(f"Event {event['name']} duration is now {duration} {durationtype} and submissions will be closed {closingtime} {closingtimetype} in advance")
+        await ctx.send(f"Event {event['name']} duration is now {duration} {durationtype} and submissions will be closed {closingtime} {closingtimetype} in advance.")
 
     @eventCommand.command()
     async def start(self, ctx: commands.Context, event: Event):
@@ -97,7 +97,7 @@ class EventsCog:
     @eventCommand.command()
     async def addChannel(self, ctx: commands.Context, event:Event, channel: discord.TextChannel, codename: str, type: int):
         self.bot.DBC.query("INSERT INTO eventchannels (channel, event, type, name) VALUES (%d, %d, %d, '%s')" % (channel.id, event["ID"], type, codename))
-        await ctx.send("Channel assigned")
+        await ctx.send("Channel assigned.")
 
     @eventCommand.command()
     async def updateBoard(self, ctx: commands.Context, event: Event):
@@ -111,7 +111,7 @@ class EventsCog:
             return
         if "Post Pick-Up Hug / Fight Strings!" in self.events and (message.channel.id == self.eventChannels["hugSubmissions"]["channel"] or message.channel.id == self.eventChannels["fightSubmissions"]["channel"]):
             if not '{0}' in message.content or not '{1}' in message.content:
-                reply = await message.channel.send(f"{message.author.mention}: Invalid submission, please make sure it contains both ` {0} ` and ` {1} `")
+                reply = await message.channel.send(f"{message.author.mention}: Invalid submission, please make sure it contains both ` {0} ` and ` {1} `.")
                 await asyncio.sleep(10)
                 await message.delete()
                 await reply.delete()
@@ -212,7 +212,7 @@ class EventsCog:
                     #wrong channel
                     pass
                 else:
-                    reply = await message.channel.send(f"{message.author.mention}: You edited your submission, as such all previous votes are no longer valid")
+                    reply = await message.channel.send(f"{message.author.mention}: You edited your submission, as such all previous votes are no longer valid.")
                     for reaction in message.reactions:
                         async for user in reaction.users():
                             if user != self.bot.user:
@@ -311,5 +311,5 @@ async def eventsChecker(cog: EventsCog):
             cog.events[event["name"]]["ended"] = 1
             await cog.updateScoreboard(event["name"])
             del cog.events[event["name"]]
-            await BugLog.logToBotlog(f"Event ended: {event['name']}")
+            await BugLog.logToBotlog(f"Event ended: {event['name']}.")
         await asyncio.sleep(5)
