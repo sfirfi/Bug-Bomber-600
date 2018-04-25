@@ -89,7 +89,7 @@ class FunCog:
     async def hug(self, ctx: commands.Context, friend: discord.Member):
         """Hugs a person."""
         if friend == ctx.author:
-            await ctx.send("You must be realy lonely if you need to hug yourself, have one from me instead!")
+            await ctx.send("You must be really lonely if you need to hug yourself, have one from me instead!")
             ctx.command.reset_cooldown(ctx)
         elif friend == self.bot.user:
             await ctx.send("Thanks for the hug!")
@@ -146,7 +146,7 @@ class FunCog:
                 await ctx.send("Summoning yourself? That's cheating!")
                 ctx.command.reset_cooldown(ctx)
             else:
-                await ctx.send(f"{member.name} is already a member of this server, do the ping youself, lazy humans")
+                await ctx.send(f"{member.name} is already a member of this server, do the ping youself, lazy humans.")
 
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['img'], BucketType.user)
@@ -253,7 +253,7 @@ class FunCog:
             muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTED"))
             if muted is not None:
                 await message.author.add_roles(muted)
-                await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked")
+                await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked.")
                 await asyncio.sleep(2)
                 await message.channel.send(f"Please don't do that again!")
                 await asyncio.sleep(13)
