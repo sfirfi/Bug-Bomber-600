@@ -363,7 +363,7 @@ async def unmuteTask(modcog:ModerationCog):
                         role = discord.utils.get(guild.roles, id=Configuration.getConfigVar(int(guildid), "MUTE_ROLE"))
                         if guild.me.guild_permissions.manage_roles:
                             await member.remove_roles(role, reason="Mute expired")
-                            await BugLog.logToModLog(guild, f":innocent: {member.name}#{member.discriminator} (`{member.id}`) has automaticaly been unmuted")
+                            await BugLog.logToModLog(guild, f":innocent: {member.name}#{member.discriminator} (`{member.id}`) has automatically been unmuted")
                         else:
                             await BugLog.logToModLog(guild, f":no_entry: ERROR: {member.name}#{member.discriminator} (`{member.id}`) was muted earlier but i no longer have the permissions needed to unmute this person, please remove the role manually!")
                         updated = True
