@@ -133,8 +133,8 @@ class Serveradmin:
         Configuration.setConfigVar(ctx.guild.id, "MUTE_ROLE", 0)
         await ctx.send("Mute feature has been disabled, all people muted have been unmuted and the role can now be removed.")
 
-    @disable.command()
-    async def welcome(self, ctx: commands.Context):
+    @disable.command(name="wmessage")
+    async def disableWelcome(self, ctx: commands.Context):
         Configuration.setConfigVar(ctx.guild.id, "WELCOME_CHANEL", 0)
         await ctx.send("This server will no longer send welcome messages. Set a welcome channel to reactivate this feature.")
 
