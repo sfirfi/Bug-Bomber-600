@@ -6,7 +6,7 @@ from utils import Util
 
 
 class UtilsCog:
-    """This cog includes the server utils so self assignable roles and the server"""
+    """This cog includes the server utils such as self assignable roles and the server info related things."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -16,12 +16,12 @@ class UtilsCog:
         embed = discord.Embed(color=0x98f5ff)
         embed.add_field(name='Name', value=f"{ctx.bot.user.name}", inline=True)
         embed.add_field(name='Uptime', value=Util.chop_microseconds(datetime.now()-ctx.bot.starttime),inline=True)
-        embed.add_field(name='Description', value="A little, maybe not that little bot build to fullfil the needs of the Bug Hunters of the Bug-Bombing Area 600\nThe bot currently is in Work in progress", inline=True)
+        embed.add_field(name='Description', value="A little, maybe not that little bot build to fullfil the needs of the Bug Hunters of the Bug-Bombing Area 600\nThe bot is currently Work in progress", inline=True)
         await ctx.send(embed=embed)
 
     @commands.command()
     async def userinfo(self, ctx : commands.Context, user : str = None):
-        """Shows information about the chosen user"""
+        """Shows information about the chosen user."""
         if user == None:
             user = ctx.author
             member = ctx.guild.get_member(user.id)
@@ -55,10 +55,15 @@ class UtilsCog:
         embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
         embed.add_field(name="Avatar URL", value=user.avatar_url)
         await ctx.send(embed=embed)
-        
+
+    @commands.command()
+    async def invite(self, ctx):
+        """Shares the invite for Bug Bombing Area 600."""
+        await ctx.send("The server's invite is: discord.gg/4CYjufq!")
+
     @commands.command()
     async def serverinfo(self, ctx):
-        """Shows information about the current server"""
+        """Shows information about the current server."""
         guild_features = ", ".join(ctx.guild.features)
         print (guild_features)
         if guild_features == "":

@@ -36,13 +36,13 @@ class ModlogCog:
                 await ctx.send("Caching complete")
         else:
             await ctx.send(
-                f"I cannot use {channel.mention} for logging, i do not have the required permissions in there (read_messages, send_messages and embed_links)")
+                f"I cannot use {channel.mention} for logging, I do not have the required permissions in there (read_messages, send_messages and embed_links).")
 
     @Serveradmin.disable.command(name="minorLogChannel")
     async def disableMinorLogChannel(self, ctx: commands.Context):
         """Disables minor logs (edit/delete)"""
         Configuration.setConfigVar(ctx.guild.id, "MINOR_LOGS", 0)
-        await ctx.send("Minor logs have been dissabled")
+        await ctx.send("Minor logs have been dissabled.")
 
     @Serveradmin.configure.command()
     async def joinLogChannel(self, ctx: commands.Context, channel: discord.TextChannel):
@@ -50,16 +50,16 @@ class ModlogCog:
         permissions = channel.permissions_for(ctx.guild.get_member(self.bot.user.id))
         if permissions.read_messages and permissions.send_messages:
             Configuration.setConfigVar(ctx.guild.id, "JOIN_LOGS", channel.id)
-            await ctx.send(f"{channel.mention} will now be used for join logs")
+            await ctx.send(f"{channel.mention} will now be used for join logs.")
         else:
             await ctx.send(
-                f"I cannot use {channel.mention} for logging, i do not have the required permissions in there (read_messages, send_messages)")
+                f"I cannot use {channel.mention} for logging, I do not have the required permissions in there (read_messages, send_messages).")
 
     @Serveradmin.disable.command(name="joinLogChannel")
     async def disablejoinLogChannel(self, ctx: commands.Context):
         """Disables join/leave logs"""
         Configuration.setConfigVar(ctx.guild.id, "JOIN_LOGS", 0)
-        await ctx.send("Join logs have been dissabled")
+        await ctx.send("Join logs have been dissabled.")
 
     @Serveradmin.configure.command()
     async def modLogChannel(self, ctx: commands.Context, channel: discord.TextChannel):
@@ -67,20 +67,20 @@ class ModlogCog:
         permissions = channel.permissions_for(ctx.guild.get_member(self.bot.user.id))
         if permissions.read_messages and permissions.send_messages:
             Configuration.setConfigVar(ctx.guild.id, "MOD_LOGS", channel.id)
-            await ctx.send(f"{channel.mention} will now be used for mod logs")
+            await ctx.send(f"{channel.mention} will now be used for mod logs.")
         else:
             await ctx.send(
-                f"I cannot use {channel.mention} for logging, i do not have the required permissions in there (read_messages, send_messages)")
+                f"I cannot use {channel.mention} for logging, I do not have the required permissions in there (read_messages, send_messages)")
 
     @Serveradmin.disable.command(name="modLogChannel")
     async def disablemodLogChannel(self, ctx: commands.Context):
         """Disables the modlogs (mute/kick/ban/...)"""
         Configuration.setConfigVar(ctx.guild.id, "MOD_LOGS", 0)
-        await ctx.send("Mod logs have been dissabled")
+        await ctx.send("Mod logs have been disabled.")
 
     async def buildCache(self, guild: discord.Guild):
         start = time.perf_counter()
-        BugLog.info(f"Populating modlog with missed messages during downtime for {guild.name} ({guild.id})")
+        BugLog.info(f"Populating modlog with missed messages during downtime for {guild.name} ({guild.id}).")
         newCount = 0
         editCount = 0
         count = 0
@@ -92,18 +92,18 @@ class ModlogCog:
                     logged = LoggedMessage.get_or_none(messageid=message.id)
                     if logged is None:
                         LoggedMessage.create(messageid=message.id, author=message.author.id,
-                                             content=message.content, timestamp=message.created_at.timestamp(),
+                                             content=self.bot.aes.encrypt(message.content), timestamp=message.created_at.timestamp(),
                                              channel=channel.id)
                         for a in message.attachments:
-                            LoggedAttachment.create(id=a.id, url=a.url, isImage=(a.width is not None or a.width is 0),
+                            LoggedAttachment.create(id=a.id, url=self.bot.aes.encrypt(a.url), isImage=(a.width is not None or a.width is 0),
                                                     messageid=message.id)
                         newCount = newCount + 1
-                    elif logged.content != message.content:
-                        logged.content = message.content
+                    elif self.bot.aes.decrypt(logged.content) != message.content:
+                        logged.content = self.bot.aes.encrypt(message.content)
                         logged.save()
                         editCount = editCount + 1
                     count = count + 1
-        BugLog.info(f"Discovered {newCount} new messages and {editCount} edited in {guild.name} (checked {count}) in {time.perf_counter() - start }s")
+        BugLog.info(f"Discovered {newCount} new messages and {editCount} edited in {guild.name} (checked {count}) in {time.perf_counter() - start }s.")
 
     async def on_ready(self):
         for guild in self.bot.guilds:
@@ -118,9 +118,9 @@ class ModlogCog:
         if Configuration.getConfigVar(message.guild.id, "MINOR_LOGS") is 0 or message.author == self.bot.user:
             return
         for a in message.attachments:
-            LoggedAttachment.create(id=a.id, url=a.url, isImage=(a.width is not None or a.width is 0),
+            LoggedAttachment.create(id=a.id, url=self.bot.aes.encrypt(a.url), isImage=(a.width is not None or a.width is 0),
                                     messageid=message.id)
-        LoggedMessage.create(messageid=message.id, author=message.author.id, content=message.content,
+        LoggedMessage.create(messageid=message.id, author=message.author.id, content=self.bot.aes.encrypt(message.content),
                              timestamp=message.created_at.timestamp(), channel=message.channel.id)
 
     async def on_raw_message_delete(self, message_id, channel_id):
@@ -136,12 +136,12 @@ class ModlogCog:
                 logChannel: discord.TextChannel = self.bot.get_channel(channelid)
                 if logChannel is not None:
                     embed = discord.Embed(timestamp=datetime.datetime.utcfromtimestamp(time.time()),
-                                          description=message.content)
+                                          description=self.bot.aes.decrypt(message.content))
                     embed.set_author(name=user.name if hasUser else message.author,
                                      icon_url=user.avatar_url if hasUser else EmptyEmbed)
-                    embed.set_footer(text=f"Send in #{channel.name}")
+                    embed.set_footer(text=f"Sent in #{channel.name}")
                     await logChannel.send(
-                        f":wastebasket: Message by {user.name if hasUser else message.author} (`{user.id}`) in {channel.mention} has been removed",
+                        f":wastebasket: Message by {user.name if hasUser else message.author} (`{user.id}`) in {channel.mention} has been removed.",
                         embed=embed)
 
     async def on_raw_message_edit(self, message_id, data):
@@ -162,13 +162,18 @@ class ModlogCog:
                     embed = discord.Embed(timestamp=datetime.datetime.utcfromtimestamp(time.time()))
                     embed.set_author(name=user.name if hasUser else message.author,
                                      icon_url=user.avatar_url if hasUser else EmptyEmbed)
-                    embed.set_footer(text=f"Send in #{channel.name}")
-                    embed.add_field(name="Before", value=message.content, inline=False)
-                    embed.add_field(name="After", value=data["content"], inline=False)
+                    embed.set_footer(text=f"Sent in #{channel.name}")
+                    if self.bot.aes.decrypt(message.content) is "":
+                        oldMessage = "---There was no message data before, this probably is the edit of an attachment.---"
+                    else:
+                        oldMessage = self.bot.aes.decrypt(message.content)
+
+                    embed.add_field(name="Before", value=(oldMessage[:1000] + '...') if len(oldMessage) > 1020 else oldMessage, inline=False)
+                    embed.add_field(name="After", value=(data["content"][:1000] + '...') if len(data["content"]) > 1020 else data["content"], inline=False)
                     await logChannel.send(
                         f":pencil: Message by {user.name} (`{user.id}`) in {channel.mention} has been edited",
                         embed=embed)
-                    message.content = data["content"]
+                    message.content = self.bot.aes.encrypt(data["content"])
                     message.save()
 
     async def on_member_join(self, member: discord.Member):
@@ -181,9 +186,9 @@ class ModlogCog:
                 dif = (datetime.datetime.utcnow() - member.created_at)
                 minutes, seconds = divmod(dif.days * 86400 + dif.seconds, 60)
                 hours, minutes = divmod(minutes, 60)
-                age = (f"{dif.days} days") if dif.days > 0 else f"{hours} hours, {minutes} mins"
+                age = (f"{dif.days} days") if dif.days > 0 else f"{hours} hours, {minutes} mins."
                 await logChannel.send(
-                    f":inbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has joined, account created {age} ago")
+                    f":inbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has joined, account created {age} ago.")
 
     async def on_member_remove(self, member: discord.Member):
         while not self.bot.startup_done:
@@ -193,7 +198,7 @@ class ModlogCog:
             logChannel: discord.TextChannel = self.bot.get_channel(channelid)
             if logChannel is not None:
                 await logChannel.send(
-                    f":outbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has left the server")
+                    f":outbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has left the server.")
 
 def setup(bot):
     bot.add_cog(ModlogCog(bot))

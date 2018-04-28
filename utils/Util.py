@@ -3,7 +3,7 @@ import aiohttp
 import asyncio
 import async_timeout
 import datetime
-
+import random
 from discord.ext import commands
 
 
@@ -60,3 +60,15 @@ async def grepFromWeb(url):
 def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 
+def randomString(length=256):
+    string = ""
+    for i in range(0, length):
+        while True:
+            randInt = random.randint(33, 126)
+            if randInt not in [34, 39, 92]:
+                break
+
+        string = string + chr(randInt)
+
+    return string
+    
