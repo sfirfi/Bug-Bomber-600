@@ -55,11 +55,13 @@ class UtilsCog:
         embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
         embed.add_field(name="Avatar URL", value=user.avatar_url)
         await ctx.send(embed=embed)
-
+        
     @commands.command()
-    async def invite(self, ctx):
-        """Shares the invite for Bug Bombing Area 600."""
-        await ctx.send("The server's invite is: discord.gg/4CYjufq!")
+    async def invite(self, ctx, uses: int):
+        """Generates an invite based of your input 1-100 uses"""
+        invite = await ctx.guild.text_channels[0].create_invite(max_uses=(uses))
+        invite_url = str(invite)
+        await ctx.send(f"I've created an invite based of your input! Here is an invite with ``{uses}`` uses. Link:\n{invite_url}")
 
     @commands.command()
     async def serverinfo(self, ctx):
