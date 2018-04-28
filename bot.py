@@ -6,6 +6,7 @@ import time
 import discord
 import configparser
 import sys
+import os
 import traceback
 import pymysql.cursors
 from discord.ext import commands
@@ -19,6 +20,8 @@ from utils import Configuration, DatabaseConnector, Util, cryption
 from cogs.fun import FunCog
 from utils import BugLog, Database
 
+if not os.path.exists('config'):
+    os.makedirs('config')
 
 config_file = Path('config.ini')
 if config_file.exists() is not True:
