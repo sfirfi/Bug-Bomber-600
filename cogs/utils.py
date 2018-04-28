@@ -55,7 +55,11 @@ class UtilsCog:
         embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
         embed.add_field(name="Avatar URL", value=user.avatar_url)
         await ctx.send(embed=embed)
-        
+
+    @commands.command()
+    async def invite(self, ctx):
+        await ctx.send("The server's invite is: discord.gg/4CYjufq!")
+
     @commands.command()
     async def serverinfo(self, ctx):
         """Shows information about the current server"""
