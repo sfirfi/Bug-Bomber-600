@@ -151,7 +151,7 @@ class FunCog:
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['img'], BucketType.user)
     async def img(self, ctx: commands.context, *, search):
-        """Sends a img for the given search term. The Terms [cat,dog,fox,lizard, neko] will random generate, other terms will spit out a Imgur img."""
+        """Sends a img for the given search term. The terms [cat,dog,fox,lizard, neko] will random generate, other terms will spit out a Imgur img."""
         search = search.lower().strip()
         imgFunctions = {
             'cat': FunExtras.catImg,
@@ -192,7 +192,7 @@ class FunCog:
 
     @commands.command()
     async def quote(self, ctx: commands.Context, messageid: int):
-        """Quotes the requested message"""
+        """Quotes the requested message."""
         async with ctx.typing():
             message = LoggedMessage.get_or_none(messageid=messageid)
             if message is None:
@@ -259,7 +259,7 @@ class FunCog:
                 await asyncio.sleep(13)
                 await message.author.remove_roles(muted)
                 await asyncio.sleep(5*60)
-                await message.channel.send(f"__pokes :point_left:{message.author.mention}:point_right:__")
+                await message.channel.send(f"__pokes :point_right:{message.author.mention}:point_left:__")
 
 
     def __init__(self, bot):
