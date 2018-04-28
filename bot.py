@@ -68,7 +68,8 @@ initial_extensions = ['moderation',
                       'fun',
                       'reminder',
                       'maintenance',
-                      'serveradmin']
+                      'serveradmin',
+                      'bugtest']
 
 def prefix_callable(bot, msg):
     user_id = bot.user.id
