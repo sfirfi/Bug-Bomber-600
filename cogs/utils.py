@@ -6,7 +6,7 @@ from utils import Util
 
 
 class UtilsCog:
-    """This cog includes the server utils so self assignable roles and the server"""
+    """This cog includes the server utils such as self assignable roles and the server info related things."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -21,7 +21,7 @@ class UtilsCog:
 
     @commands.command()
     async def userinfo(self, ctx : commands.Context, user : str = None):
-        """Shows information about the chosen user"""
+        """Shows information about the chosen user."""
         if user == None:
             user = ctx.author
             member = ctx.guild.get_member(user.id)
@@ -57,8 +57,15 @@ class UtilsCog:
         await ctx.send(embed=embed)
         
     @commands.command()
+    async def invite(self, ctx, uses: int):
+        """Generates an invite based of your input 1-100 uses"""
+        invite = await ctx.guild.text_channels[0].create_invite(max_uses=(uses))
+        invite_url = str(invite)
+        await ctx.send(f"I've created an invite based of your input! Here is an invite with ``{uses}`` uses. Link:\n{invite_url}")
+
+    @commands.command()
     async def serverinfo(self, ctx):
-        """Shows information about the current server"""
+        """Shows information about the current server."""
         guild_features = ", ".join(ctx.guild.features)
         print (guild_features)
         if guild_features == "":

@@ -81,10 +81,18 @@ class Serveradmin:
         else:
             await ctx.send(f"Automatic mute setup complete.")
 
+    async def on_member_join(self, member):
+        """Welcomes new members to the server."""
+        if member.guild.id == 391356859518287895:
+            channel = self.bot.get_channel(432333845086339072)
+            server = self.bot.get_guild(391356859518287895)
+            await channel.send(f"Welcome {member.mention}! Please read <#434755785164324904> and let a moderator (Bug Bomber Police) know when you have read the rules.")
+
+
     @commands.group()
     @commands.guild_only()
     async def disable(self, ctx: commands.Context):
-        """Base command for disabeling features"""
+        """Base command for disabling features"""
         pass
 
     @disable.command()
