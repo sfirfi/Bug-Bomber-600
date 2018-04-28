@@ -1,8 +1,13 @@
+import asyncio
+import datetime
+import traceback
+from concurrent.futures import CancelledError
+
 import discord
 import time
 import math
 from discord.ext import commands
-from utils import permissions
+from utils import permissions, BugLog
 from utils import Util
 from utils import Configuration
 
@@ -25,6 +30,13 @@ class ModerationCog:
     """This cog includes the mod utils like ban, kick, mute, warn, etc"""
     def __init__(self, bot):
         self.bot = bot
+        bot.mutes = self.mutes = Util.fetchFromDisk("mutes")
+        self.running = True
+        self.bot.loop.create_task(unmuteTask(self))
+
+    def __unload(self):
+        Util.saveToDisk("mutes", self.mutes)
+        self.running = False
 
     async def __local_check(self, ctx:commands.Context):
         if type(ctx.message.channel) is discord.channel.TextChannel:
@@ -255,5 +267,137 @@ class ModerationCog:
         await ctx.send(f":ok_hand: {member.user.name} ({member.user.id}) has been unbanned. Reason: `{reason}`.")
         #This should work even if the user isn't cached
 
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(manage_roles=True)
+    async def mute(self, ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *,
+                   reason="No reason provided"):
+        """Temporary mutes someone"""
+        roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
+        if roleid is 0:
+            await ctx.send(
+                f":warning: Unable to comply, you have not told me what role i can use to mute people, but i can still kick {target.mention} if you want while a server admin tells me what role i can use")
+        else:
+            role = discord.utils.get(ctx.guild.roles, id=roleid)
+            if role is None:
+                await ctx.send(
+                    f":warning: Unable to comply, someone has removed the role i was told to use, but i can still kick {target.mention} while a server admin makes a new role for me to use")
+            else:
+                duration = Util.convertToSeconds(durationNumber, durationIdentifier)
+                until = time.time() + duration
+                await target.add_roles(role, reason=f"{reason}, as requested by {ctx.author.name}")
+                if not str(ctx.guild.id) in self.mutes:
+                    self.mutes[str(ctx.guild.id)] = dict()
+                self.mutes[str(ctx.guild.id)][str(target.id)] = until
+                await ctx.send(f"{target.display_name} has been muted")
+                Util.saveToDisk("mutes", self.mutes)
+                await BugLog.logToModLog(ctx.guild,
+                                                 f":zipper_mouth: {target.name}#{target.discriminator} (`{target.id}`) has been muted by {ctx.author.name} for {durationNumber} {durationIdentifier}: {reason}")
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(manage_roles=True)
+    async def unmute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
+        roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
+        if roleid is 0:
+            await ctx.send(f"The mute feature has been dissabled on this server, as such i cannot unmute that person")
+        else:
+            role = discord.utils.get(ctx.guild.roles, id=roleid)
+            if role is None:
+                await ctx.send(
+                    f":warning: Unable to comply, the role i've been told to use for muting no longer exists")
+            else:
+                await target.remove_roles(role, reason=f"Unmuted by {ctx.author.name}, {reason}")
+                await ctx.send(f"{target.display_name} has been unmuted")
+                await BugLog.logToModLog(ctx.guild,
+                                                 f":innocent: {target.name}#{target.discriminator} (`{target.id}`) has been unmuted by {ctx.author.name}")
+
+    async def on_guild_channel_create(self, channel:discord.abc.GuildChannel):
+        guild:discord.Guild = channel.guild
+        roleid = Configuration.getConfigVar(guild.id, "MUTE_ROLE")
+        if roleid is not 0:
+            role = discord.utils.get(guild.roles, id=roleid)
+            if role is not None and channel.permissions_for(guild.me).manage_channels:
+                if isinstance(channel, discord.TextChannel):
+                    await channel.set_permissions(role, reason="Automatic mute role setup", send_messages=False, add_reactions=False)
+                else:
+                    await channel.set_permissions(role, reason="Automatic mute role setup", speak=False, connect=False)
+
+    async def on_member_join(self, member: discord.Member):
+        while not self.bot.startup_done:
+            await asyncio.sleep(1)
+        if str(member.guild.id) in self.mutes and member.id in self.mutes[str(member.guild.id)]:
+            roleid = Configuration.getConfigVar(member.guild.id, "MUTE_ROLE")
+            if roleid is not 0:
+                role = discord.utils.get(member.guild.roles, id=roleid)
+                if role is not None:
+                    if member.guild.me.guild_permissions.manage_roles:
+                        await member.add_roles(role, reason="Member left and re-joined before mute expired")
+                        await BugLog.logToModLog(member.guild, f":zipper_mouth: {member.name}#{member.discriminator} (`{member.id}`) has re-joined the server before his mute expired has has been muted again")
+                    else:
+                        await BugLog.logToModLog(member.guild, f"{member.name}#{member.discriminator} (`{member.id}`) has re-joined before their mute expired but i am missing the permissions to re-apply the mute")
+
 def setup(bot):
     bot.add_cog(ModerationCog(bot))
+
+
+async def unmuteTask(modcog:ModerationCog):
+    while not modcog.bot.startup_done:
+        await asyncio.sleep(1)
+        BugLog.info("Started unmute background task")
+    skips = []
+    updated = False
+    while modcog.running:
+        userid = 0
+        guildid=0
+        try:
+            guildstoremove = []
+            for guildid, list in modcog.mutes.items():
+                guild:discord.Guild = modcog.bot.get_guild(int(guildid))
+                toremove = []
+                if Configuration.getConfigVar(int(guildid), "MUTE_ROLE") is 0:
+                    guildstoremove.append(guildid)
+                for userid, until in list.items():
+                    if time.time() > until and userid not in skips:
+                        member = guild.get_member(int(userid))
+                        role = discord.utils.get(guild.roles, id=Configuration.getConfigVar(int(guildid), "MUTE_ROLE"))
+                        if guild.me.guild_permissions.manage_roles:
+                            await member.remove_roles(role, reason="Mute expired")
+                            await BugLog.logToModLog(guild, f":innocent: {member.name}#{member.discriminator} (`{member.id}`) has automaticaly been unmuted")
+                        else:
+                            await BugLog.logToModLog(guild, f":no_entry: ERROR: {member.name}#{member.discriminator} (`{member.id}`) was muted earlier but i no longer have the permissions needed to unmute this person, please remove the role manually!")
+                        updated = True
+                        toremove.append(userid)
+                for todo in toremove:
+                    del list[todo]
+                await asyncio.sleep(0)
+            if updated:
+                Util.saveToDisk("mutes", modcog.mutes)
+                updated = False
+            for id in guildstoremove:
+                del modcog.mutes[id]
+            await asyncio.sleep(10)
+        except CancelledError:
+            pass #bot shutdown
+        except Exception as ex:
+            BugLog.error("Something went wrong in the unmute task")
+            BugLog.error(traceback.format_exc())
+            skips.append(userid)
+            embed = discord.Embed(colour=discord.Colour(0xff0000),
+                                  timestamp=datetime.datetime.utcfromtimestamp(time.time()))
+
+            embed.set_author(name="Something went wrong in the unmute task:")
+            embed.add_field(name="Current guildid", value=guildid)
+            embed.add_field(name="Current userid", value=userid)
+            embed.add_field(name="Exception", value=ex)
+            v = ""
+            for line in traceback.format_exc().splitlines():
+                if len(v) + len(line) > 1024:
+                    embed.add_field(name="Stacktrace", value=v)
+                    v = ""
+                v = f"{v}\n{line}"
+            if len(v) > 0:
+                embed.add_field(name="Stacktrace", value=v)
+            await BugLog.logToBotlog(embed=embed)
+            await asyncio.sleep(10)
+        BugLog.info("Unmute background task terminated")
