@@ -55,13 +55,33 @@ class UtilsCog:
         embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
         embed.add_field(name="Avatar URL", value=user.avatar_url)
         await ctx.send(embed=embed)
-        
-    @commands.command()
-    async def invite(self, ctx, uses: int):
-        """Generates an invite based of your input 1-100 uses"""
+
+    @commands.group()
+    async def invite(self, ctx):
+        """searches for a valid invite and sends that."""
+        if ctx.invoked_subcommand is None:
+            invites = await ctx.guild.invites()
+            if len(invites) > 0:
+                inviteurl = None
+                for invite in invites:
+                    if invite.max_uses == 0 and invite.max_age == 0:
+                        inviteurl = invite.url
+                        break;
+
+                if inviteurl is not None:
+                    await ctx.send(inviteurl)
+                else:
+                    await ctx.send("there currently are no invites on this server.")
+            else:
+                await ctx.send("there currently are no invites on this server.")
+
+    @invite.command(name='new')
+    async def newInvite(self, ctx, uses :int = 1):
+        """Generates a new invites based on your wished uses. By default the invite has one use."""
         invite = await ctx.guild.text_channels[0].create_invite(max_uses=(uses))
         invite_url = str(invite)
-        await ctx.send(f"I've created an invite based of your input! Here is an invite with ``{uses}`` uses. Link:\n{invite_url}")
+        await ctx.send(f"I've created an invite based of your input! Here is an invite with ``{uses}`` use(s). Link:\n{invite_url}")
+
 
     @commands.command()
     async def serverinfo(self, ctx):

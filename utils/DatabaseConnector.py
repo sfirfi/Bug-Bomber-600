@@ -21,7 +21,7 @@ class LoggedMessage(Model):
 
 class LoggedAttachment(Model):
     id = BigIntegerField(primary_key=True)
-    url = CharField()
+    url = CharField(max_length=2048, collation="utf8mb4_general_ci", null=True)
     isImage = BooleanField()
     messageid = BigIntegerField()
 

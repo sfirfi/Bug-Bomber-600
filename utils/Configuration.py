@@ -16,6 +16,8 @@ CONFIG_TEMPLATE = {
     "MINOR_LOGS": 0,
     "JOIN_LOGS": 0,
     "MOD_LOGS": 0,
+    "WELCOME_MESSAGE": "Welcome %mention% to the Server.",
+    "WELCOME_CHANNEL": 0
 }
 
 
