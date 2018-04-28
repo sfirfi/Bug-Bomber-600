@@ -400,4 +400,4 @@ async def unmuteTask(modcog:ModerationCog):
                 embed.add_field(name="Stacktrace", value=v)
             await BugLog.logToBotlog(embed=embed)
             await asyncio.sleep(10)
-        BugLog.info("Unmute background task terminated")
+    BugLog.info("Unmute background task terminated")
