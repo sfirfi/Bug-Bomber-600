@@ -22,34 +22,35 @@ class Serveradmin:
     @commands.guild_only()
     @commands.group()
     async def configure(self, ctx: commands.Context):
-        """Configure server specific settings"""
+        """Configure server specific settings."""
         if ctx.subcommand_passed is None:
             await ctx.send("See the subcommands (!help configure) for configurations.")
 
     @configure.command()
     async def prefix(self, ctx: commands.Context, newPrefix):
-        """Sets a new prefix for this server"""
+        """Sets a new prefix for this server."""
         Configuration.setConfigVar(ctx.guild.id, "PREFIX", newPrefix)
         await ctx.send(f"The server prefix is now `{newPrefix}`.")
 
     @configure.command()
     async def adminrole(self, ctx: commands.Context, roleID):
-        """Sets the server admin role"""
+        """Sets the server admin role."""
         Configuration.setConfigVar(ctx.guild.id, "ADMIN_ROLE_ID", roleID)
         await ctx.send(f"The server admin role is now `{roleID}`.")
 
     @configure.command()
     async def modrole(self, ctx: commands.Context, roleID):
-        """Sets the role with moderation rights"""
+        """Sets the role with moderation rights."""
         Configuration.setConfigVar(ctx.guild.id, "MOD_ROLE_ID", roleID)
         await ctx.send(f"The server moderation role is now `{roleID}`.")
 
     @configure.group(name="welcome")
     async def welcome(self, ctx: commands.Context):
+        """Provides options to send a message to a targetted channel."""
         if ctx.invoked_subcommand is not None:
             if ctx.invoked_subcommand.name == "welcome":
                 welcomeHelp = "`configure welcome message` - Sets the welcome message.\n Use %mention% to mention a user in the message.\n Use %name% to just write the name in the message."\
-                            "\n\n`configure welcome channel - Sets the welcome channel`"
+                            "\n\n`configure welcome channel - Sets the welcome channel.`"
                 embed = discord.Embed(title="Welcome help", color=0xff00ff)
                 embed.add_field(name='\u200b', value=welcomeHelp, inline=True)
                 await ctx.send(embed=embed)
@@ -64,6 +65,7 @@ class Serveradmin:
 
     @welcome.command(name="channel")
     async def welcomeChannel(self, ctx:commands.Context, channel: discord.TextChannel):
+        
         permissions = channel.permissions_for(ctx.guild.get_member(self.bot.user.id))
         if permissions.read_messages and permissions.send_messages and permissions.embed_links:
             Configuration.setConfigVar(ctx.guild.id, "WELCOME_CHANNEL", channel.id)
@@ -73,7 +75,7 @@ class Serveradmin:
 
     @configure.command()
     async def muteRole(self, ctx: commands.Context, role: discord.Role):
-        """Sets what role to use for mutes"""
+        """Sets what role to use for mutes."""
         guild: discord.Guild = ctx.guild
         perms = guild.me.guild_permissions
         if not perms.manage_roles:
@@ -120,12 +122,12 @@ class Serveradmin:
     @commands.group()
     @commands.guild_only()
     async def disable(self, ctx: commands.Context):
-        """Base command for disabling features"""
+        """Base command for disabling features."""
         pass
 
     @disable.command()
     async def mute(self, ctx: commands.Context):
-        """Disable the mute feature"""
+        """Disable the mute feature."""
         role = discord.utils.get(ctx.guild.roles, id=Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE"))
         if role is not None:
             for member in role.members:
