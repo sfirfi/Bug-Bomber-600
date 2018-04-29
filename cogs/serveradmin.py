@@ -31,6 +31,12 @@ class Serveradmin:
         """Sets a new prefix for this server."""
         Configuration.setConfigVar(ctx.guild.id, "PREFIX", newPrefix)
         await ctx.send(f"The server prefix is now `{newPrefix}`.")
+        
+    @configure.command()
+    async def announce(self, ctx: commands.Context, channelID):
+        """Sets the announce channel"""
+        Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", channelID)
+        await ctx.send(f"The announces channel now is <#{channelID}>")
 
     @configure.command()
     async def adminrole(self, ctx: commands.Context, roleID):
@@ -134,6 +140,11 @@ class Serveradmin:
                 await member.remove_roles(role, reason=f"Mute feature has been disabled.")
         Configuration.setConfigVar(ctx.guild.id, "MUTE_ROLE", 0)
         await ctx.send("Mute feature has been disabled, all people muted have been unmuted and the role can now be removed.")
+        
+    @disable.command(name="announce")
+    async def announce1(self, ctx:commands.Context):
+        Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", 0)
+        await ctx.send("The announce channel has been reseted.")
 
     @disable.command(name="wmessage")
     async def disableWelcome(self, ctx: commands.Context):
