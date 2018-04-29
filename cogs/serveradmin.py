@@ -34,7 +34,7 @@ class Serveradmin:
         
     @configure.command()
     async def announce(self, ctx: commands.Context, channelID):
-        """Sets the announce channel"""
+        """Sets the announce channel."""
         Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", channelID)
         await ctx.send(f"The announces channel now is <#{channelID}>")
 
