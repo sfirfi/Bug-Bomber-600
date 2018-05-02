@@ -229,7 +229,7 @@ class FunCog:
                         else:
                             embed.add_field(name="Attachment link", value=attachment.url)
                 else:
-                    embed = discord.Embed(colour=discord.Color(0xd5fff), description=message.content,
+                    embed = discord.Embed(colour=discord.Color(0xd5fff), description=self.bot.aes.encrypt(message.content),
                                           timestamp=datetime.utcfromtimestamp(message.timestamp))
                     if attachment is not None:
                         if attachment.isImage:
