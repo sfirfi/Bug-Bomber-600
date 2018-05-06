@@ -188,8 +188,8 @@ async def on_ready():
         print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}' + f'\nVersion: {discord.__version__}\n')
         await BugLog.onReady(bot, config["Settings"]["botlog"])
         bot.loop.create_task(keepDBalive())  # ping DB every hour so it doesn't run off
-        await bot.change_presence(activity=discord.Activity(name='BugHunters', type=discord.ActivityType.watching))
         bot.startup_done = True
+    await bot.change_presence(activity=discord.Activity(name='BugHunters', type=discord.ActivityType.watching))
 
 @bot.event
 async def on_message(message:discord.Message):
