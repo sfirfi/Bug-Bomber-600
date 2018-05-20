@@ -200,6 +200,7 @@ class ModlogCog:
                 await logChannel.send(
                     f":outbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has left the server.")
 
+    #This will apply to both non members and members, also works with manual bans.
     async def on_member_ban(self, guild, user):
         while not self.bot.startup_done:
             await asyncio.sleep(1)
