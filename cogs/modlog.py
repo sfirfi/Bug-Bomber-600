@@ -87,7 +87,7 @@ class ModlogCog:
         for channel in guild.text_channels:
             if channel.permissions_for(guild.get_member(self.bot.user.id)).read_messages:
                 async for message in channel.history(limit=250, reverse=False):
-                    if message.author == self.bot.user:
+                    if message.author.bot:
                         continue
                     logged = LoggedMessage.get_or_none(messageid=message.id)
                     if logged is None:
@@ -115,7 +115,7 @@ class ModlogCog:
             await asyncio.sleep(1)
         if not hasattr(message.channel, "guild") or message.channel.guild is None:
             return
-        if Configuration.getConfigVar(message.guild.id, "MINOR_LOGS") is 0 or message.author == self.bot.user:
+        if Configuration.getConfigVar(message.guild.id, "MINOR_LOGS") is 0 or message.author.bot:
             return
         for a in message.attachments:
             LoggedAttachment.create(id=a.id, url=self.bot.aes.encrypt(a.url), isImage=(a.width is not None or a.width is 0),

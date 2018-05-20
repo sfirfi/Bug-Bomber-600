@@ -6,6 +6,7 @@ import time
 import discord
 import configparser
 import sys
+import os
 import traceback
 import pymysql.cursors
 from discord.ext import commands
@@ -19,6 +20,8 @@ from utils import Configuration, DatabaseConnector, Util, cryption
 from cogs.fun import FunCog
 from utils import BugLog, Database
 
+if not os.path.exists('config'):
+    os.makedirs('config')
 
 config_file = Path('config.ini')
 if config_file.exists() is not True:
@@ -65,7 +68,8 @@ initial_extensions = ['moderation',
                       'fun',
                       'reminder',
                       'maintenance',
-                      'serveradmin']
+                      'serveradmin',
+                      'bugtest']
 
 def prefix_callable(bot, msg):
     user_id = bot.user.id
@@ -184,8 +188,8 @@ async def on_ready():
         print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}' + f'\nVersion: {discord.__version__}\n')
         await BugLog.onReady(bot, config["Settings"]["botlog"])
         bot.loop.create_task(keepDBalive())  # ping DB every hour so it doesn't run off
-        await bot.change_presence(activity=discord.Activity(name='BugHunters', type=discord.ActivityType.watching))
         bot.startup_done = True
+    await bot.change_presence(activity=discord.Activity(name='BugHunters', type=discord.ActivityType.watching))
 
 @bot.event
 async def on_message(message:discord.Message):

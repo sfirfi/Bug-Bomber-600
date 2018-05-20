@@ -16,7 +16,7 @@ def fetchFromDisk(filename):
 
 
 def saveToDisk(filename, dict):
-    with open(f"{filename}.json") as file:
+    with open(f"{filename}.json", 'w') as file:
         json.dump(dict, file, indent=4, skipkeys=True, sort_keys=True)
 
 

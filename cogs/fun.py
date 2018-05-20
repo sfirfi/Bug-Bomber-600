@@ -204,7 +204,7 @@ class FunCog:
                                 LoggedAttachment.get_or_create(id=a.id, url=a.url,
                                                                isImage=(a.width is not None or a.width is 0),
                                                                messageid=message.id)
-                            message = LoggedMessage.create(messageid=messageid, content=dmessage.content,
+                            message = LoggedMessage.create(messageid=messageid, content=self.bot.aes.encrypt(dmessage.content),
                                                            author=dmessage.author.id,
                                                            timestamp=dmessage.created_at.timestamp(),
                                                            channel=channel.id)
@@ -225,17 +225,17 @@ class FunCog:
                 if message.content is None or message.content == "":
                     if attachment is not None:
                         if attachment.isImage:
-                            embed.set_image(url=attachment.url)
+                            embed.set_image(url=self.bot.aes.decrypt(attachment.url))
                         else:
-                            embed.add_field(name="Attachment link", value=attachment.url)
+                            embed.add_field(name="Attachment link", value=self.bot.aes.decrypt(attachment.url))
                 else:
-                    embed = discord.Embed(colour=discord.Color(0xd5fff), description=message.content,
+                    embed = discord.Embed(colour=discord.Color(0xd5fff), description=self.bot.aes.decrypt(message.content),
                                           timestamp=datetime.utcfromtimestamp(message.timestamp))
                     if attachment is not None:
                         if attachment.isImage:
-                            embed.set_image(url=attachment.url)
+                            embed.set_image(url=self.bot.aes.decrypt(attachment.url))
                         else:
-                            embed.add_field(name="Attachment link", value=attachment.url)
+                            embed.add_field(name="Attachment link", value=self.bot.aes.decrypt(attachment.url))
                 try:
                     user = await commands.MemberConverter().convert(ctx, message.author)
                 except:
