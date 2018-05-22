@@ -200,5 +200,25 @@ class ModlogCog:
                 await logChannel.send(
                     f":outbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has left the server.")
 
+    async def on_member_ban(self, guild, user):
+        while not self.bot.startup_done:
+            await asyncio.sleep(1)
+        channelid = Configuration.getConfigVar(guild.id, "MOD_LOGS")
+        if channelid is not 0:
+            logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+            if logChannel is not None:
+                await logChannel.send(
+                    f":rotating_light: {user.display_name}#{user.discriminator} (`{user.id}`) has been banned from the server.")
+
+    async def on_member_unban(self, guild, user):
+        while not self.bot.startup_done:
+            await asyncio.sleep(1)
+        channelid = Configuration.getConfigVar(guild.id, "MOD_LOGS")
+        if channelid is not 0:
+            logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+            if logChannel is not None:
+                await logChannel.send(
+                    f":rotating_light: {user.display_name}#{user.discriminator} (`{user.id}`) has been unbanned from the server.")
+
 def setup(bot):
     bot.add_cog(ModlogCog(bot))
