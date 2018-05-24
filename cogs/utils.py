@@ -111,6 +111,61 @@ class UtilsCog:
             embed.add_field(name="Server Icon URL", value=ctx.guild.icon_url, inline=True)
         embed.add_field(name="Roles", value=", ".join(role_list), inline=True)
         await ctx.send(embed=embed)
+        
+    @commands.group()
+    @commands.guild_only()
+    async def selfrole(self, ctx:commands.Context):
+        """Allows the joining and leaving of joinable roles"""
+        if ctx.subcommand_passed is None:
+            await ctx.send("Use `!help selfrole` for info on how to use this command.")
+
+    @selfrole.command()
+    async def list(self, ctx: commands.Context, page=""):
+        """Provides a list of all joinable roles"""
+        role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        rolesPerPage = 20
+        roles = ""
+        ids = ""
+        pages = math.ceil(len(role_id_list)/rolesPerPage)
+        if page == "" or not page.isdigit():
+            page = 1
+        elif int(page) <=1 or int(page) > pages:
+            page = 1
+
+        for i in range(rolesPerPage*(int(page)-1),rolesPerPage*int(page)):
+            if i < len(role_id_list):
+                role = role_id_list[i]
+                roles += f"<@&{role}>\n\n"
+                ids += str(role) + "\n\n"
+            else:
+                break
+
+        embed = discord.Embed(title=ctx.guild.name + "'s Joinable roles", color=0x54d5ff)
+        embed.add_field(name="\u200b", value=roles, inline=True)
+        embed.add_field(name="\u200b", value=ids, inline=True)
+        embed.set_footer(text=f"Page {page} of {pages}")
+        await ctx.send(embed=embed)
+
+
+    @selfrole.command()
+    async def join(self, ctx: commands.context, role: discord.Role):
+        """Joins a selfrole group"""
+        role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        if role.id in role_id_list and role not in ctx.author.roles:
+            await ctx.message.author.add_roles(role, reason=f"{ctx.message.author} Joined role group {role.name}")
+            await ctx.send(f"Succesfully joined {role.name}")
+        else:
+            await ctx.send("That role isn't joinable or you already have joined it.")
+
+    @selfrole.command()
+    async def leave(self, ctx: commands.Context, role: discord.Role):
+        """Leaves one of the selfrole groups you are in"""
+        role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        if role.id in role_id_list and role in ctx.author.roles:
+            await ctx.message.author.remove_roles(role, reason=f"{ctx.message.author} Left role group {role.name}")
+            await ctx.send(f"Succesfully left {role.name}")
+        else:
+            await ctx.send("That role isn't leavable or you don't have the role.")
 
     async def __local_check(self, ctx:commands.Context):
         if type(ctx.message.channel) is discord.channel.TextChannel:
