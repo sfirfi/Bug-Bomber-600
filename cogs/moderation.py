@@ -363,7 +363,7 @@ async def unmuteTask(modcog:ModerationCog):
                     if time.time() > until and userid not in skips:
                         member = guild.get_member(int(userid))
                         role = discord.utils.get(guild.roles, id=Configuration.getConfigVar(int(guildid), "MUTE_ROLE"))
-                        if guild.me.guild_permissions.manage_roles:
+                        if guild.me.guild_permissions.manage_roles and member != None:
                             await member.remove_roles(role, reason="Mute expired")
                             await BugLog.logToModLog(guild, f":innocent: {member.name}#{member.discriminator} (`{member.id}`) has automatically been unmuted")
                         else:
