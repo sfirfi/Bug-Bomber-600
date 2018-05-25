@@ -1,4 +1,5 @@
 import discord
+import math
 from datetime import datetime
 from discord.ext import commands
 from utils import permissions
