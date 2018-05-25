@@ -38,7 +38,8 @@ class UtilsCog:
         warns = len(warnings)
         embed = discord.Embed(color=0x7289DA)
         embed.set_thumbnail(url=user.avatar_url)
-        embed.set_footer(text=f"Requested by {ctx.author.name} at {ctx.message.created_at.replace(second=0, microsecond=0)}", icon_url=ctx.author.avatar_url)
+        embed.timestamp = datetime.utcnow()
+        embed.set_footer(text=f"Requested by {ctx.author.name}", icon_url=ctx.author.avatar_url)
         embed.add_field(name="Name", value=f"{user.name}#{user.discriminator}", inline=True)
         embed.add_field(name="ID", value=user.id, inline=True)
         embed.add_field(name="Total Warn Count", value=f"{warns}", inline=True)
@@ -53,7 +54,7 @@ class UtilsCog:
             embed.add_field(name="Joined At", value=f"{account_joined} ({(ctx.message.created_at - member.joined_at).days} days ago)", inline=True)
         account_made = user.created_at.strftime("%d-%m-%Y")
         embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
-        embed.add_field(name="Avatar URL", value=user.avatar_url)
+        embed.add_field(name="Avatar URL", value=f"[Click Here]({user.avatar_url})")
         await ctx.send(embed=embed)
 
     @commands.group()
@@ -96,8 +97,8 @@ class UtilsCog:
         guild_made = ctx.guild.created_at.strftime("%d-%m-%Y")
         embed = discord.Embed(color=0x7289DA)
         embed.set_thumbnail(url=ctx.guild.icon_url)
-        requested_at = ctx.message.created_at.strftime("%d-%m-%Y %I:%M%p")
-        embed.set_footer(text=f"Requested by {ctx.author.name} at {requested_at}", icon_url=ctx.author.avatar_url)
+        embed.timestamp = datetime.utcnow()
+        embed.set_footer(text=f"Requested by {ctx.author.name}", icon_url=ctx.author.avatar_url)
         embed.add_field(name="Name", value=ctx.guild.name, inline=True)
         embed.add_field(name="ID", value=ctx.guild.id, inline=True)
         embed.add_field(name="Owner", value=ctx.guild.owner, inline=True)
@@ -108,7 +109,7 @@ class UtilsCog:
         embed.add_field(name="Created at", value=f"{guild_made} ({(ctx.message.created_at - ctx.guild.created_at).days} days ago)", inline=True)
         embed.add_field(name="VIP Features", value=guild_features, inline=True)
         if ctx.guild.icon_url != "":
-            embed.add_field(name="Server Icon URL", value=ctx.guild.icon_url, inline=True)
+            embed.add_field(name="Server Icon URL", value=f"[Click Here]({ctx.guild.icon_url})", inline=True)
         embed.add_field(name="Roles", value=", ".join(role_list), inline=True)
         await ctx.send(embed=embed)
         
