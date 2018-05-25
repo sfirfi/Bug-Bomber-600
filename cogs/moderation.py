@@ -221,7 +221,7 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx, user: discord.User, *, reason = "No reason given."):
+    async def kick(self, ctx, user: discord.Member, *, reason = "No reason given."):
         """Kicks a user from the server"""
         if user == ctx.author or user == ctx.bot.user:
             await ctx.send("You cannot kick that user!")
@@ -236,7 +236,7 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx, user: discord.User, *, reason = "No reason given"):
+    async def ban(self, ctx, user: discord.Member, *, reason = "No reason given"):
         """Bans a user from the server."""
         if user == ctx.author or user == ctx.bot.user:
             await ctx.send("You cannot ban that user!")
