@@ -4,6 +4,7 @@ from datetime import datetime
 from discord.ext import commands
 from utils import permissions
 from utils import Util
+from utils import Configuration
 
 
 class UtilsCog:
