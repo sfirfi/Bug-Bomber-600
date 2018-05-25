@@ -18,6 +18,7 @@ CONFIG_TEMPLATE = {
     "MOD_LOGS": 0,
     "WELCOME_MESSAGE": "Welcome %mention% to the Server.",
     "WELCOME_CHANNEL": 0
+    "JOINABLE_ROLES": [],
 }
 
 
