@@ -268,6 +268,15 @@ class ModerationCog:
         await ctx.guild.unban(member.user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.send(f":ok_hand: {member.user.name} ({member.user.id}) has been unbanned. Reason: `{reason}`.")
         #This should work even if the user isn't cached
+    
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(ban_members=True)
+    async def softban(self, ctx, member: discord.Member, *, reason = "No reason given"):
+        """Bans an user then unbans them afterwards, removing their messages."""
+        await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+        await ctx.guild.unban(member)
+        await ctx.send(f":ok_hand: {member.name} ({member.id}) has been soft-banned. Reason: `{reason}`.")
 
     @commands.command()
     @commands.guild_only()
