@@ -270,6 +270,22 @@ class ModerationCog:
         #This should work even if the user isn't cached
     
     @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def purge(self, ctx, msgs: int, *, txt=None):
+        """Purges the last few messages."""
+        await ctx.message.delete()
+        if msgs < 100:
+            async for message in ctx.message.channel.history(limit=msgs):
+                try:
+                    if txt:
+                        if txt.lower() in message.content.lower():
+                            await message.delete()
+                    else:
+                        await message.delete()
+                except:
+                        await ctx.send('Too many messages to delete. Enter a number < 100')
+        
+    @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
     async def softban(self, ctx, member: discord.Member, *, reason = "No reason given"):
