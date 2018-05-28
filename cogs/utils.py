@@ -151,7 +151,7 @@ class UtilsCog:
 
 
     @selfrole.command()
-    async def join(self, ctx: commands.context, role: discord.Role):
+    async def join(self, ctx: commands.context, *, role: discord.Role):
         """Joins a selfrole group"""
         role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
         if role.id in role_id_list and role not in ctx.author.roles:
@@ -161,7 +161,7 @@ class UtilsCog:
             await ctx.send("That role isn't joinable or you already have joined it.")
 
     @selfrole.command()
-    async def leave(self, ctx: commands.Context, role: discord.Role):
+    async def leave(self, ctx: commands.Context, *, role: discord.Role):
         """Leaves one of the selfrole groups you are in"""
         role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
         if role.id in role_id_list and role in ctx.author.roles:
@@ -169,6 +169,27 @@ class UtilsCog:
             await ctx.send(f"Succesfully left {role.name}")
         else:
             await ctx.send("That role isn't leavable or you don't have the role.")
+    @commands.command()
+    async def add(self, ctx, user: discord.Member, *, rolename:str):
+        """Adds an role to someone."""
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if not role:
+                await ctx.send("That role doesn't exist!")
+        try:
+                await user.add_roles(role)
+                await ctx.send(":ok_hand: I added the {} role to {}!".format(rolename, user))
+        except discord.Forbidden:
+                await ctx.send('I need **Manage Roles** for this!')
+    @commands.command()
+    async def remove(self, ctx, user: discord.Member, *, rolename:str):
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if not role:
+                await ctx.send("That role doesn't exist")
+        try:
+                await user.remove_roles(role)
+                await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
+        except discord.Forbidden:
+                await ctx.send("I need **Manage Roles** for this!")
 
     async def __local_check(self, ctx:commands.Context):
         if type(ctx.message.channel) is discord.channel.TextChannel:
