@@ -300,7 +300,7 @@ class ModerationCog:
     async def mute(self, ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *,
                    reason="No reason provided"):
         """Temporary mutes someone"""
-        if target == ctx.author or user == ctx.bot.user:
+        if target == ctx.author or target == ctx.bot.user:
             await ctx.send("You cannot mute that user!")
         roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
         if roleid is 0:
