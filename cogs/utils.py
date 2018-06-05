@@ -1,8 +1,10 @@
 import discord
+import math
 from datetime import datetime
 from discord.ext import commands
 from utils import permissions
 from utils import Util
+from utils import Configuration
 
 
 class UtilsCog:
@@ -38,7 +40,8 @@ class UtilsCog:
         warns = len(warnings)
         embed = discord.Embed(color=0x7289DA)
         embed.set_thumbnail(url=user.avatar_url)
-        embed.set_footer(text=f"Requested by {ctx.author.name} at {ctx.message.created_at.replace(second=0, microsecond=0)}", icon_url=ctx.author.avatar_url)
+        embed.timestamp = datetime.utcnow()
+        embed.set_footer(text=f"Requested by {ctx.author.name}", icon_url=ctx.author.avatar_url)
         embed.add_field(name="Name", value=f"{user.name}#{user.discriminator}", inline=True)
         embed.add_field(name="ID", value=user.id, inline=True)
         embed.add_field(name="Total Warn Count", value=f"{warns}", inline=True)
@@ -53,7 +56,7 @@ class UtilsCog:
             embed.add_field(name="Joined At", value=f"{account_joined} ({(ctx.message.created_at - member.joined_at).days} days ago)", inline=True)
         account_made = user.created_at.strftime("%d-%m-%Y")
         embed.add_field(name="Account Created At", value=f"{account_made} ({(ctx.message.created_at - user.created_at).days} days ago)", inline=True)
-        embed.add_field(name="Avatar URL", value=user.avatar_url)
+        embed.add_field(name="Avatar URL", value=f"[Click Here]({user.avatar_url})")
         await ctx.send(embed=embed)
 
     @commands.group()
@@ -96,8 +99,8 @@ class UtilsCog:
         guild_made = ctx.guild.created_at.strftime("%d-%m-%Y")
         embed = discord.Embed(color=0x7289DA)
         embed.set_thumbnail(url=ctx.guild.icon_url)
-        requested_at = ctx.message.created_at.strftime("%d-%m-%Y %I:%M%p")
-        embed.set_footer(text=f"Requested by {ctx.author.name} at {requested_at}", icon_url=ctx.author.avatar_url)
+        embed.timestamp = datetime.utcnow()
+        embed.set_footer(text=f"Requested by {ctx.author.name}", icon_url=ctx.author.avatar_url)
         embed.add_field(name="Name", value=ctx.guild.name, inline=True)
         embed.add_field(name="ID", value=ctx.guild.id, inline=True)
         embed.add_field(name="Owner", value=ctx.guild.owner, inline=True)
@@ -108,9 +111,85 @@ class UtilsCog:
         embed.add_field(name="Created at", value=f"{guild_made} ({(ctx.message.created_at - ctx.guild.created_at).days} days ago)", inline=True)
         embed.add_field(name="VIP Features", value=guild_features, inline=True)
         if ctx.guild.icon_url != "":
-            embed.add_field(name="Server Icon URL", value=ctx.guild.icon_url, inline=True)
+            embed.add_field(name="Server Icon URL", value=f"[Click Here]({ctx.guild.icon_url})", inline=True)
         embed.add_field(name="Roles", value=", ".join(role_list), inline=True)
         await ctx.send(embed=embed)
+        
+    @commands.group()
+    @commands.guild_only()
+    async def selfrole(self, ctx:commands.Context):
+        """Allows the joining and leaving of joinable roles"""
+        if ctx.subcommand_passed is None:
+            await ctx.send("Use `!help selfrole` for info on how to use this command.")
+
+    @selfrole.command()
+    async def list(self, ctx: commands.Context, page=""):
+        """Provides a list of all joinable roles"""
+        role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        rolesPerPage = 20
+        roles = ""
+        ids = ""
+        pages = math.ceil(len(role_id_list)/rolesPerPage)
+        if page == "" or not page.isdigit():
+            page = 1
+        elif int(page) <=1 or int(page) > pages:
+            page = 1
+
+        for i in range(rolesPerPage*(int(page)-1),rolesPerPage*int(page)):
+            if i < len(role_id_list):
+                role = role_id_list[i]
+                roles += f"<@&{role}>\n\n"
+                ids += str(role) + "\n\n"
+            else:
+                break
+
+        embed = discord.Embed(title=ctx.guild.name + "'s Joinable roles", color=0x54d5ff)
+        embed.add_field(name="\u200b", value=roles, inline=True)
+        embed.add_field(name="\u200b", value=ids, inline=True)
+        embed.set_footer(text=f"Page {page} of {pages}")
+        await ctx.send(embed=embed)
+
+
+    @selfrole.command()
+    async def join(self, ctx: commands.context, *, role: discord.Role):
+        """Joins a selfrole group"""
+        role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        if role.id in role_id_list and role not in ctx.author.roles:
+            await ctx.message.author.add_roles(role, reason=f"{ctx.message.author} Joined role group {role.name}")
+            await ctx.send(f"Succesfully joined {role.name}")
+        else:
+            await ctx.send("That role isn't joinable or you already have joined it.")
+
+    @selfrole.command()
+    async def leave(self, ctx: commands.Context, *, role: discord.Role):
+        """Leaves one of the selfrole groups you are in"""
+        role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        if role.id in role_id_list and role in ctx.author.roles:
+            await ctx.message.author.remove_roles(role, reason=f"{ctx.message.author} Left role group {role.name}")
+            await ctx.send(f"Succesfully left {role.name}")
+        else:
+            await ctx.send("That role isn't leavable or you don't have the role.")
+    @commands.command()
+    async def add(self, ctx, user: discord.Member, *, rolename:str):
+        """Adds an role to someone."""
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if not role:
+                await ctx.send("That role doesn't exist!")
+        try:
+                await user.add_roles(role)
+                await ctx.send(":ok_hand: I added the {} role to {}!".format(rolename, user))
+        except discord.Forbidden:
+                await ctx.send('I need **Manage Roles** for this!')
+    @commands.command()
+    async def remove(self, ctx, user: discord.Member, *, rolename:str):
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if not role:
+                await ctx.send("That role doesn't exist")
+        try:
+                await user.remove_roles(role)
+                await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
+        except discord.Forbidden:
+                await ctx.send("I need **Manage Roles** for this!")
 
     async def __local_check(self, ctx:commands.Context):
         if type(ctx.message.channel) is discord.channel.TextChannel:

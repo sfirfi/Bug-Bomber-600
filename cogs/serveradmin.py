@@ -124,6 +124,43 @@ class Serveradmin:
                 welcomeMessage = Configuration.getConfigVar(member.guild.id, "WELCOME_MESSAGE")
                 if welcomeMessage is not None and welcomeMessage is not "":
                     await welcomeChannel.send(welcomeMessage.replace("%mention%", f"<@{member.id}>").replace("%name%", member.name))
+                    
+    @configure.group()
+    async def selfrole(self, ctx):
+        """Used to add and remove joinable selfroles"""
+        if ctx.subcommand_passed is None:
+            await ctx.send("See the subcommands (!help configure selfrole) for configurations")
+
+    @selfrole.command()
+    async def add(self, ctx: commands.Context, role: discord.Role):
+        """Used to add roles to the joinable list"""
+        role_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        if role.id in role_list:
+            await ctx.send("This role is already joinable! To remove joinable roles use `!configure removejoinableRole` instead.")
+        else:
+            role_list.extend([role.id])
+            Configuration.setConfigVar(ctx.guild.id, "JOINABLE_ROLES", role_list)
+            await ctx.send(f"{role.name} has been added to the selfrole list.")
+
+    @selfrole.command()
+    async def remove(self, ctx: commands.Context, roleraw):
+        """Used to remove roles from the joinable list"""
+        role_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        try:
+            role = await commands.RoleConverter().convert(ctx, roleraw)
+            if role.id in role_list:
+                role_list.remove(role.id)
+                Configuration.setConfigVar(ctx.guild.id, "JOINABLE_ROLES", role_list)
+                await ctx.send(f"{role.name} has been removed from the selfrole list.")
+            else:
+                await ctx.send("That role already isn't joinable!")
+        except:
+            if role in role_list:
+                role_list.remove(role)
+                Configuration.setConfigVar(ctx.guild.id, "JOINABLE_ROLES", role_list)
+                await ctx.send("Role successfully removed from the selfrole list.")
+            else:
+                await ctx.send("That role already isn't joinable or if you are trying to remove a role from the selfrole list you have already deleted please use the ID.")
 
     @commands.group()
     @commands.guild_only()

@@ -221,31 +221,33 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx, user: discord.User, *, reason = "No reason given."):
-        """Kicks an user from the server."""
+    async def kick(self, ctx, user: discord.Member, *, reason = "No reason given."):
+        """Kicks a user from the server"""
         if user == ctx.author or user == ctx.bot.user:
             await ctx.send("You cannot kick that user!")
+        elif user.top_role > ctx.guild.me.top_role:
+            await ctx.send(f':no_entry_sign: {user.name} has a higher role than me, I can\'t kick them.')
+        elif user.top_role > ctx.author.top_role:
+            await ctx.send(f':no_entry_sign: {user.name} has a higher role than you, you can\'t kick them.')
         else:
-            try:
-                await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-                await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`.")
-            except:
-                await ctx.send("I cannot kick that user.")
+            await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+            await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
 
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx, user: discord.User, *, reason = "No reason given"):
-        """Bans an user from the server."""
+    async def ban(self, ctx, user: discord.Member, *, reason = "No reason given"):
+        """Bans a user from the server."""
         if user == ctx.author or user == ctx.bot.user:
             await ctx.send("You cannot ban that user!")
+        elif user.top_role > ctx.guild.me.top_role:
+            await ctx.send(f':no_entry_sign: {user.name} has a higher role than me, I can\'t kick them.')
+        elif user.top_role > ctx.author.top_role:
+            await ctx.send(f':no_entry_sign: {user.name} has a higher role than you, you can\'t kick them.')
         else:
-            try:
-                await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-                await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`.")
-            except:
-                await ctx.send("I cannot ban that user.")
-
+            await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+            await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
+            
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
@@ -266,6 +268,31 @@ class ModerationCog:
         await ctx.guild.unban(member.user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.send(f":ok_hand: {member.user.name} ({member.user.id}) has been unbanned. Reason: `{reason}`.")
         #This should work even if the user isn't cached
+    
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def purge(self, ctx, msgs: int, *, txt=None):
+        """Purges the last few messages."""
+        await ctx.message.delete()
+        if msgs < 100:
+            async for message in ctx.message.channel.history(limit=msgs):
+                try:
+                    if txt:
+                        if txt.lower() in message.content.lower():
+                            await message.delete()
+                    else:
+                        await message.delete()
+                except:
+                        await ctx.send('Too many messages to delete. Enter a number < 100')
+        
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(ban_members=True)
+    async def softban(self, ctx, member: discord.Member, *, reason = "No reason given"):
+        """Bans an user then unbans them afterwards, removing their messages."""
+        await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+        await ctx.guild.unban(member)
+        await ctx.send(f":ok_hand: {member.name} ({member.id}) has been soft-banned. Reason: `{reason}`.")
 
     @commands.command()
     @commands.guild_only()
@@ -361,7 +388,7 @@ async def unmuteTask(modcog:ModerationCog):
                     if time.time() > until and userid not in skips:
                         member = guild.get_member(int(userid))
                         role = discord.utils.get(guild.roles, id=Configuration.getConfigVar(int(guildid), "MUTE_ROLE"))
-                        if guild.me.guild_permissions.manage_roles:
+                        if guild.me.guild_permissions.manage_roles and member != None:
                             await member.remove_roles(role, reason="Mute expired")
                             await BugLog.logToModLog(guild, f":innocent: {member.name}#{member.discriminator} (`{member.id}`) has automatically been unmuted")
                         else:
