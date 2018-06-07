@@ -193,12 +193,20 @@ class ModlogCog:
     async def on_member_remove(self, member: discord.Member):
         while not self.bot.startup_done:
             await asyncio.sleep(1)
-        channelid = Configuration.getConfigVar(member.guild.id, "JOIN_LOGS")
-        if channelid is not 0:
-            logChannel: discord.TextChannel = self.bot.get_channel(channelid)
-            if logChannel is not None:
-                await logChannel.send(
-                    f":outbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has left the server.")
+        async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
+            if entry.target == member:
+                channelid = Configuration.getConfigVar(member.guild.id, "MOD_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":boot: {member} (`{member.id}`) has been kicked.")
+            else:
+                channelid = Configuration.getConfigVar(member.guild.id, "JOIN_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":outbox_tray: {member} (`{member.id}`) has left the server.")
+
 
     async def on_member_ban(self, guild, user):
         while not self.bot.startup_done:
