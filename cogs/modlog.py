@@ -6,6 +6,7 @@ import discord
 from discord.embeds import EmptyEmbed
 from discord.ext import commands
 from discord.ext.commands import BadArgument
+from discord.raw_models import RawMessageDeleteEvent, RawMessageUpdateEvent
 
 from cogs.serveradmin import Serveradmin
 from utils import permissions, Configuration, BugLog
