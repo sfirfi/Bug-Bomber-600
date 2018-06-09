@@ -6,6 +6,7 @@ import discord
 from discord.embeds import EmptyEmbed
 from discord.ext import commands
 from discord.ext.commands import BadArgument
+from discord.raw_models import RawMessageDeleteEvent, RawMessageUpdateEvent
 
 from cogs.serveradmin import Serveradmin
 from utils import permissions, Configuration, BugLog
@@ -123,12 +124,12 @@ class ModlogCog:
         LoggedMessage.create(messageid=message.id, author=message.author.id, content=self.bot.aes.encrypt(message.content),
                              timestamp=message.created_at.timestamp(), channel=message.channel.id)
 
-    async def on_raw_message_delete(self, message_id, channel_id):
+    async def on_raw_message_delete(self, data: RawMessageDeleteEvent):
         while not self.bot.startup_done:
             await asyncio.sleep(1)
-        message = LoggedMessage.get_or_none(messageid=message_id)
+        message = LoggedMessage.get_or_none(messageid=data.message_id)
         if message is not None:
-            channel: discord.TextChannel = self.bot.get_channel(channel_id)
+            channel: discord.TextChannel = self.bot.get_channel(data.channel_id)
             user: discord.User = self.bot.get_user(message.author)
             hasUser = user is not None
             channelid = Configuration.getConfigVar(channel.guild.id, "MINOR_LOGS")
@@ -144,19 +145,19 @@ class ModlogCog:
                         f":wastebasket: Message by {user.name if hasUser else message.author} (`{user.id}`) in {channel.mention} has been removed.",
                         embed=embed)
 
-    async def on_raw_message_edit(self, message_id, data):
+    async def on_raw_message_edit(self, event: RawMessageUpdateEvent):
         while not self.bot.startup_done:
             await asyncio.sleep(1)
-        message = LoggedMessage.get_or_none(messageid=message_id)
-        if message is not None and "content" in data:
-            channel: discord.TextChannel = self.bot.get_channel(int(data["channel_id"]))
+        message = LoggedMessage.get_or_none(messageid=event.message_id)
+        if message is not None and "content" in event.data:
+            channel: discord.TextChannel = self.bot.get_channel(int(event.data["channel_id"]))
             user: discord.User = self.bot.get_user(message.author)
             hasUser = user is not None
             channelid = Configuration.getConfigVar(channel.guild.id, "MINOR_LOGS")
             if channelid is not 0:
                 logChannel: discord.TextChannel = self.bot.get_channel(channelid)
                 if logChannel is not None:
-                    if message.content == data["content"]:
+                    if message.content == event.data["content"]:
                         # prob just pinned
                         return
                     embed = discord.Embed(timestamp=datetime.datetime.utcfromtimestamp(time.time()))
@@ -169,11 +170,11 @@ class ModlogCog:
                         oldMessage = self.bot.aes.decrypt(message.content)
 
                     embed.add_field(name="Before", value=(oldMessage[:1000] + '...') if len(oldMessage) > 1020 else oldMessage, inline=False)
-                    embed.add_field(name="After", value=(data["content"][:1000] + '...') if len(data["content"]) > 1020 else data["content"], inline=False)
+                    embed.add_field(name="After", value=(event.data["content"][:1000] + '...') if len(event.data["content"]) > 1020 else event.data["content"], inline=False)
                     await logChannel.send(
                         f":pencil: Message by {user.name} (`{user.id}`) in {channel.mention} has been edited",
                         embed=embed)
-                    message.content = self.bot.aes.encrypt(data["content"])
+                    message.content = self.bot.aes.encrypt(event.data["content"])
                     message.save()
 
     async def on_member_join(self, member: discord.Member):
@@ -193,12 +194,20 @@ class ModlogCog:
     async def on_member_remove(self, member: discord.Member):
         while not self.bot.startup_done:
             await asyncio.sleep(1)
-        channelid = Configuration.getConfigVar(member.guild.id, "JOIN_LOGS")
-        if channelid is not 0:
-            logChannel: discord.TextChannel = self.bot.get_channel(channelid)
-            if logChannel is not None:
-                await logChannel.send(
-                    f":outbox_tray: {member.display_name}#{member.discriminator} (`{member.id}`) has left the server.")
+        async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
+            if entry.target == member:
+                channelid = Configuration.getConfigVar(member.guild.id, "MOD_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":boot: {member} (`{member.id}`) has been kicked.")
+            else:
+                channelid = Configuration.getConfigVar(member.guild.id, "JOIN_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":outbox_tray: {member} (`{member.id}`) has left the server.")
+
 
     async def on_member_ban(self, guild, user):
         while not self.bot.startup_done:

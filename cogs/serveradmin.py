@@ -90,7 +90,7 @@ class Serveradmin:
         if not guild.me.top_role > role:
             await ctx.send(f"I need a role that is higher then the {role.mention} role to be able to add it to people.")
             return
-        Configuration.setConfigVar(ctx.guild.id, "MUTE_ROLE", int(role.id))
+        Configuration.setConfigVar(ctx.guild.id, "MUTED", int(role.id))
         await ctx.send(f"{role.mention} will now be used for muting people, denying send permissions for the role.")
         failed = []
         for channel in guild.text_channels:
