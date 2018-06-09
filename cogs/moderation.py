@@ -277,7 +277,7 @@ class ModerationCog:
             await ctx.send("You can only purge 100 messages at a time.")
         else:
             deleted = await ctx.channel.purge(limit=msgs)
-            await ctx.send("Deleted {} message(s)!".format(len(deleted)))
+            await ctx.send(f"Deleted {(len(deleted))} message(s)!")
         
 
         
