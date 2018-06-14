@@ -1,19 +1,19 @@
 from discord.ext import commands
 import discord
-from utils import permissions
 import os
+
 
 class MaintenanceCog:
     """Cog for all things related to bot operation"""
     def __init__(self, bot):
         self.bot = bot
 
-
     async def __local_check(self, ctx:commands.Context):
-        if type(ctx.message.channel) is discord.channel.TextChannel:
-            return await permissions.hasPermission(ctx, "maintenance")
+        if str(ctx.message.author.id) in self.bot.config['Settings']['admins']:
+            return True
         else:
-            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
+            await ctx.send(":lock: You do not have the required permissions to run this command")
+            return False
 
     @commands.command(hidden=True)
     async def reload(self, ctx, *, cog: str):

@@ -14,6 +14,8 @@ imgur_client_secret =
 prefix = !
 botlog =
 allow_dm_commands = False
+;add the ids of all wished global admins here seperated by a comma
+admins=
 
 [Events]
 scoreboardChannel =
