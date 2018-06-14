@@ -69,7 +69,8 @@ initial_extensions = ['moderation',
                       'reminder',
                       'maintenance',
                       'serveradmin',
-                      'bugtest']
+                      'bugtest',
+                      'trello']
 
 def prefix_callable(bot, msg):
     user_id = bot.user.id
