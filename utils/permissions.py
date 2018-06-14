@@ -42,10 +42,12 @@ def listAvailable(ctx):
     perms.append('*')
     bot = ctx.bot
     for cog in bot.cogs:
-        perms.append(f"{formatPermission(cog)}.*")
+        if formatPermission(cog) != "maintenance":
+            perms.append(f"{formatPermission(cog)}.*")
 
     for command in bot.all_commands:
-        perms.append(f"{formatPermission(str(bot.all_commands.get(command).cog_name))}.{command}")
+        if formatPermission(str(bot.all_commands.get(command).cog_name)) != "maintenance":
+            perms.append(f"{formatPermission(str(bot.all_commands.get(command).cog_name))}.{command}")
     return perms
 
 def addPermission(ctx, role, permission):
