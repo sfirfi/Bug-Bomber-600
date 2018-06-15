@@ -18,7 +18,7 @@ class TrelloCog:
 
     async def __local_check(self, ctx:commands.Context):
         if type(ctx.message.channel) is discord.channel.TextChannel:
-            if ctx.guild.id == 300592643304587274:
+            if ctx.guild.id == self.bot.config["Settings"]["trelloGuild"]:
                 return await permissions.hasPermission(ctx, "trello")
             else:
                 return False
