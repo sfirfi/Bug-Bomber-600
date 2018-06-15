@@ -18,9 +18,12 @@ class TrelloCog:
 
     async def __local_check(self, ctx:commands.Context):
         if type(ctx.message.channel) is discord.channel.TextChannel:
-            return await permissions.hasPermission(ctx, "trello")
+            if ctx.guild.id == 300592643304587274:
+                return await permissions.hasPermission(ctx, "trello")
+            else:
+                return False
         else:
-            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
+            return False
 
     @commands.command()
     @commands.guild_only()

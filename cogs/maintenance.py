@@ -12,7 +12,6 @@ class MaintenanceCog:
         if str(ctx.message.author.id) in self.bot.config['Settings']['admins']:
             return True
         else:
-            await ctx.send(":lock: You do not have the required permissions to run this command")
             return False
 
     @commands.command(hidden=True)
