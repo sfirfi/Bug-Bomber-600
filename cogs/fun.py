@@ -250,7 +250,7 @@ class FunCog:
         if message.author == self.bot.user:
             return
         if self.bot.user in message.mentions and ("👈" in message.content or "👉" in message.content or 'poke' in message.content):
-            muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTED"))
+            muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTE_ROLE"))
             if muted is not None:
                 await message.author.add_roles(muted)
                 await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked.")
