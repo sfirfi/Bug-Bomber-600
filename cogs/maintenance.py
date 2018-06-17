@@ -4,6 +4,7 @@ from subprocess import Popen
 from discord.ext import commands
 import discord
 import os
+import subprocess
 
 
 class MaintenanceCog:
