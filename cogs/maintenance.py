@@ -1,3 +1,6 @@
+import asyncio
+from subprocess import Popen
+
 from discord.ext import commands
 import discord
 import os
@@ -28,9 +31,15 @@ class MaintenanceCog:
         else:
             await ctx.send(f"I can't find that cog.")
 
-    @commands.command(hidden=True)
-    async def miniupdate(self, ctx,):
-        pass
+    @commands.command()
+    async def pull(self, ctx):
+        """Pulls from github so an upgrade can be performed without full restart"""
+        async with ctx.typing():
+            p = Popen(["git pull origin master"], cwd=os.getcwd(), shell=True, stdout=subprocess.PIPE)
+            while p.poll() is None:
+                await asyncio.sleep(1)
+            out, error = p.communicate()
+            await ctx.send(f"Pull completed with exit code {p.returncode}```yaml\n{out.decode('utf-8')}```")
 
     @commands.command(hidden=True)
     async def load(self, ctx, cog: str):
