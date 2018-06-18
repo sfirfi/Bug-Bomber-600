@@ -289,6 +289,7 @@ class ModerationCog:
             await ctx.send("You cannot temporarily ban that user!")
         else:
             await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
+            duration = Util.convertToSeconds(durationNumber, durationIdentifier)
             until time.time() + duration
             await ctx.send(f":ok_hand: {member.name} ({member.id}) has been banned for {durationNumber}{durationIdentifier}")
 
