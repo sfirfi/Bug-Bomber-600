@@ -283,9 +283,9 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
-    async def tempban(self,ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
+    async def tempban(self,ctx: commands.Context, member: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
         """Temporarily bans someone."""
-        if target == ctx.author or target == ctx.bot.user:
+        if member == ctx.author or member == ctx.bot.user:
             await ctx.send("You cannot temporarily ban that user!")
         else:
             duration = Util.convertToSeconds(durationNumber, durationIdentifier)
