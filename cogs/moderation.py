@@ -280,7 +280,17 @@ class ModerationCog:
             await ctx.send(f"Deleted {(len(deleted))} message(s)!")
         
 
-        
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(ban_members=True)
+    async def tempban(self,ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
+        """Temporarily bans someone."""
+        if target == ctx.author or target == ctx.bot.user:
+            await ctx.send("You cannot temporarily ban that user!")
+        else:
+            await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
+            until time.time() + duration
+            await ctx.send(f":ok_hand: {member.name} ({member.id}) has been banned for {durationNumber}{durationIdentifier}")
 
     @commands.command()
     @commands.guild_only()
