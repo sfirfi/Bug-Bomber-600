@@ -323,8 +323,7 @@ class ModerationCog:
             else:
                 await target.add_roles(role, reason=f"{reason}, as requested by {ctx.author.name}")
                 await ctx.send(f"{target.display_name} has been muted!")
-                await BugLog.logtoModLog(ctx.guild, 
-                                                f":zipper_mouth: {target.name}#{target.discriminator}(`{target.id}`) has been muted by {ctx.author.name}.")
+                await BugLog.logtoModLog(ctx.guild, f":zipper_mouth: {target.name}#{target.discriminator}(`{target.id}`) has been muted by {ctx.author.name}.")
 
     @commands.command()
     @commands.guild_only()
