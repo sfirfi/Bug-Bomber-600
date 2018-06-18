@@ -37,7 +37,7 @@ class MaintenanceCog:
     async def pull(self, ctx):
         """Pulls from github so an upgrade can be performed without full restart"""
         async with ctx.typing():
-            p = Popen(["git pull origin master"], cwd=os.getcwd(), shell=True, stdout=subprocess.PIPE)
+            p = Popen(["git pull"], cwd=os.getcwd(), shell=True, stdout=subprocess.PIPE)
             while p.poll() is None:
                 await asyncio.sleep(1)
             out, error = p.communicate()
