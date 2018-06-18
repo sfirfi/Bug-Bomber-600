@@ -292,8 +292,6 @@ class ModerationCog:
             until = time.time() + duration
             await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
             await ctx.send(f":ok_hand: {member.name} ({member.id}) has been banned for {durationNumber}{durationIdentifier}")
-            asyncio.sleep
-            await ctx.guild.unban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), their temporary ban has expired.")
 
     @commands.command()
     @commands.guild_only()
