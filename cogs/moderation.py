@@ -320,9 +320,6 @@ class ModerationCog:
                 await ctx.send(f":warning: Unable to comply, someone has removed the role I was told to use, but I can still kick {target.mention} while a server admin makes a new role for me to use.")
             else:
                 await target.add_roles(role, reason=f"{reason}, as requested by {ctx.author.name}")
-                if not str(ctx.guild.id) in self.mutes)
-                    self.mutes[str(ctx.guild.id)] = dict()
-                self.mutes[str(ctx.guild.id)][str(target.id)]
                 await ctx.send(f"{target.display_name} has been muted!")
                 Util.saveToDisk("mutes", self.mutes)
                 await BugLog.logtoModLog(ctx.guild, f":zipper_mouth: {target.name}#{target.discriminator}(`{target.id}`) has been muted by {ctx.author.name}.")
