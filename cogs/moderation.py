@@ -306,7 +306,7 @@ class ModerationCog:
     
     @commands.command()
     @commands.guild_only()
-    @commands.bot_has_permission(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def mute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
         """Mutes someone without unmuting them."""
         if target == ctx.author or target == ctx.bot.user:
