@@ -313,16 +313,18 @@ class ModerationCog:
             await ctx.send("You cannot mute that user!")
         roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
         if roleid is 0:
-            await ctx.send(f":warning: Unable to comply, you haven't told me what role I could use to mute people, but I can still kick {target.mention} if you want while a server admin tells me what role I can use.")
+            await ctx.send(
+                f":warning: Unable to comply, you haven't told me what role I could use to mute people, but I can still kick {target.mention} if you want while a server admin tells me what role I can use.")
         else:
             role = discord.utils.get(ctx.guild.roles, id=roleid)
             if role is None:
-                await ctx.send(f":warning: Unable to comply, someone has removed the role I was told to use, but I can still kick {target.mention} while a server admin makes a new role for me to use.")
+                await ctx.send(
+                    f":warning: Unable to comply, someone has removed the role I was told to use, but I can still kick {target.mention} while a server admin makes a new role for me to use.")
             else:
                 await target.add_roles(role, reason=f"{reason}, as requested by {ctx.author.name}")
                 await ctx.send(f"{target.display_name} has been muted!")
-                Util.saveToDisk("mutes", self.mutes)
-                await BugLog.logtoModLog(ctx.guild, f":zipper_mouth: {target.name}#{target.discriminator}(`{target.id}`) has been muted by {ctx.author.name}.")
+                await BugLog.logtoModLog(ctx.guild, 
+                                                f":zipper_mouth: {target.name}#{target.discriminator}(`{target.id}`) has been muted by {ctx.author.name}.")
 
     @commands.command()
     @commands.guild_only()
