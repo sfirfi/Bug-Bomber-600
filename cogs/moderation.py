@@ -289,7 +289,7 @@ class ModerationCog:
             await ctx.send("You cannot temporarily ban that user!")
         else:
             duration = Util.convertToSeconds(durationNumber, durationIdentifier)
-            until time.time() + duration
+            until = time.time() + duration
             await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
             await ctx.send(f":ok_hand: {member.name} ({member.id}) has been banned for {durationNumber}{durationIdentifier}")
             asyncio.sleep
