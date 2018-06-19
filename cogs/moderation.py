@@ -217,6 +217,29 @@ class ModerationCog:
             embed.add_field(name='UTC Time', value=warning['time'], inline=True)
             embed.add_field(name='Warning', value=warning['warning'], inline=False)
             await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def add(self, ctx, user: discord.Member, *, rolename:str):
+        """Adds an role to someone."""
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if not role:
+                await ctx.send("That role doesn't exist!")
+        try:
+                await user.add_roles(role)
+                await ctx.send(":ok_hand: I added the {} role to {}!".format(rolename, user))
+        except discord.Forbidden:
+                await ctx.send('I need **Manage Roles** for this!')
+    @commands.command()
+    async def remove(self, ctx, user: discord.Member, *, rolename:str):
+        """Removes an role from someone."""
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if not role:
+                await ctx.send("That role doesn't exist")
+        try:
+                await user.remove_roles(role)
+                await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
+        except discord.Forbidden:
+                await ctx.send("I need **Manage Roles** for this!")
 
     @commands.command()
     @commands.guild_only()
@@ -232,6 +255,21 @@ class ModerationCog:
         else:
             await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
             await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
+    
+    #@commands.command()
+    #@commands.guild_only()
+    #@commands.bot_has_permissions(kick_members=True)
+    #async def mkick(self, ctx, users: discord.Members, *, reason = "No reason given"):
+       # """WIP, but will continue to work on it. Just have the kick as a draft."""
+      #  if users == ctx.author or user == ctx.bot.user:
+      #      await ctx.send("You cannot kick that user!")
+      #  elif users.top_role > ctx.guild.me.top_role:
+      #      await ctx.send(f":no_entry_sign: {users.name} has a higher role than me, I can't kick them.")
+      #  elif users.top_role > ctx.author.top_role:
+      #      await ctx.send(f":no_entry_sign: {users.name} has a higher role than you, you can't kick them.")
+      #  else:
+      #      await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+      #      await ctx.send(f":ok_hand: {users.name} ({users.id}) was kicked. Reason: ``{reason}``")
 
     @commands.command()
     @commands.guild_only()
@@ -291,7 +329,7 @@ class ModerationCog:
             duration = Util.convertToSeconds(durationNumber, durationIdentifier)
             until = time.time() + duration
             await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
-            await ctx.send(f":ok_hand: {member.name} ({member.id}) has been banned for {durationNumber}{durationIdentifier}")
+            await ctx.send(f":ok_hand: {member.name} ({member.id}) has been banned for {durationNumber}{durationIdentifier}(``{reason}``)")
             await asyncio.sleep(duration)
             await ctx.guild.unban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}). Their temporary ban has expired.")
 
