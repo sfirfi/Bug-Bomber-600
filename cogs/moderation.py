@@ -348,9 +348,9 @@ class ModerationCog:
     async def mute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
             """Mutes someone without unmuting them."""
             if target == ctx.bot.user:
-                await ctx.send("You cannot mute a bot!")
+                await ctx.send("Why would you like to mute me? :disappointed_relieved:")
                 return
-            if target == ctx.author:
+            elif target == ctx.author:
                 await ctx.send("You have played yourself. But you cannot mute yourself!")
                 return
             roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
@@ -375,9 +375,9 @@ class ModerationCog:
                    reason="No reason provided"):
         """Temporary mutes someone"""
         if target == ctx.bot.user:
-            await ctx.send("You cannot mute a bot!")
+            await ctx.send("Why would you like to mute me? :disappointed_relieved:")
             return
-        if target == ctx.author:
+        elif target == ctx.author:
             await ctx.send("You played yourself. But you cannot mute yourself!")
             return
         roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
