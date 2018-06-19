@@ -150,7 +150,7 @@ class ModerationCog:
     async def warn(self, ctx: commands.Context, member: discord.Member, *, warning = ""):
         """Warns a user."""
         if warning != "" and member.id != ctx.author.id and member.id != ctx.bot.user.id:
-            ctx.bot.DBC.query(f"INSERT INTO warnings (guild,member,warning,moderator, time) VALUES ({ctx.guild.id}, {member.id},'{warning}',{ctx.message.author.id}, UTC_TIMESTAMP())")
+            ctx.bot.DBC.query(f"INSERT INTO warnings (guild,member,warning,moderator,time) VALUES ({ctx.guild.id}, {member.id},'{warning}',{ctx.message.author.id}, UTC_TIMESTAMP())")
             await ctx.send(f":warning: {member.name} ({member.id}) has been warned. Warn message: `{warning}`")
             if not member.bot:
                 try:
@@ -347,8 +347,11 @@ class ModerationCog:
     @commands.bot_has_permissions(manage_roles=True)
     async def mute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
             """Mutes someone without unmuting them."""
-            if target == ctx.author or target == ctx.bot.user:
-                await ctx.send("You cannot mute that user!")
+            if target == ctx.bot.user:
+                await ctx.send("You cannot mute a bot!")
+                return
+            if target == ctx.author:
+                await ctx.send("You have played yourself. But you cannot mute yourself!")
                 return
             roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
             if roleid is 0:
@@ -371,8 +374,12 @@ class ModerationCog:
     async def tempmute(self, ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *,
                    reason="No reason provided"):
         """Temporary mutes someone"""
-        if target == ctx.author or target == ctx.bot.user:
-            await ctx.send("You cannot mute that user!")
+        if target == ctx.bot.user:
+            await ctx.send("You cannot mute a bot!")
+            return
+        if target == ctx.author:
+            await ctx.send("You played yourself. But you cannot mute yourself!")
+            return
         roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
         if roleid is 0:
             await ctx.send(
