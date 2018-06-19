@@ -226,7 +226,7 @@ class ModerationCog:
                 await ctx.send("That role doesn't exist!")
         try:
                 await user.add_roles(role)
-                await ctx.send(":ok_hand: I added the {} role to {}!".format(rolename, user))
+                await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
         except discord.Forbidden:
                 await ctx.send('I need **Manage Roles** for this!')
     @commands.command()
