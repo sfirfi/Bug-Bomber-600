@@ -219,7 +219,7 @@ class ModerationCog:
             await ctx.send(embed=embed)
     
     @commands.command()
-    async def add(self, ctx, user: discord.Member, *, rolename:str):
+    async def addrole(self, ctx, user: discord.Member, *, rolename:str):
         """Adds an role to someone."""
         role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
         if not role:
@@ -230,7 +230,7 @@ class ModerationCog:
         except discord.Forbidden:
                 await ctx.send('I need **Manage Roles** for this!')
     @commands.command()
-    async def remove(self, ctx, user: discord.Member, *, rolename:str):
+    async def removerole(self, ctx, user: discord.Member, *, rolename:str):
         """Removes an role from someone."""
         role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
         if not role:
