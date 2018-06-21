@@ -172,8 +172,8 @@ class FunCog:
                 embed = discord.Embed(color=0x3dede6)
                 embed.set_image(url=url)
                 await ctx.send(embed=embed)
-        except TimeoutError:
-            await ctx.send("Oops! I fell asleep... sorry.")
+            except TimeoutError:
+                await ctx.send("Oops! I fell asleep... sorry.")
         else:
             await ctx.send("I can't find a Image for that search term.")
         
