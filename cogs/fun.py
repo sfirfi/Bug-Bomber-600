@@ -197,8 +197,8 @@ class FunCog:
 
                 embed.set_image(url=img['url'])
                 await ctx.send(embed=embed)
-            except TimeoutError:
-                    await ctx.send("Oops! I fell asleep... sorry."
+        except TimeoutError:
+                await ctx.send("Oops! I fell asleep... sorry."
     @commands.command()
     async def quote(self, ctx: commands.Context, messageid: int):
         """Quotes the requested message."""
