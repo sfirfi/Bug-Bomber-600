@@ -174,12 +174,16 @@ class FunCog:
             url = await FunExtras.imgurImg(search)
 
         if url is not None:
-            embed = discord.Embed(color=0x3dede6)
-            embed.set_image(url=url)
-            await ctx.send(embed=embed)
+            try:
+                embed = discord.Embed(color=0x3dede6)
+                embed.set_image(url=url)
+                await ctx.send(embed=embed)
+            except TimeoutError:
+                await ctx.send("Oops! I fell asleep... sorry.")
         else:
             await ctx.send("I can't find a Image for that search term.")
-
+        
+            
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
@@ -188,9 +192,12 @@ class FunCog:
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
         embed = discord.Embed(color=0xe59400)
         if member is not None :
+        
             if member.id is not ctx.message.author.id:
-                embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
-            else:
+             try: embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
+             except TimeoutError:
+                    await ctx.send("Oops! I fell asleep... sorry."
+             else:
                 embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
 
         embed.set_image(url=img['url'])
@@ -253,6 +260,8 @@ class FunCog:
                                 pass
                             except discord.NotFound:
                                 pass
+                            except TimeoutError:
+                                await ctx.send("Oops! I fell asleep... sorry.")
                     if dmessage is None:
                         await ctx.send("Sorry, I couldn't find that message anywhere")
 
