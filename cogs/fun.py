@@ -168,41 +168,43 @@ class FunCog:
             'pat': FunExtras.patImg
         }
         image = imgFunctions.get(search, None)
+   try:     
         if image is not None:
             url = await image()
         else:
             url = await FunExtras.imgurImg(search)
 
         if url is not None:
-            try:
                 embed = discord.Embed(color=0x3dede6)
                 embed.set_image(url=url)
                 await ctx.send(embed=embed)
-            except TimeoutError:
+            else:
+                await ctx.send("I can't find a Image for that search term.")
+        except TimeoutError:
                 await ctx.send("Oops! I fell asleep... sorry.")
-        else:
-            await ctx.send("I can't find a Image for that search term.")
-        
+                return
             
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
     async def ahug(self, ctx: commands.Context, member: discord.Member = None):
         """Sends an anime hug gif."""
-        img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
-        embed = discord.Embed(color=0xe59400)
-        if member is not None :
+        try:
+                img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
+                embed = discord.Embed(color=0xe59400)
+    
+                if member is not None :
         
-            if member.id is not ctx.message.author.id:
-             try: embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
-             except TimeoutError:
-                    await ctx.send("Oops! I fell asleep... sorry."
-             else:
-                embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
+                if member.id is not ctx.message.author.id:
+                        embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
+             
+                else:
+                    embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
 
-        embed.set_image(url=img['url'])
-        await ctx.send(embed=embed)
-
+                embed.set_image(url=img['url'])
+                await ctx.send(embed=embed)
+        except TimeoutError:
+                await ctx.send("Oops! I fell asleep... sorry."
     @commands.command()
     async def quote(self, ctx: commands.Context, messageid: int):
         """Quotes the requested message."""
