@@ -269,7 +269,7 @@ class ModerationCog:
                 await ctx.send("That role doesn't exist, try again?")
         try:
                 await user.add_roles(role)
-                await ctx.send(f"Added {role.name} to {user} for {duration}.")
+                await ctx.send(f"Added {role.name} to {user} for {durationNumber}{durationIdentifier}.")
                 await asyncio.sleep(duration)
                 await user.remove_roles(role)
         except discord.Forbidden:
