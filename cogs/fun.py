@@ -145,6 +145,12 @@ class FunCog:
             if member == ctx.author:
                 await ctx.send("Summoning yourself? That's cheating!")
                 ctx.command.reset_cooldown(ctx)
+            if member == ctx.bot:
+                await ctx.send(f"**I have summoned the one known as {target}!**")
+                await asyncio.sleep(5)
+                await ctx.send("***WAIT!***")
+                await asyncio.sleep(5)
+                await ctx.send("Why do you need me to summon myself? :confused:")
             else:
                 await ctx.send(f"{member.name} is already a member of this server, do the ping youself, lazy humans.")
 
