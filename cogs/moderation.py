@@ -433,7 +433,7 @@ class ModerationCog:
     async def unmute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
         roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
         if roleid is 0:
-            await ctx.send(f"The mute feature has been dissabled on this server, as such i cannot unmute that person")
+            await ctx.send(f"The mute feature has been disabled on this server, as such I cannot unmute that person")
         else:
             role = discord.utils.get(ctx.guild.roles, id=roleid)
             if role is None:
