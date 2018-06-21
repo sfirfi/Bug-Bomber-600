@@ -189,7 +189,7 @@ class FunCog:
         
             if member.id is not ctx.message.author.id:
              try: embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
-                except TimeoutError:
+             except TimeoutError:
                     await ctx.send("Oops! I fell asleep... sorry."
              else:
                 embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
