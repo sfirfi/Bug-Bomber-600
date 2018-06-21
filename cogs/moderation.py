@@ -25,6 +25,7 @@ class BannedMember(commands.Converter):
             raise commands.BadArgument("Not a valid previously-banned member.")
         return entity
 
+
 #Actual Cog
 class ModerationCog:
     """This cog includes the mod utils like ban, kick, mute, warn, etc"""
@@ -255,7 +256,24 @@ class ModerationCog:
         else:
             await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
             await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
-    
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(manage_roles=True)
+    async def temprole(self, ctx, user: discord.member, *, durationNumber: int, durationIdentifier: str, *, rolename:str )
+        """Gives a role to someone temporarily."""
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        duration = Util.convertToSeconds(durationNumber, durationIdentifier)
+        until = time.time() + duration
+        if not role:
+                await ctx.send("That role doesn't exist, try again?")
+        try:
+                await user.add_roles(role)
+                await ctx.send(f"Added {role.name} to {user} for {duration}.")
+                await asyncio.sleep(duration)
+                await user.remove_roles(role)
+
+        
     #@commands.command()
     #@commands.guild_only()
     #@commands.bot_has_permissions(kick_members=True)
