@@ -260,7 +260,7 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
-    async def temprole(self, ctx: commands.Context, user: discord.member, *, durationNumber: int, durationIdentifier: str, *, rolename:str )
+    async def temprole(self, ctx: commands.Context, user: discord.Member, *, durationNumber: int, durationIdentifier: str, *, rolename:str )
         """Gives a role to someone temporarily."""
         role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
         duration = Util.convertToSeconds(durationNumber, durationIdentifier)
