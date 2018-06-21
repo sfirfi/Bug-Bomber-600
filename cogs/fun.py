@@ -171,6 +171,8 @@ class FunCog:
             embed = discord.Embed(color=0x3dede6)
             embed.set_image(url=url)
             await ctx.send(embed=embed)
+        except TimeoutError:
+            await ctx.send("Oops! I fell asleep... sorry.")
         else:
             await ctx.send("I can't find a Image for that search term.")
 
@@ -182,6 +184,8 @@ class FunCog:
         img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
         embed = discord.Embed(color=0xe59400)
         if member is not None :
+        except TimeoutError:
+            await ctx.send("Oops! I fell asleep... sorry."
             if member.id is not ctx.message.author.id:
                 embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
             else:
@@ -247,6 +251,8 @@ class FunCog:
                                 pass
                             except discord.NotFound:
                                 pass
+                            except TimeoutError:
+                                await ctx.send("Oops! I fell asleep... sorry.")
                     if dmessage is None:
                         await ctx.send("Sorry, I couldn't find that message anywhere")
 
