@@ -173,6 +173,8 @@ class FunCog:
             await ctx.send(embed=embed)
         else:
             await ctx.send("I can't find a Image for that search term.")
+        except TimeoutError:
+            await ctx.send("Oops, I fell asleep! Sorry.")
 
     @commands.command()
     @commands.guild_only()
@@ -184,8 +186,11 @@ class FunCog:
         if member is not None :
             if member.id is not ctx.message.author.id:
                 embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
+            except TimeoutError:
+                await ctx.send("Oops, I fell asleep! Sorry.")
             else:
                 embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
+        
 
         embed.set_image(url=img['url'])
         await ctx.send(embed=embed)
@@ -194,67 +199,65 @@ class FunCog:
     async def quote(self, ctx: commands.Context, messageid: int):
         """Quotes the requested message."""
         async with ctx.typing():
-            try:
-                message = LoggedMessage.get(messageid=messageid)
+            message = LoggedMessage.get_or_none(messageid=messageid)
+            if message is None:
+                for guild in self.bot.guilds:
+                    for channel in guild.text_channels:
+                        try:
+                            dmessage: discord.Message = await channel.get_message(messageid)
+                            for a in dmessage.attachments:
+                                LoggedAttachment.get_or_create(id=a.id, url=a.url,
+                                                               isImage=(a.width is not None or a.width is 0),
+                                                               messageid=message.id)
+                            message = LoggedMessage.create(messageid=messageid, content=self.bot.aes.encrypt(dmessage.content),
+                                                           author=dmessage.author.id,
+                                                           timestamp=dmessage.created_at.timestamp(),
+                                                           channel=channel.id)
+                        except Exception as ex:
+                            # wrong channel
+                            pass
+                        if message is not None:
+                            break
+                        except TimeoutError:
+                            await ctx.send("Oops! I fell asleep... sorry.")
+            if message is None:
+                await ctx.send("I was unable to find that message anywhere, is it somewhere i can't see?")
+            else:
+                attachment = None
+                attachments = LoggedAttachment.select().where(LoggedAttachment.messageid == messageid)
+                if len(attachments) == 1:
+                    attachment = attachments[0]
                 embed = discord.Embed(colour=discord.Color(0xd5fff),
-                                        timestamp=datetime.utcfromtimestamp(message.timestamp))
-                user = await ctx.bot.get_user_info(message.author)
-                embed.set_author(name=user.name, icon_url=user.avatar_url)
-                embed.set_footer(text=f"Sent in #{self.bot.get_channel(message.channel).name} | Quote requested by {ctx.author.display_name} | {messageid}")
-                attachmentsraw = LoggedAttachment.select().where(LoggedAttachment.messageid == messageid)
-                attachments = []
-                for attachmentraw in attachmentsraw:
-                    attachments.append(attachmentraw)
-                if attachments != [] and attachments != None:
-                    if len(attachments) == 1 and attachments[0].isImage:
-                        embed.set_image(url=self.bot.aes.decrypt(attachments[0].url))
-                    else:
-                        for attachment in attachments:
+                                      timestamp=datetime.utcfromtimestamp(message.timestamp))
+                if message.content is None or message.content == "":
+                    if attachment is not None:
+                        if attachment.isImage:
+                            embed.set_image(url=self.bot.aes.decrypt(attachment.url))
+                        else:
                             embed.add_field(name="Attachment link", value=self.bot.aes.decrypt(attachment.url))
-                if message.content is not None and message.content is not "":
-                    embed.description = self.bot.aes.decrypt(message.content)
+                else:
+                    embed = discord.Embed(colour=discord.Color(0xd5fff), description=self.bot.aes.decrypt(message.content),
+                                          timestamp=datetime.utcfromtimestamp(message.timestamp))
+                    if attachment is not None:
+                        if attachment.isImage:
+                            embed.set_image(url=self.bot.aes.decrypt(attachment.url))
+                        else:
+                            embed.add_field(name="Attachment link", value=self.bot.aes.decrypt(attachment.url))
+                try:
+                    user = await commands.MemberConverter().convert(ctx, message.author)
+                except:
+                    user = await ctx.bot.get_user_info(message.author)
+                embed.set_author(name=user.name, icon_url=user.avatar_url)
+                embed.set_footer(
+                    text=f"Send in #{self.bot.get_channel(message.channel).name} | Quote requested by {ctx.author.display_name} | {messageid}")
                 await ctx.send(embed=embed)
                 await ctx.message.delete()
-            except LoggedMessage.DoesNotExist:
-                    dmessage = None
-                    for server in ctx.bot.guilds:
-                        for txtchannel in server.text_channels:
-                            try:
-                                dmessage = await txtchannel.get_message(messageid)
-                                embed = discord.Embed(colour=discord.Color(0xd5fff),
-                                        timestamp=datetime.utcfromtimestamp(dmessage.created_at.timestamp()))
-                                embed.set_author(name=dmessage.author.name, icon_url=dmessage.author.avatar_url)
-                                embed.set_footer(text=f"Sent in #{dmessage.channel.name} | Quote Requested by {ctx.author.display_name} | {dmessage.id}")
-                                if dmessage.attachments != []:
-                                    if len(dmessage.attachments) == 1:
-                                        embed.set_image(url=dmessage.attachments[0].url)
-                                    else:
-                                        for attachment in dmessage.attachments:
-                                            embed.add_field(name="Attachment link", value=attachment.url)
-                                if dmessage.content is not None:
-                                    embed.description = dmessage.content
-                                await ctx.send(embed=embed)
-                                await ctx.message.delete()
-                                for a in dmessage.attachments:
-                                    LoggedAttachment.get_or_create(id=a.id, url=self.bot.aes.encrypt(a.url),
-                                                                        isImage=(a.width is not None or a.width is 0),
-                                                                        messageid=dmessage.id)
-                                LoggedMessage.create(messageid=messageid, content=self.bot.aes.encrypt(dmessage.content),
-                                                                        author=dmessage.author.id,
-                                                                        timestamp=dmessage.created_at.timestamp(),
-                                                                        channel=dmessage.channel.id)
-                            except discord.Forbidden:
-                                pass
-                            except discord.NotFound:
-                                pass
-                    if dmessage is None:
-                        await ctx.send("Sorry, I couldn't find that message anywhere")
 
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return
         if self.bot.user in message.mentions and ("👈" in message.content or "👉" in message.content or 'poke' in message.content):
-            muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTE_ROLE"))
+            muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTED"))
             if muted is not None:
                 await message.author.add_roles(muted)
                 await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked.")
