@@ -349,19 +349,19 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
-    async def tempban(self,ctx: commands.Context, member: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
+    async def tempban(self,ctx: commands.Context, user: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
         """Temporarily bans someone."""
-       if user == ctx.bot.user:
-            await ctx.send("Why would you like to tampban me? :disappointed_relieved:")
+        if user == ctx.bot.user:
+            await ctx.send("Why would you like to tempban me? :disappointed_relieved:")
         elif user == ctx.author:
             await ctx.send("You have played yourself. But you cannot tempban yourself!")
         else:
             duration = Util.convertToSeconds(durationNumber, durationIdentifier)
             until = time.time() + duration
-            await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
-            await ctx.send(f":ok_hand: {member.name} ({member.id}) has been banned for {durationNumber}{durationIdentifier}(``{reason}``)")
+            await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
+            await ctx.send(f":ok_hand: {user.name} ({user.id}) has been banned for {durationNumber}{durationIdentifier}(``{reason}``)")
             await asyncio.sleep(duration)
-            await ctx.guild.unban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}). Their temporary ban has expired.")
+            await ctx.guild.unban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}). Their temporary ban has expired.")
 
     @commands.command()
     @commands.guild_only()
@@ -376,11 +376,12 @@ class ModerationCog:
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
     async def mute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
-            """Mutes someone without unmuting them."""
-            if target == ctx.bot.user:
-                await ctx.send("Why would you like to mute me? :disappointed_relieved:")
-            elif target == ctx.author:
-                await ctx.send("You have played yourself. But you cannot mute yourself!")
+        """Mutes someone without unmuting them."""
+        if target == ctx.bot.user:
+            await ctx.send("Why would you like to mute me? :disappointed_relieved:")
+        elif target == ctx.author:
+            await ctx.send("You have played yourself. But you cannot mute yourself!")
+        else:
             roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
             if roleid is 0:
                 await ctx.send(
@@ -393,39 +394,37 @@ class ModerationCog:
                 else:
                     await target.add_roles(role, reason=f"{reason}, as requested by {ctx.author.name}")
                     await ctx.send(f"{target.display_name} has been muted!")
-                    await BugLog.logToModLog(ctx.guild,
-                                                     f":zipper_mouth: {target.name}#{target.discriminator} (`{target.id}`) has been muted by {ctx.author.name} for {reason}")
+                    await BugLog.logToModLog(ctx.guild, f":zipper_mouth: {target.name}#{target.discriminator} (`{target.id}`) has been muted by {ctx.author.name} for {reason}")
 
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
-    async def tempmute(self, ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *,
-                   reason="No reason provided"):
+    async def tempmute(self, ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided"):
         """Temporary mutes someone"""
         if target == ctx.bot.user:
             await ctx.send("Why would you like to mute me? :disappointed_relieved:")
         elif target == ctx.author:
             await ctx.send("You played yourself. But you cannot mute yourself!")
-        roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
-        if roleid is 0:
-            await ctx.send(
-                f":warning: Unable to comply, you have not told me what role i can use to mute people, but i can still kick {target.mention} if you want while a server admin tells me what role i can use")
         else:
-            role = discord.utils.get(ctx.guild.roles, id=roleid)
-            if role is None:
-                await ctx.send(
-                    f":warning: Unable to comply, someone has removed the role i was told to use, but i can still kick {target.mention} while a server admin makes a new role for me to use")
+            roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
+            if roleid is 0:
+                await ctx.send(f":warning: Unable to comply, you have not told me what role i can use to mute people, but i can still kick {target.mention} if you want while a server admin tells me what role i can use")
             else:
-                duration = Util.convertToSeconds(durationNumber, durationIdentifier)
-                until = time.time() + duration
-                await target.add_roles(role, reason=f"{reason}, as requested by {ctx.author.name}")
-                if not str(ctx.guild.id) in self.mutes:
-                    self.mutes[str(ctx.guild.id)] = dict()
-                self.mutes[str(ctx.guild.id)][str(target.id)] = until
-                await ctx.send(f"{target.display_name} has been muted")
-                Util.saveToDisk("mutes", self.mutes)
-                await BugLog.logToModLog(ctx.guild,
-                                                 f":zipper_mouth: {target.name}#{target.discriminator} (`{target.id}`) has been muted by {ctx.author.name} for {durationNumber} {durationIdentifier}: {reason}")
+                role = discord.utils.get(ctx.guild.roles, id=roleid)
+                if role is None:
+                    await ctx.send(
+                        f":warning: Unable to comply, someone has removed the role i was told to use, but i can still kick {target.mention} while a server admin makes a new role for me to use")
+                else:
+                    duration = Util.convertToSeconds(durationNumber, durationIdentifier)
+                    until = time.time() + duration
+                    await target.add_roles(role, reason=f"{reason}, as requested by {ctx.author.name}")
+                    if not str(ctx.guild.id) in self.mutes:
+                        self.mutes[str(ctx.guild.id)] = dict()
+                    self.mutes[str(ctx.guild.id)][str(target.id)] = until
+                    await ctx.send(f"{target.display_name} has been muted")
+                    Util.saveToDisk("mutes", self.mutes)
+                    await BugLog.logToModLog(ctx.guild,
+                                                     f":zipper_mouth: {target.name}#{target.discriminator} (`{target.id}`) has been muted by {ctx.author.name} for {durationNumber} {durationIdentifier}: {reason}")
 
     @commands.command()
     @commands.guild_only()

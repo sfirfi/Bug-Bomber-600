@@ -168,20 +168,20 @@ class FunCog:
             'pat': FunExtras.patImg
         }
         image = imgFunctions.get(search, None)
-   try:     
-        if image is not None:
-            url = await image()
-        else:
-            url = await FunExtras.imgurImg(search)
+        try:     
+            if image is not None:
+                url = await image()
+            else:
+                url = await FunExtras.imgurImg(search)
 
-        if url is not None:
+            if url is not None:
                 embed = discord.Embed(color=0x3dede6)
                 embed.set_image(url=url)
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("I can't find a Image for that search term.")
         except TimeoutError:
-                await ctx.send("Oops! I fell asleep... sorry.")
+                await ctx.send("Oops, I fell asleep! Sorry.")
                 return
             
     @commands.command()
@@ -190,21 +190,19 @@ class FunCog:
     async def ahug(self, ctx: commands.Context, member: discord.Member = None):
         """Sends an anime hug gif."""
         try:
-                img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
-                embed = discord.Embed(color=0xe59400)
-    
-                if member is not None :
-        
+            img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
+            embed = discord.Embed(color=0xe59400)
+            if member is not None :
                 if member.id is not ctx.message.author.id:
-                        embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
-             
+                    embed.add_field(name=f"**{ctx.author.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
                 else:
                     embed.add_field(name=f"**{ctx.bot.user.name} gives {member.name} an Anime hug.** :hearts:", value="\u200b")
 
-                embed.set_image(url=img['url'])
-                await ctx.send(embed=embed)
+            embed.set_image(url=img['url'])
+            await ctx.send(embed=embed)
         except TimeoutError:
-                await ctx.send("Oops! I fell asleep... sorry."
+            await ctx.send("Oops! I fell asleep... sorry.")
+
     @commands.command()
     async def quote(self, ctx: commands.Context, messageid: int):
         """Quotes the requested message."""
@@ -262,16 +260,15 @@ class FunCog:
                                 pass
                             except discord.NotFound:
                                 pass
-                            except TimeoutError:
-                                await ctx.send("Oops! I fell asleep... sorry.")
                     if dmessage is None:
                         await ctx.send("Sorry, I couldn't find that message anywhere")
-
+                        
+                
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return
         if self.bot.user in message.mentions and ("👈" in message.content or "👉" in message.content or 'poke' in message.content):
-            muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTE_ROLE"))
+            muted = discord.utils.get(message.guild.roles, id=Configuration.getConfigVar(message.guild.id, "MUTED"))
             if muted is not None:
                 await message.author.add_roles(muted)
                 await message.channel.send(f"{message.author.mention} I do **NOT** appreciate being poked.")
