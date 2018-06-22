@@ -247,8 +247,10 @@ class ModerationCog:
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.Member, *, reason = "No reason given."):
         """Kicks a user from the server"""
-        if user == ctx.author or user == ctx.bot.user:
-            await ctx.send("You cannot kick that user!")
+        if user == ctx.bot.user:
+            await ctx.send("Why would you like to kick me? :disappointed_relieved:")
+        elif user == ctx.author:
+            await ctx.send("You have played yourself. But you cannot kick yourself!")
         elif user.top_role > ctx.guild.me.top_role:
             await ctx.send(f':no_entry_sign: {user.name} has a higher role than me, I can\'t kick them.')
         elif user.top_role > ctx.author.top_role:
@@ -281,8 +283,10 @@ class ModerationCog:
     #@commands.bot_has_permissions(kick_members=True)
     #async def mkick(self, ctx, users: discord.Members, *, reason = "No reason given"):
        # """WIP, but will continue to work on it. Just have the kick as a draft."""
-      #  if users == ctx.author or user == ctx.bot.user:
-      #      await ctx.send("You cannot kick that user!")
+      #  if  user == ctx.bot.user:
+      #      await ctx.send("Why would you like to kick me? :disappointed_relieved:")
+      #  elif user == ctx.author:
+      #      await ctx.send("You have played yourself. But you cannot kick yourself!")
       #  elif users.top_role > ctx.guild.me.top_role:
       #      await ctx.send(f":no_entry_sign: {users.name} has a higher role than me, I can't kick them.")
       #  elif users.top_role > ctx.author.top_role:
@@ -296,8 +300,10 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *, reason = "No reason given"):
         """Bans a user from the server."""
-        if user == ctx.author or user == ctx.bot.user:
-            await ctx.send("You cannot ban that user!")
+        if user == ctx.bot.user:
+            await ctx.send("Why would you like to ban me? :disappointed_relieved:")
+        elif user == ctx.author:
+            await ctx.send("You have played yourself. But you cannot ban yourself!")
         elif user.top_role > ctx.guild.me.top_role:
             await ctx.send(f':no_entry_sign: {user.name} has a higher role than me, I can\'t kick them.')
         elif user.top_role > ctx.author.top_role:
@@ -305,15 +311,17 @@ class ModerationCog:
         else:
             await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
             await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
-            
+
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
     async def forceban(self, ctx, user_id: int, *, reason = "No reason given"):
         """Bans a user even if they are not in the server"""
         user = await ctx.bot.get_user_info(user_id)
-        if user == ctx.author or user == ctx.bot.user:
-            await ctx.send("You cannot ban that user!")
+        if user == ctx.bot.user:
+            await ctx.send("Why would you like to forceban me? :disappointed_relieved:")
+        elif user == ctx.author:
+            await ctx.send("You have played yourself. But you cannot forceban yourself!")
         else:
             await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
             await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`.")
@@ -343,8 +351,10 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def tempban(self,ctx: commands.Context, member: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
         """Temporarily bans someone."""
-        if member == ctx.author or member == ctx.bot.user:
-            await ctx.send("You cannot temporarily ban that user!")
+       if user == ctx.bot.user:
+            await ctx.send("Why would you like to tampban me? :disappointed_relieved:")
+        elif user == ctx.author:
+            await ctx.send("You have played yourself. But you cannot tempban yourself!")
         else:
             duration = Util.convertToSeconds(durationNumber, durationIdentifier)
             until = time.time() + duration
@@ -369,10 +379,8 @@ class ModerationCog:
             """Mutes someone without unmuting them."""
             if target == ctx.bot.user:
                 await ctx.send("Why would you like to mute me? :disappointed_relieved:")
-                return
             elif target == ctx.author:
                 await ctx.send("You have played yourself. But you cannot mute yourself!")
-                return
             roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
             if roleid is 0:
                 await ctx.send(
@@ -396,10 +404,8 @@ class ModerationCog:
         """Temporary mutes someone"""
         if target == ctx.bot.user:
             await ctx.send("Why would you like to mute me? :disappointed_relieved:")
-            return
         elif target == ctx.author:
             await ctx.send("You played yourself. But you cannot mute yourself!")
-            return
         roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
         if roleid is 0:
             await ctx.send(
@@ -427,7 +433,7 @@ class ModerationCog:
     async def unmute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
         roleid = Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE")
         if roleid is 0:
-            await ctx.send(f"The mute feature has been dissabled on this server, as such i cannot unmute that person")
+            await ctx.send(f"The mute feature has been disabled on this server, as such I cannot unmute that person")
         else:
             role = discord.utils.get(ctx.guild.roles, id=roleid)
             if role is None:
