@@ -1,19 +1,23 @@
+import asyncio
+from subprocess import Popen
+import subprocess
+
 from discord.ext import commands
 import discord
-from utils import permissions
 import os
+import subprocess
+
 
 class MaintenanceCog:
     """Cog for all things related to bot operation"""
     def __init__(self, bot):
         self.bot = bot
 
-
     async def __local_check(self, ctx:commands.Context):
-        if type(ctx.message.channel) is discord.channel.TextChannel:
-            return await permissions.hasPermission(ctx, "maintenance")
+        if str(ctx.message.author.id) in self.bot.config['Settings']['admins']:
+            return True
         else:
-            return ctx.bot.config.getboolean('Settings','allow_dm_commands')
+            return False
 
     @commands.command(hidden=True)
     async def reload(self, ctx, *, cog: str):
@@ -29,9 +33,15 @@ class MaintenanceCog:
         else:
             await ctx.send(f"I can't find that cog.")
 
-    @commands.command(hidden=True)
-    async def miniupdate(self, ctx,):
-        pass
+    @commands.command()
+    async def pull(self, ctx):
+        """Pulls from github so an upgrade can be performed without full restart"""
+        async with ctx.typing():
+            p = Popen(["git pull"], cwd=os.getcwd(), shell=True, stdout=subprocess.PIPE)
+            while p.poll() is None:
+                await asyncio.sleep(1)
+            out, error = p.communicate()
+            await ctx.send(f"Pull completed with exit code {p.returncode}```yaml\n{out.decode('utf-8')}```")
 
     @commands.command(hidden=True)
     async def load(self, ctx, cog: str):

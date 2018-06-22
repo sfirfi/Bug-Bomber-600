@@ -69,7 +69,8 @@ initial_extensions = ['moderation',
                       'reminder',
                       'maintenance',
                       'serveradmin',
-                      'bugtest']
+                      'bugtest',
+                      'trello']
 
 def prefix_callable(bot, msg):
     user_id = bot.user.id
@@ -103,7 +104,8 @@ async def on_command_error(ctx: commands.Context, error):
         await ctx.send("Sorry. This command is disabled and cannot be used.")
     elif isinstance(error, commands.CheckFailure):
         if type(ctx.message.channel) is discord.channel.TextChannel:
-            await ctx.send(":lock: You do not have the required permissions to run this command.")
+            if ctx.cog != bot.get_cog("TrelloCog"):
+                await ctx.send(":lock: You do not have the required permissions to run this command.")
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(error)
     elif isinstance(error, commands.MissingRequiredArgument):
