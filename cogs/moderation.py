@@ -222,7 +222,10 @@ class ModerationCog:
     @commands.command()
     async def addrole(self, ctx, user: discord.Member, *, rolename):
         """Adds an role to someone."""
-        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if rolename is str:
+            role = discord.utils.get(ctx.guild.roles, name=rolename)
+        if rolename is int:
+            role = discord.utils.get(ctx.guild.roles, id=rolename)
         if not role:
                 await ctx.send("That role doesn't exist!")
         try:
@@ -233,7 +236,10 @@ class ModerationCog:
     @commands.command()
     async def removerole(self, ctx, user: discord.Member, *, rolename):
         """Removes an role from someone."""
-        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
+        if rolename is str:
+            role = discord.utils.get(ctx.guild.roles, name=rolename)
+        if rolename is int:
+            role = discord.utils.get(ctx.guild.roles, id=rolename)
         if not role:
                 await ctx.send("That role doesn't exist")
         try:
