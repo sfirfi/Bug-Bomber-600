@@ -86,7 +86,7 @@ class UtilsCog:
         await ctx.send(f"I've created an invite based of your input! Here is an invite with ``{uses}`` use(s). Link:\n{invite_url}")
 
 
-    @commands.command(name='serverinfo', aliases=['server']))
+    @commands.command(name='serverinfo', aliases=['server'])
     async def serverinfo(self, ctx):
         """Shows information about the current server."""
         guild_features = ", ".join(ctx.guild.features)
