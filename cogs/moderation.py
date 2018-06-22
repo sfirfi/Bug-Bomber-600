@@ -220,38 +220,27 @@ class ModerationCog:
             await ctx.send(embed=embed)
     
     @commands.command()
-    async def addrole(self, ctx, user: discord.Member, *, rolename):
+    async def addrole(self, ctx, user: discord.Member, *, rolename:str):
         """Adds an role to someone."""
-        if rolename is str:
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-        if rolename is int:
-            role = discord.utils.get(ctx.guild.roles, id=rolename)
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
         if not role:
-            await ctx.send("That role doesn't exist!")
-
+                await ctx.send("That role doesn't exist!")
         try:
-            await user.add_roles(role)
-            await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
-
+                await user.add_roles(role)
+                await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
         except discord.Forbidden:
-            await ctx.send('I need **Manage Roles** for this!')
-            
+                await ctx.send('I need **Manage Roles** for this!')
     @commands.command()
-    async def removerole(self, ctx, user: discord.Member, *, rolename):
+    async def removerole(self, ctx, user: discord.Member, *, rolename:str):
         """Removes an role from someone."""
-        if rolename is str:
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-        if rolename is int:
-            role = discord.utils.get(ctx.guild.roles, id=rolename)
+        role = discord.utils.find(lambda m: rolename.lower() in m.name.lower(), ctx.guild.roles)
         if not role:
-            await ctx.send("That role doesn't exist")
-
+                await ctx.send("That role doesn't exist")
         try:
-            await user.remove_roles(role)
-            await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
-
+                await user.remove_roles(role)
+                await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
         except discord.Forbidden:
-            await ctx.send("I need **Manage Roles** for this!")
+                await ctx.send("I need **Manage Roles** for this!")
 
     @commands.command()
     @commands.guild_only()
