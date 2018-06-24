@@ -6,6 +6,7 @@ from concurrent.futures import CancelledError
 import discord
 import time
 import math
+import difflib
 from discord.ext import commands
 from utils import permissions, BugLog
 from utils import Util
@@ -218,40 +219,63 @@ class ModerationCog:
             embed.add_field(name='UTC Time', value=warning['time'], inline=True)
             embed.add_field(name='Warning', value=warning['warning'], inline=False)
             await ctx.send(embed=embed)
+
+    @commands.group()
+    async def role(self,ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send(f"You are missing a required argument! (see {ctx.prefix}help role for info on how to use this command.)")
     
-    @commands.command()
+    @role.command(name="add")
     async def addrole(self, ctx, user: discord.Member, *, rolename):
         """Adds an role to someone."""
-        if rolename is str:
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-        if rolename is int:
-            role = discord.utils.get(ctx.guild.roles, id=rolename)
-        if not role:
-            await ctx.send("That role doesn't exist!")
+        role = None
+        #mention
+        if rolename.startswith("<@"):
+            roleid = rolename.replace('<','').replace('!','').replace('@','').replace('&','').replace('>','')
+            role = discord.utils.get(ctx.guild.roles, id=int(roleid))
+        #id
+        elif rolename.isdigit():
+            role = discord.utils.get(ctx.guild.roles, id=int(rolename))
+        #name
+        else:
+            name = difflib.get_close_matches(rolename,Util.getRoleNameArray(ctx),1,0.4)
+            if len(name)>0:
+                role = discord.utils.get(ctx.guild.roles, id=Util.getRoleIdDict(ctx)[name[0]])
 
+        if role is None:
+                await ctx.send("I cannnot find that role!")
+                return
         try:
-            await user.add_roles(role)
-            await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
-
+                await user.add_roles(role)
+                await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
         except discord.Forbidden:
-            await ctx.send('I need **Manage Roles** for this!')
-            
-    @commands.command()
+                await ctx.send('I need **Manage Roles** for this!')
+
+    @role.command(name='remove', aliases=['rmv'])
     async def removerole(self, ctx, user: discord.Member, *, rolename):
         """Removes an role from someone."""
-        if rolename is str:
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-        if rolename is int:
-            role = discord.utils.get(ctx.guild.roles, id=rolename)
-        if not role:
-            await ctx.send("That role doesn't exist")
+        role = None
+        #mention
+        if rolename.startswith("<@"):
+            roleid = rolename.replace('<','').replace('!','').replace('@','').replace('&','').replace('>','')
+            role = discord.utils.get(ctx.guild.roles, id=int(roleid))
+        #id
+        elif rolename.isdigit():
+            role = discord.utils.get(ctx.guild.roles, id=int(rolename))
+        #name
+        else:
+            name = difflib.get_close_matches(rolename,Util.getRoleNameArray(ctx),1,0.4)
+            if len(name)>0:
+                role = discord.utils.get(ctx.guild.roles, id=Util.getRoleIdDict(ctx)[name[0]])
 
+        if role is None:
+                await ctx.send("I cannot find that role!")
+                return
         try:
-            await user.remove_roles(role)
-            await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
-
+                await user.remove_roles(role)
+                await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
         except discord.Forbidden:
-            await ctx.send("I need **Manage Roles** for this!")
+                await ctx.send("I need **Manage Roles** for this!")
 
     @commands.command()
     @commands.guild_only()

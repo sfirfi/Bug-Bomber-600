@@ -32,6 +32,14 @@ class MaintenanceCog:
             await ctx.send(f'**{cog}** has been reloaded.')
         else:
             await ctx.send(f"I can't find that cog.")
+    
+    @commands.command(hidden=True)
+    async def restart(self, ctx):
+        """Restarts the bot"""
+        await ctx.send("Restarting...")
+        await self.bot.logout()
+        await self.bot.close()
+
 
     @commands.command()
     async def pull(self, ctx):
