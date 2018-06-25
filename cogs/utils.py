@@ -121,7 +121,7 @@ class UtilsCog:
     async def selfrole(self, ctx:commands.Context):
         """Allows the joining and leaving of joinable roles"""
         if ctx.subcommand_passed is None:
-            await ctx.send("Use `!help selfrole` for info on how to use this command.")
+            await ctx.send(f"Use `{ctx.prefix}help selfrole` for info on how to use this command.")
 
     @selfrole.command()
     async def list(self, ctx: commands.Context, page=""):
