@@ -517,7 +517,7 @@ def setup(bot):
 async def unmuteTask(modcog:ModerationCog):
     while not modcog.bot.startup_done:
         await asyncio.sleep(1)
-        BugLog.info("Started unmute background task")
+    BugLog.info("Started unmute background task")
     skips = []
     updated = False
     while modcog.running:
