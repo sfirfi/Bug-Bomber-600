@@ -43,7 +43,7 @@ class ModlogCog:
     async def disableMinorLogChannel(self, ctx: commands.Context):
         """Disables minor logs (edit/delete)"""
         Configuration.setConfigVar(ctx.guild.id, "MINOR_LOGS", 0)
-        await ctx.send("Minor logs have been dissabled.")
+        await ctx.send("Minor logs have been disabled.")
 
     @Serveradmin.configure.command()
     async def joinLogChannel(self, ctx: commands.Context, channel: discord.TextChannel):
@@ -60,7 +60,7 @@ class ModlogCog:
     async def disablejoinLogChannel(self, ctx: commands.Context):
         """Disables join/leave logs"""
         Configuration.setConfigVar(ctx.guild.id, "JOIN_LOGS", 0)
-        await ctx.send("Join logs have been dissabled.")
+        await ctx.send("Join logs have been disabled.")
 
     @Serveradmin.configure.command()
     async def modLogChannel(self, ctx: commands.Context, channel: discord.TextChannel):
