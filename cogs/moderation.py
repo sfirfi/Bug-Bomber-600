@@ -409,6 +409,12 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def softban(self, ctx, member: discord.Member, *, reason = "No reason given"):
         """Bans an user then unbans them afterwards, removing their messages."""
+        if member == ctx.bot.user:
+            await ctx.send("Please don't try to soft-ban me. Thank you")
+            return
+        elif member == ctx.author:
+            await ctx.send("Please don't try to soft-ban yourself.")
+            return
         await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.guild.unban(member)
         await ctx.send(f":ok_hand: {member.name} ({member.id}) has been soft-banned. Reason: `{reason}`.")
