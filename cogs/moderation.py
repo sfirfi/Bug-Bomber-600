@@ -288,7 +288,7 @@ class ModerationCog:
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.Member, *, reason = "No reason given."):
         """Kicks a user from the server"""
-        if user == ctx.bot.user:
+        if user == self.bot.user:
             await ctx.send("Why would you like to kick me? :disappointed_relieved:")
         elif user == ctx.author:
             await ctx.send("You have played yourself. But you cannot kick yourself!")
@@ -324,7 +324,7 @@ class ModerationCog:
     #@commands.bot_has_permissions(kick_members=True)
     #async def mkick(self, ctx, users: discord.Members, *, reason = "No reason given"):
        # """WIP, but will continue to work on it. Just have the kick as a draft."""
-      #  if  user == ctx.bot.user:
+      #  if  user == self.bot.user:
       #      await ctx.send("Why would you like to kick me? :disappointed_relieved:")
       #  elif user == ctx.author:
       #      await ctx.send("You have played yourself. But you cannot kick yourself!")
@@ -341,7 +341,7 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *, reason = "No reason given"):
         """Bans a user from the server."""
-        if user == ctx.bot.user:
+        if user == self.bot.user:
             await ctx.send("Why would you like to ban me? :disappointed_relieved:")
         elif user == ctx.author:
             await ctx.send("You have played yourself. But you cannot ban yourself!")
@@ -359,7 +359,7 @@ class ModerationCog:
     async def forceban(self, ctx, user_id: int, *, reason = "No reason given"):
         """Bans a user even if they are not in the server"""
         user = await ctx.bot.get_user_info(user_id)
-        if user == ctx.bot.user:
+        if user == self.bot.user:
             await ctx.send("Why would you like to forceban me? :disappointed_relieved:")
         elif user == ctx.author:
             await ctx.send("You have played yourself. But you cannot forceban yourself!")
@@ -392,7 +392,7 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def tempban(self,ctx: commands.Context, user: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
         """Temporarily bans someone."""
-        if user == ctx.bot.user:
+        if user == self.bot.user:
             await ctx.send("Why would you like to tempban me? :disappointed_relieved:")
         elif user == ctx.author:
             await ctx.send("You have played yourself. But you cannot tempban yourself!")
@@ -409,16 +409,21 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def softban(self, ctx, member: discord.Member, *, reason = "No reason given"):
         """Bans an user then unbans them afterwards, removing their messages."""
-        await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-        await ctx.guild.unban(member)
-        await ctx.send(f":ok_hand: {member.name} ({member.id}) has been soft-banned. Reason: `{reason}`.")
+        if user == self.bot.user:
+            await ctx.send("Why would you like to softban me? :disappointed_relieved:")
+        elif user == ctx.author:
+            await ctx.send("You have played yourself. But you cannot softban yourself!")
+        else:
+            await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
+            await ctx.guild.unban(member)
+            await ctx.send(f":ok_hand: {member.name} ({member.id}) has been soft-banned. Reason: `{reason}`.")
     
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(manage_roles=True)
     async def mute(self, ctx: commands.Context, target: discord.Member, *, reason="No reason provided"):
         """Mutes someone without unmuting them."""
-        if target == ctx.bot.user:
+        if target == self.bot.user:
             await ctx.send("Why would you like to mute me? :disappointed_relieved:")
         elif target == ctx.author:
             await ctx.send("You have played yourself. But you cannot mute yourself!")
@@ -442,7 +447,7 @@ class ModerationCog:
     @commands.bot_has_permissions(manage_roles=True)
     async def tempmute(self, ctx: commands.Context, target: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided"):
         """Temporary mutes someone"""
-        if target == ctx.bot.user:
+        if target == self.bot.user:
             await ctx.send("Why would you like to mute me? :disappointed_relieved:")
         elif target == ctx.author:
             await ctx.send("You played yourself. But you cannot mute yourself!")

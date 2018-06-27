@@ -145,14 +145,16 @@ class FunCog:
             if member == ctx.author:
                 await ctx.send("Summoning yourself? That's cheating!")
                 ctx.command.reset_cooldown(ctx)
-            if member == ctx.bot: 
+            if member == self.bot.user: 
                 await ctx.send(f"**I have summoned the one known as {target}!**") 
                 await asyncio.sleep(5) 
                 await ctx.send("***WAIT!***") 
                 await asyncio.sleep(5) 
                 await ctx.send("Why do you need me to summon myself? :confused:") 
+                ctx.command.reset_cooldown(ctx) 
             else:
                 await ctx.send(f"{member.name} is already a member of this server, do the ping youself, lazy humans.")
+                ctx.command.reset_cooldown(ctx) 
 
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['img'], BucketType.user)
