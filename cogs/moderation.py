@@ -6,6 +6,7 @@ from concurrent.futures import CancelledError
 import discord
 import time
 import math
+import difflib
 from discord.ext import commands
 from utils import permissions, BugLog
 from utils import Util
@@ -73,12 +74,18 @@ class ModerationCog:
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def ping(self, ctx: commands.Context):
-        """Shows the Gateway Ping"""
-        t1 = time.perf_counter()
-        await ctx.trigger_typing()
-        t2 = time.perf_counter()
-        await ctx.send(f":hourglass: Gateway Ping is {round((t2 - t1) * 1000)}ms :hourglass:")
+    async def ping(self, ctx):
+        """Returns the amount of latency from the host to the Discord WS/REST API"""
+        embed = discord.Embed(timestamp=ctx.message.created_at, color=0x666666)
+        embed.add_field(name="Pong!", value="Calculating...")
+        resp = await ctx.send(embed=embed)
+        embed = discord.Embed(timestamp=ctx.message.created_at, color=0x666666)
+        diff = resp.created_at - ctx.message.created_at
+        embed.add_field(name="Ping", value=f'**{1000*diff.total_seconds():.1f}** ms')
+        embed.add_field(name='WS', value=f'**{round(self.bot.latency*1000, 2)}** ms')
+        embed.set_author(icon_url=ctx.me.avatar_url, name=ctx.me)
+        embed.set_footer(text=ctx.message.author, icon_url=ctx.message.author.avatar_url)
+        await resp.edit(embed=embed)
 
     @commands.group(name='perms', aliases=['permissions'])
     @commands.guild_only()
@@ -218,34 +225,21 @@ class ModerationCog:
             embed.add_field(name='UTC Time', value=warning['time'], inline=True)
             embed.add_field(name='Warning', value=warning['warning'], inline=False)
             await ctx.send(embed=embed)
+
+    @commands.group()
+    async def role(self,ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send(f"You are missing a required argument! (see {ctx.prefix}help role for info on how to use this command.)")
     
-    @commands.command()
+    @role.command(name="add")
     async def addrole(self, ctx, user: discord.Member, *, rolename):
         """Adds an role to someone."""
-        if rolename is str:
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-        if rolename is int:
-            role = discord.utils.get(ctx.guild.roles, id=rolename)
-        if not role:
-            await ctx.send("That role doesn't exist!")
-
         try:
             await user.add_roles(role)
             await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
 
         except discord.Forbidden:
-            await ctx.send('I need **Manage Roles** for this!')
-            
-    @commands.command()
-    async def removerole(self, ctx, user: discord.Member, *, rolename):
-        """Removes an role from someone."""
-        if rolename is str:
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-        if rolename is int:
-            role = discord.utils.get(ctx.guild.roles, id=rolename)
-        if not role:
-            await ctx.send("That role doesn't exist")
-
+                                  
         try:
             await user.remove_roles(role)
             await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
@@ -379,6 +373,12 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def softban(self, ctx, member: discord.Member, *, reason = "No reason given"):
         """Bans an user then unbans them afterwards, removing their messages."""
+        if member == ctx.bot.user:
+            await ctx.send("Please don't try to soft-ban me. Thank you")
+            return
+        elif member == ctx.author:
+            await ctx.send("Please don't try to soft-ban yourself.")
+            return
         await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
         await ctx.guild.unban(member)
         await ctx.send(f":ok_hand: {member.name} ({member.id}) has been soft-banned. Reason: `{reason}`.")
@@ -487,7 +487,7 @@ def setup(bot):
 async def unmuteTask(modcog:ModerationCog):
     while not modcog.bot.startup_done:
         await asyncio.sleep(1)
-        BugLog.info("Started unmute background task")
+    BugLog.info("Started unmute background task")
     skips = []
     updated = False
     while modcog.running:

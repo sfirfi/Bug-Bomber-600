@@ -1,5 +1,6 @@
 import discord
 import math
+import difflib
 from datetime import datetime
 from discord.ext import commands
 from utils import permissions
@@ -86,7 +87,7 @@ class UtilsCog:
         await ctx.send(f"I've created an invite based of your input! Here is an invite with ``{uses}`` use(s). Link:\n{invite_url}")
 
 
-    @commands.command()
+    @commands.command(name='serverinfo', aliases=['server'])
     async def serverinfo(self, ctx):
         """Shows information about the current server."""
         guild_features = ", ".join(ctx.guild.features)
@@ -120,12 +121,16 @@ class UtilsCog:
     async def selfrole(self, ctx:commands.Context):
         """Allows the joining and leaving of joinable roles"""
         if ctx.subcommand_passed is None:
-            await ctx.send("Use `!help selfrole` for info on how to use this command.")
+            await ctx.send(f"Use `{ctx.prefix}help selfrole` for info on how to use this command.")
 
     @selfrole.command()
     async def list(self, ctx: commands.Context, page=""):
         """Provides a list of all joinable roles"""
         role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
+        if len(role_id_list)==0:
+            await ctx.send("There are currently not selfroles set.")
+            return
+
         rolesPerPage = 20
         roles = ""
         ids = ""
@@ -151,8 +156,26 @@ class UtilsCog:
 
 
     @selfrole.command()
-    async def join(self, ctx: commands.context, *, role: discord.Role):
+    async def join(self, ctx: commands.context, *, rolename):
         """Joins a selfrole group"""
+        role = None
+        #mention
+        if rolename.startswith("<@"):
+            roleid = rolename.replace('<','').replace('!','').replace('@','').replace('&','').replace('>','')
+            role = discord.utils.get(ctx.guild.roles, id=int(roleid))
+        #id
+        elif rolename.isdigit():
+            role = discord.utils.get(ctx.guild.roles, id=int(rolename))
+        #name
+        else:
+            name = difflib.get_close_matches(rolename,Util.getRoleNameArray(ctx),1,0.4)
+            if len(name)>0:
+                role = discord.utils.get(ctx.guild.roles, id=Util.getRoleIdDict(ctx)[name[0]])
+
+        if role is None:
+                await ctx.send("I cannnot find that role!")
+                return
+
         role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
         if role.id in role_id_list and role not in ctx.author.roles:
             await ctx.message.author.add_roles(role, reason=f"{ctx.message.author} Joined role group {role.name}")
@@ -161,8 +184,26 @@ class UtilsCog:
             await ctx.send("That role isn't joinable or you already have joined it.")
 
     @selfrole.command()
-    async def leave(self, ctx: commands.Context, *, role: discord.Role):
+    async def leave(self, ctx: commands.Context, *, rolename):
         """Leaves one of the selfrole groups you are in"""
+        role = None
+        #mention
+        if rolename.startswith("<@"):
+            roleid = rolename.replace('<','').replace('!','').replace('@','').replace('&','').replace('>','')
+            role = discord.utils.get(ctx.guild.roles, id=int(roleid))
+        #id
+        elif rolename.isdigit():
+            role = discord.utils.get(ctx.guild.roles, id=int(rolename))
+        #name
+        else:
+            name = difflib.get_close_matches(rolename,Util.getRoleNameArray(ctx),1,0.4)
+            if len(name)>0:
+                role = discord.utils.get(ctx.guild.roles, id=Util.getRoleIdDict(ctx)[name[0]])
+
+        if role is None:
+                await ctx.send("I cannnot find that role!")
+                return
+
         role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
         if role.id in role_id_list and role in ctx.author.roles:
             await ctx.message.author.remove_roles(role, reason=f"{ctx.message.author} Left role group {role.name}")

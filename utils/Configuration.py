@@ -57,7 +57,23 @@ def loadConfig(guild:discord.Guild):
         SERVER_CONFIGS[guild.id] = copy.deepcopy(CONFIG_TEMPLATE)
         saveConfig(guild.id)
 
+def loadConfigFile(id):
+    global SERVER_CONFIGS
+    try:
+        with open(f'config/{id}.json', 'r') as jsonfile:
+            config = json.load(jsonfile)
+            for key in CONFIG_TEMPLATE:
+                if key not in config:
+                    config[key] = CONFIG_TEMPLATE[key]
+            SERVER_CONFIGS[id] = config
+    except FileNotFoundError:
+        BugLog.info(f"No config available for ({guild.id}), creating blank one.")
+        SERVER_CONFIGS[id] = copy.deepcopy(CONFIG_TEMPLATE)
+        saveConfig(id)
+
 def getConfigVar(id, key):
+    if id not in SERVER_CONFIGS.keys():
+        loadConfigFile(id)
     return SERVER_CONFIGS[id][key]
 
 def getConfigVarChannel(id, key, bot:commands.Bot):

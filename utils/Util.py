@@ -60,6 +60,20 @@ async def grepFromWeb(url):
 def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 
+def getRoleNameArray(ctx):
+    roles = []
+    for role in ctx.guild.roles:
+        roles.append(role.name)
+    
+    return roles
+
+def getRoleIdDict(ctx):
+    rolesDict = {}
+    for role in ctx.guild.roles:
+        rolesDict[role.name] = role.id
+
+    return rolesDict
+
 def randomString(length=256):
     string = ""
     for i in range(0, length):

@@ -185,7 +185,7 @@ class Serveradmin:
 
     @disable.command(name="wmessage")
     async def disableWelcome(self, ctx: commands.Context):
-        Configuration.setConfigVar(ctx.guild.id, "WELCOME_CHANEL", 0)
+        Configuration.setConfigVar(ctx.guild.id, "WELCOME_CHANNEL", 0)
         await ctx.send("This server will no longer send welcome messages. Set a welcome channel to reactivate this feature.")
 
 

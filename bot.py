@@ -105,14 +105,14 @@ async def on_command_error(ctx: commands.Context, error):
     elif isinstance(error, commands.CheckFailure):
         if type(ctx.message.channel) is discord.channel.TextChannel:
             if ctx.cog != bot.get_cog("TrelloCog"):
-                await ctx.send(":lock: You do not have the required permissions to run this command.")
+                return
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(error)
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"You are missing a required argument! (See !help {ctx.command.qualified_name} for info on how to use this command).")
+        await ctx.send(f"You are missing a required argument! (See {ctx.prefix}help {ctx.command.qualified_name} for info on how to use this command).")
         ctx.command.reset_cooldown(ctx)
     elif isinstance(error, commands.BadArgument):
-        await ctx.send(f"Invalid argument given! (See !help {ctx.command.qualified_name} for info on how to use this commmand).")
+        await ctx.send(f"Invalid argument given! (See {ctx.prefix}help {ctx.command.qualified_name} for info on how to use this commmand).")
         ctx.command.reset_cooldown(ctx)
     elif isinstance(error, commands.CommandNotFound):
         return
