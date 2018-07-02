@@ -234,18 +234,54 @@ class ModerationCog:
     @role.command(name="add")
     async def addrole(self, ctx, user: discord.Member, *, rolename):
         """Adds an role to someone."""
-        try:
-            await user.add_roles(role)
-            await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
+        role = None
+        #mention
+        if rolename.startswith("<@"):
+            roleid = rolename.replace('<','').replace('!','').replace('@','').replace('&','').replace('>','')
+            role = discord.utils.get(ctx.guild.roles, id=int(roleid))
+        #id
+        elif rolename.isdigit():
+            role = discord.utils.get(ctx.guild.roles, id=int(rolename))
+        #name
+        else:
+            name = difflib.get_close_matches(rolename,Util.getRoleNameArray(ctx),1,0.4)
+            if len(name)>0:
+                role = discord.utils.get(ctx.guild.roles, id=Util.getRoleIdDict(ctx)[name[0]])
 
-        except discord.Forbidden:
-                                  
+        if role is None:
+                await ctx.send("I cannnot find that role!")
+                return
         try:
-            await user.remove_roles(role)
-            await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
-
+                await user.add_roles(role)
+                await ctx.send(f":ok_hand: I added the {role.name} role to {user}!")
         except discord.Forbidden:
-            await ctx.send("I need **Manage Roles** for this!")
+                await ctx.send('I need **Manage Roles** for this!')
+
+    @role.command(name='remove', aliases=['rmv'])
+    async def removerole(self, ctx, user: discord.Member, *, rolename):
+        """Removes an role from someone."""
+        role = None
+        #mention
+        if rolename.startswith("<@"):
+            roleid = rolename.replace('<','').replace('!','').replace('@','').replace('&','').replace('>','')
+            role = discord.utils.get(ctx.guild.roles, id=int(roleid))
+        #id
+        elif rolename.isdigit():
+            role = discord.utils.get(ctx.guild.roles, id=int(rolename))
+        #name
+        else:
+            name = difflib.get_close_matches(rolename,Util.getRoleNameArray(ctx),1,0.4)
+            if len(name)>0:
+                role = discord.utils.get(ctx.guild.roles, id=Util.getRoleIdDict(ctx)[name[0]])
+
+        if role is None:
+                await ctx.send("I cannot find that role!")
+                return
+        try:
+                await user.remove_roles(role)
+                await ctx.send(f":ok_hand: I removed the {rolename} role from {user}!")
+        except discord.Forbidden:
+                await ctx.send("I need **Manage Roles** for this!")
 
     @commands.command()
     @commands.guild_only()

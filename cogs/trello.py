@@ -16,7 +16,7 @@ class TrelloCog:
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx:commands.Context):
+    async def __local_check(self, ctx):
         if type(ctx.message.channel) is discord.channel.TextChannel:
             if ctx.guild.id == self.bot.config["Settings"]["trelloGuild"]:
                 return await permissions.hasPermission(ctx, "trello")
@@ -27,7 +27,7 @@ class TrelloCog:
 
     @commands.command()
     @commands.guild_only()
-    async def submit(self, ctx: commands.Context,*,submit = ""):
+    async def submit(self, ctx, *, submit = ""):
         channel= ctx.bot.get_channel(456331168246398976)
         
         if(submit != ""):

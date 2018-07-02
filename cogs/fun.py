@@ -86,7 +86,7 @@ class FunCog:
     @commands.command(name='hug', aliases=['huh','hugh'])
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['hug'], BucketType.user)
-    async def hug(self, ctx: commands.Context, friend: discord.Member):
+    async def hug(self, ctx, friend: discord.Member):
         """Hugs a person."""
         if friend == ctx.author:
             await ctx.send("You must be really lonely if you need to hug yourself, have one from me instead!")
@@ -100,7 +100,7 @@ class FunCog:
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['fight'], BucketType.user)
-    async def fight(self, ctx: commands.Context, victim: discord.Member):
+    async def fight(self, ctx, victim: discord.Member):
         """Fights a person."""
         if victim == ctx.author:
             await ctx.send("How would you even do that?")
@@ -114,7 +114,7 @@ class FunCog:
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['pet'], BucketType.user)
-    async def pet(self, ctx: commands.Context, pet: discord.Member):
+    async def pet(self, ctx, pet: discord.Member):
         """Pets a person."""
         if pet == ctx.author:
             await ctx.send("Petting yourself, how would you even do that?")
@@ -123,7 +123,7 @@ class FunCog:
             await ctx.send("<a:typing:393881558169288716>")
             ctx.command.reset_cooldown(ctx)
         else:
-            await ctx.send("{0}: {1} pets you".format(pet.mention, ctx.author.name))
+            await ctx.send(f"{pet.mention}: {ctx.author.name} pets you")
 
     @commands.command()
     @commands.guild_only()
@@ -156,7 +156,7 @@ class FunCog:
 
     @commands.command()
     @commands.cooldown(1, config['Cooldowns']['img'], BucketType.user)
-    async def img(self, ctx: commands.context, *, search):
+    async def img(self, ctx, *, search):
         """Sends a img for the given search term. The terms [cat,dog,fox,lizard, neko] will random generate, other terms will spit out a Imgur img."""
         search = search.lower().strip()
         imgFunctions = {
@@ -187,7 +187,7 @@ class FunCog:
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, config['Cooldowns']['ahug'], BucketType.user)
-    async def ahug(self, ctx: commands.Context, member: discord.Member = None):
+    async def ahug(self, ctx, member: discord.Member = None):
         """Sends an anime hug gif."""
         try:
             img = await Util.grepJsonFromWeb('https://nekos.life/api/v2/img/hug')
@@ -204,7 +204,7 @@ class FunCog:
             await ctx.send("Oops! I fell asleep... sorry.")
 
     @commands.command()
-    async def quote(self, ctx: commands.Context, messageid: int):
+    async def quote(self, ctx, messageid: int):
         """Quotes the requested message."""
         async with ctx.typing():
             try:

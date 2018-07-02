@@ -33,7 +33,7 @@ class EventsCog:
     def __unload(self):
         self.active = False #mark as terminated for the checking loop to terminate cleanly
 
-    async def __local_check(self, ctx:commands.Context):
+    async def __local_check(self, ctx):
         if type(ctx.message.channel) is discord.channel.TextChannel:
             return await permissions.hasPermission(ctx, "events")
         else:
@@ -41,13 +41,13 @@ class EventsCog:
     
     @commands.group(name='event')
     @commands.guild_only()
-    async def eventCommand(self, ctx: commands.Context):
+    async def eventCommand(self, ctx):
         """Allows to manage events"""
         if ctx.invoked_subcommand is None:
             await ctx.send("TODO: add explanations")
 
     @eventCommand.command()
-    async def create(self, ctx: commands.Context, name: str, duration: int, durationtype: str,  closingtime: int, closingtimetype: str):
+    async def create(self, ctx, name: str, duration: int, durationtype: str,  closingtime: int, closingtimetype: str):
         """Creates a new event"""
         duration = Util.convertToSeconds(duration, durationtype)
         closingtime = Util.convertToSeconds(closingtime, closingtimetype)
@@ -58,14 +58,14 @@ class EventsCog:
         await ctx.send(f"Event `{name}` created with ID `{id}`.")
 
     @eventCommand.command()
-    async def info(self, ctx: commands.Context, event:Event):
+    async def info(self, ctx, event: Event):
         info = ""
         for key, item in event.items():
             info = f"{info}\n{key}: {item}"
         await ctx.send(info)
 
     @eventCommand.command()
-    async def setDuration(self, ctx: commands.Context, event: Event, duration: int, durationtype: str, closingtime: int, closingtimetype: str):
+    async def setDuration(self, ctx, event: Event, duration: int, durationtype: str, closingtime: int, closingtimetype: str):
         newDuration = Util.convertToSeconds(duration, durationtype)
         newClosing = Util.convertToSeconds(closingtime, closingtimetype)
         dbc = self.bot.DBC
@@ -73,7 +73,7 @@ class EventsCog:
         await ctx.send(f"Event {event['name']} duration is now {duration} {durationtype} and submissions will be closed {closingtime} {closingtimetype} in advance.")
 
     @eventCommand.command()
-    async def start(self, ctx: commands.Context, event: Event):
+    async def start(self, ctx, event: Event):
         dbc = self.bot.DBC
         dbc.query('UPDATE events set started=1, endtime=%s, closingTime=%s WHERE ID=%d' % (time.time() + event["duration"], time.time() + event["duration"] - event["closingTime"], event["ID"]))
         event = await Event().convert(ctx, event['ID'])
@@ -95,7 +95,7 @@ class EventsCog:
         await self.updateScoreboard('Post Pick-Up Hug / Fight Strings!')
 
     @eventCommand.command()
-    async def addChannel(self, ctx: commands.Context, event:Event, channel: discord.TextChannel, codename: str, type: int):
+    async def addChannel(self, ctx, event: Event, channel: discord.TextChannel, codename: str, type: int):
         self.bot.DBC.query("INSERT INTO eventchannels (channel, event, type, name) VALUES (%d, %d, %d, '%s')" % (channel.id, event["ID"], type, codename))
         await ctx.send("Channel assigned.")
 
