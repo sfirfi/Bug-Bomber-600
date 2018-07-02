@@ -11,7 +11,7 @@ class bugtestCog:
         self.bot = bot 
 
     @commands.command()
-    async def unmaskedlink(self, ctx: commands.Context):
+    async def unmaskedlink(self, ctx):
         """Shows an embed for unmasked links."""
         embed = discord.Embed(color=0x98f5ff)
         embed.add_field(name='Name', value=f"Discord's Terms of Services", inline=True)
@@ -19,14 +19,14 @@ class bugtestCog:
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def emoji(self, ctx: commands.Context):
+    async def emoji(self, ctx):
         """Shows an embed for emojis"""
         embed = discord.Embed(color=0x98f5ff)
         embed.add_field(name='Emote', value=f"Emojis", inline=True)
         embed.add_field(name='More Emotes', value=f":heart::heart::heart::heart::heart::heart:", inline=True)
         await ctx.send(embed=embed)
     @commands.command()
-    async def maskedlink(self, ctx: commands.Context):
+    async def maskedlink(self, ctx):
         """Shows an embed for masked links."""
         embed = discord.Embed(UnicodeTranslateError=0x98f5ff)
         embed.add_field(name='Name', value=f"Discord's Terms of Services.", inline=True)
