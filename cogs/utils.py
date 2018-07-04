@@ -14,7 +14,7 @@ class UtilsCog:
         self.bot = bot
 
     @commands.command()
-    async def about(self, ctx: commands.Context):
+    async def about(self, ctx):
         """Shows information about the bot"""
         embed = discord.Embed(color=0x98f5ff)
         embed.add_field(name='Name', value=f"{ctx.bot.user.name}", inline=True)
@@ -23,7 +23,7 @@ class UtilsCog:
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def userinfo(self, ctx : commands.Context, user : str = None):
+    async def userinfo(self, ctx, user: str = None):
         """Shows information about the chosen user."""
         if user == None:
             user = ctx.author
@@ -118,13 +118,13 @@ class UtilsCog:
         
     @commands.group()
     @commands.guild_only()
-    async def selfrole(self, ctx:commands.Context):
+    async def selfrole(self, ctx):
         """Allows the joining and leaving of joinable roles"""
         if ctx.subcommand_passed is None:
             await ctx.send(f"Use `{ctx.prefix}help selfrole` for info on how to use this command.")
 
     @selfrole.command()
-    async def list(self, ctx: commands.Context, page=""):
+    async def list(self, ctx, page=""):
         """Provides a list of all joinable roles"""
         role_id_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
         if len(role_id_list)==0:
@@ -156,7 +156,7 @@ class UtilsCog:
 
 
     @selfrole.command()
-    async def join(self, ctx: commands.context, *, rolename):
+    async def join(self, ctx, *, rolename):
         """Joins a selfrole group"""
         role = None
         #mention
@@ -184,7 +184,7 @@ class UtilsCog:
             await ctx.send("That role isn't joinable or you already have joined it.")
 
     @selfrole.command()
-    async def leave(self, ctx: commands.Context, *, rolename):
+    async def leave(self, ctx, *, rolename):
         """Leaves one of the selfrole groups you are in"""
         role = None
         #mention
@@ -211,7 +211,7 @@ class UtilsCog:
         else:
             await ctx.send("That role isn't leavable or you don't have the role.")
 
-    async def __local_check(self, ctx:commands.Context):
+    async def __local_check(self, ctx):
         if type(ctx.message.channel) is discord.channel.TextChannel:
             return await permissions.hasPermission(ctx, "utils")
         else:

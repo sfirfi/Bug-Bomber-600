@@ -13,7 +13,7 @@ class Serveradmin:
     def __unload(self):
         pass
 
-    async def __local_check(self, ctx:commands.Context):
+    async def __local_check(self, ctx):
         if type(ctx.message.channel) is discord.channel.TextChannel:
             return await permissions.hasPermission(ctx, "serveradmin")
         else:
@@ -21,37 +21,37 @@ class Serveradmin:
 
     @commands.guild_only()
     @commands.group()
-    async def configure(self, ctx: commands.Context):
+    async def configure(self, ctx):
         """Configure server specific settings."""
         if ctx.subcommand_passed is None:
             await ctx.send("See the subcommands (!help configure) for configurations.")
 
     @configure.command()
-    async def prefix(self, ctx: commands.Context, newPrefix):
+    async def prefix(self, ctx, newPrefix):
         """Sets a new prefix for this server."""
         Configuration.setConfigVar(ctx.guild.id, "PREFIX", newPrefix)
         await ctx.send(f"The server prefix is now `{newPrefix}`.")
         
     @configure.command()
-    async def announce(self, ctx: commands.Context, channelID):
+    async def announce(self, ctx, channelID):
         """Sets the announce channel."""
         Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", channelID)
         await ctx.send(f"The announces channel now is <#{channelID}>")
 
     @configure.command()
-    async def adminrole(self, ctx: commands.Context, roleID):
+    async def adminrole(self, ctx, roleID):
         """Sets the server admin role."""
         Configuration.setConfigVar(ctx.guild.id, "ADMIN_ROLE_ID", roleID)
         await ctx.send(f"The server admin role is now `{roleID}`.")
 
     @configure.command()
-    async def modrole(self, ctx: commands.Context, roleID):
+    async def modrole(self, ctx, roleID):
         """Sets the role with moderation rights."""
         Configuration.setConfigVar(ctx.guild.id, "MOD_ROLE_ID", roleID)
         await ctx.send(f"The server moderation role is now `{roleID}`.")
 
     @configure.group(name="welcome")
-    async def welcome(self, ctx: commands.Context):
+    async def welcome(self, ctx):
         """Provides options to send a message to a targetted channel."""
         if ctx.invoked_subcommand is not None:
             if ctx.invoked_subcommand.name == "welcome":
@@ -62,7 +62,7 @@ class Serveradmin:
                 await ctx.send(embed=embed)
 
     @welcome.command(name="message")
-    async def welcomeMessage(self, ctx: commands.Context,*, message):
+    async def welcomeMessage(self, ctx,*, message):
         if message != "":
             Configuration.setConfigVar(ctx.guild.id, "WELCOME_MESSAGE", message)
             await ctx.send("The welcome message for this server was changed.")
@@ -70,7 +70,7 @@ class Serveradmin:
             await ctx.send("I need a message i can work with.")
 
     @welcome.command(name="channel")
-    async def welcomeChannel(self, ctx:commands.Context, channel: discord.TextChannel):
+    async def welcomeChannel(self, ctx, channel: discord.TextChannel):
         
         permissions = channel.permissions_for(ctx.guild.get_member(self.bot.user.id))
         if permissions.read_messages and permissions.send_messages and permissions.embed_links:
@@ -80,7 +80,7 @@ class Serveradmin:
             await ctx.send(f"I cannot use {channel.mention} for logging, I do not have the required permissions in there (read_messages, send_messages and embed_links).")
 
     @configure.command()
-    async def muteRole(self, ctx: commands.Context, role: discord.Role):
+    async def muteRole(self, ctx, role: discord.Role):
         """Sets what role to use for mutes."""
         guild: discord.Guild = ctx.guild
         perms = guild.me.guild_permissions
@@ -143,7 +143,7 @@ class Serveradmin:
             await ctx.send(f"{role.name} has been added to the selfrole list.")
 
     @selfrole.command()
-    async def remove(self, ctx: commands.Context, roleraw):
+    async def remove(self, ctx, roleraw):
         """Used to remove roles from the joinable list"""
         role_list = Configuration.getConfigVar(ctx.guild.id, "JOINABLE_ROLES")
         try:
@@ -164,12 +164,12 @@ class Serveradmin:
 
     @commands.group()
     @commands.guild_only()
-    async def disable(self, ctx: commands.Context):
+    async def disable(self, ctx):
         """Base command for disabling features."""
         pass
 
     @disable.command()
-    async def mute(self, ctx: commands.Context):
+    async def mute(self, ctx):
         """Disable the mute feature."""
         role = discord.utils.get(ctx.guild.roles, id=Configuration.getConfigVar(ctx.guild.id, "MUTE_ROLE"))
         if role is not None:
@@ -179,12 +179,12 @@ class Serveradmin:
         await ctx.send("Mute feature has been disabled, all people muted have been unmuted and the role can now be removed.")
         
     @disable.command(name="announce")
-    async def announce1(self, ctx:commands.Context):
+    async def announce1(self, ctx):
         Configuration.setConfigVar(ctx.guild.id, "ANNOUNCE", 0)
         await ctx.send("The announce channel has been reseted.")
 
     @disable.command(name="wmessage")
-    async def disableWelcome(self, ctx: commands.Context):
+    async def disableWelcome(self, ctx):
         Configuration.setConfigVar(ctx.guild.id, "WELCOME_CHANNEL", 0)
         await ctx.send("This server will no longer send welcome messages. Set a welcome channel to reactivate this feature.")
 
