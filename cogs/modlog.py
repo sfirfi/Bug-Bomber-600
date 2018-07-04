@@ -124,6 +124,24 @@ class ModlogCog:
         LoggedMessage.create(messageid=message.id, author=message.author.id, content=self.bot.aes.encrypt(message.content),
                              timestamp=message.created_at.timestamp(), channel=message.channel.id)
 
+    async def on_member_update(self, before, after):
+        while not self.bot.startup_done:
+            await asyncio.sleep(1)
+        for role in before.roles:
+            if not role in after.roles:
+                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":pencil2: ``{role.name}`` has been removed from {before.name}#{before.discriminator} (`{before.id}`)")
+        for role in after.roles:
+            if not role in before.roles:
+                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":pencil2: ``{role.name}`` has been added to {before.name}#{before.discriminator} (`{before.id}`)")
+
     async def on_raw_message_delete(self, data: RawMessageDeleteEvent):
         while not self.bot.startup_done:
             await asyncio.sleep(1)
