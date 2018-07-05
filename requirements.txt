@@ -2,11 +2,8 @@ aiohttp>=2.0.0,<2.3.0
 websockets>=4.0,<5.0
 discord.py==1.0.0a1431+gd53c3a6
 PyYAML==3.12
-imgurpython=1.1.7
-asn1crypto-0.24.0
-cryptography-2.2.2
-peewee-3.3.1
-pymysql 0.8.1
-Some programs that may need to be installed:
-- GitBash
-- Xamapp 
+imgurpython==1.1.7
+asn1crypto==0.24.0
+cryptography==2.2.2
+peewee==3.3.1
+pymysql==0.8.1
