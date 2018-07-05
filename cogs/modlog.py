@@ -141,6 +141,26 @@ class ModlogCog:
                     logChannel: discord.TextChannel = self.bot.get_channel(channelid)
                     if logChannel is not None:
                         await logChannel.send(f":pencil2: ``{role.name}`` has been added to {before.name}#{before.discriminator} (`{before.id}`)")
+        if before.nick != after.nick:
+            if before.nick is None:
+                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":name_badge: {before.name}#{before.discriminator} (`{before.id}`) has added nickname ``{after.display_name}``.")
+            elif after.nick is None:
+                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":name_badge: {before.name}#{before.discriminator} (`{before.id}`) has removed their nickname, was previously ``{before.display_name}``.")
+            else:
+                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+                if channelid is not 0:
+                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                    if logChannel is not None:
+                        await logChannel.send(f":name_badge: {before.name}#{before.discriminator} (`{before.id}`) has changed their nickname from `{before.display_name}` to `{after.display_name}`.")
+
 
     async def on_raw_message_delete(self, data: RawMessageDeleteEvent):
         while not self.bot.startup_done:
