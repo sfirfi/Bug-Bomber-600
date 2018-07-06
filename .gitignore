@@ -23,3 +23,4 @@ encryption_key.txt
 
 config/*
 venv/*
+.DS_Store
