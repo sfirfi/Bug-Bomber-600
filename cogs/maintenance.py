@@ -32,7 +32,7 @@ class MaintenanceCog:
         return content.strip('` \n')
 
     def eval_enabled(self):
-        return self.bot.config["Settings"]["evalCommand"] == "True"
+        return self.bot.config.getboolean('Settings','evalCommand')
 
     async def __local_check(self, ctx:commands.Context):
         if str(ctx.message.author.id) in self.bot.config['Settings']['admins']:
