@@ -16,6 +16,8 @@ botlog =
 allow_dm_commands = False
 ;add the ids of all wished global admins here seperated by a comma
 admins=
+; Set if the eval command should be enabled or not
+evalCommand = False
 trelloGuild = 
 
 [Events]
