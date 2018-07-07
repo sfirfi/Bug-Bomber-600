@@ -39,7 +39,7 @@ class ModlogCog:
             await ctx.send(
                 f"I cannot use {channel.mention} for logging, I do not have the required permissions in there (read_messages, send_messages and embed_links).")
 
-    @Serveradmin.disable.command(name="minorLogChannel")
+    @Serveradmin.disable.command(name="minorLogs")
     async def disableMinorLogChannel(self, ctx):
         """Disables minor logs (edit/delete)"""
         Configuration.setConfigVar(ctx.guild.id, "MINOR_LOGS", 0)
@@ -56,7 +56,7 @@ class ModlogCog:
             await ctx.send(
                 f"I cannot use {channel.mention} for logging, I do not have the required permissions in there (read_messages, send_messages).")
 
-    @Serveradmin.disable.command(name="joinLogChannel")
+    @Serveradmin.disable.command(name="joinLogs")
     async def disablejoinLogChannel(self, ctx):
         """Disables join/leave logs"""
         Configuration.setConfigVar(ctx.guild.id, "JOIN_LOGS", 0)
@@ -73,7 +73,7 @@ class ModlogCog:
             await ctx.send(
                 f"I cannot use {channel.mention} for logging, I do not have the required permissions in there (read_messages, send_messages)")
 
-    @Serveradmin.disable.command(name="modLogChannel")
+    @Serveradmin.disable.command(name="modLogs")
     async def disablemodLogChannel(self, ctx):
         """Disables the modlogs (mute/kick/ban/...)"""
         Configuration.setConfigVar(ctx.guild.id, "MOD_LOGS", 0)
@@ -127,39 +127,34 @@ class ModlogCog:
     async def on_member_update(self, before, after):
         while not self.bot.startup_done:
             await asyncio.sleep(1)
-        for role in before.roles:
-            if not role in after.roles:
-                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
-                if channelid is not 0:
-                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
-                    if logChannel is not None:
-                        await logChannel.send(f":pencil2: ``{role.name}`` has been removed from {before.name}#{before.discriminator} (`{before.id}`)")
-        for role in after.roles:
-            if not role in before.roles:
-                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
-                if channelid is not 0:
-                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
-                    if logChannel is not None:
-                        await logChannel.send(f":pencil2: ``{role.name}`` has been added to {before.name}#{before.discriminator} (`{before.id}`)")
-        if before.nick != after.nick:
-            if before.nick is None:
-                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
-                if channelid is not 0:
-                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
-                    if logChannel is not None:
+        if before.roles != after.roles:
+            channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+            if channelid is not 0:
+                logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                if logChannel is not None:
+                    for role in before.roles:
+                        if not role in after.roles:
+                            await logChannel.send(f":pencil2: ``{role.name}`` has been removed from {before.name}#{before.discriminator} (`{before.id}`)")
+                    for role in after.roles:
+                        if not role in before.roles:
+                            await logChannel.send(f":pencil2: ``{role.name}`` has been added to {before.name}#{before.discriminator} (`{before.id}`)")
+        elif before.nick != after.nick:
+            channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+            if channelid is not 0:
+                logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                if logChannel is not None:
+                    if before.nick is None:
                         await logChannel.send(f":name_badge: {before.name}#{before.discriminator} (`{before.id}`) has added nickname ``{after.nick}``.")
-            elif after.nick is None:
-                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
-                if channelid is not 0:
-                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
-                    if logChannel is not None:
+                    elif after.nick is None:
                         await logChannel.send(f":name_badge: {before.name}#{before.discriminator} (`{before.id}`) has removed their nickname, was previously ``{before.nick}``.")
-            else:
-                channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
-                if channelid is not 0:
-                    logChannel: discord.TextChannel = self.bot.get_channel(channelid)
-                    if logChannel is not None:
+                    else:
                         await logChannel.send(f":name_badge: {before.name}#{before.discriminator} (`{before.id}`) has changed their nickname from `{before.nick}` to `{after.nick}`.")
+        elif before.name != after.name:
+            channelid = Configuration.getConfigVar(before.guild.id, "MINOR_LOGS")
+            if channelid is not 0:
+                logChannel: discord.TextChannel = self.bot.get_channel(channelid)
+                if logChannel is not None:
+                    await logChannel.send(f":pager: {before.name}#{before.discriminator} (`{before.id}`) has changed their username to {after.name}#{after.discriminator}")
 
 
     async def on_raw_message_delete(self, data: RawMessageDeleteEvent):
