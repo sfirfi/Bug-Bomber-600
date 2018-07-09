@@ -29,7 +29,7 @@ class Serveradmin:
     @configure.command()
     async def prefix(self, ctx, newPrefix):
         """Sets a new prefix for this server."""
-        if len(newPrefix) >= 11:
+        if len(newPrefix) >= 10:
             await ctx.send("Please shorten down amount of characters for your new prefix. I only allow 10 characters or less as a prefix.")
             return
         Configuration.setConfigVar(ctx.guild.id, "PREFIX", newPrefix)
