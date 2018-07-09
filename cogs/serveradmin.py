@@ -29,6 +29,9 @@ class Serveradmin:
     @configure.command()
     async def prefix(self, ctx, newPrefix):
         """Sets a new prefix for this server."""
+        if len(newPrefix) >= 11:
+            await ctx.send("Please shorten down amount of characters for your new prefix. I only allow 10 characters or less as a prefix.")
+            return
         Configuration.setConfigVar(ctx.guild.id, "PREFIX", newPrefix)
         await ctx.send(f"The server prefix is now `{newPrefix}`.")
         
@@ -63,6 +66,9 @@ class Serveradmin:
 
     @welcome.command(name="message")
     async def welcomeMessage(self, ctx,*, message):
+        if len(message) >= 1000:
+            await ctx.send(f"Sorry, I only allow welcome messages to be 1000 characters or less. Please reformat your message. Your character count is currently (`{len(message)}`).")
+            return
         if message != "":
             Configuration.setConfigVar(ctx.guild.id, "WELCOME_MESSAGE", message)
             await ctx.send("The welcome message for this server was changed.")
