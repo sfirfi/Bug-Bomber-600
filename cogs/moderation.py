@@ -45,7 +45,35 @@ class ModerationCog:
             return await permissions.hasPermission(ctx, "moderation")
         else:
             return ctx.bot.config.getboolean('Settings','allow_dm_commands')
-
+    
+    @commands.command()
+    @commands.guild_only()
+    async def announce(self, ctx: commands.Context,*,announce = ""):
+        """Announces the given text in the set announcement channel."""
+        channel = ctx.bot.get_channel(int(Configuration.getConfigVar(ctx.guild.id, "ANNOUNCE")))
+        if channel != None:
+            if(announce != ""):
+                try:
+                    await channel.send(announce)
+                except:
+                    await ctx.send("I wasn't able to send a message in the set announce channel. Maybe check the permissions.")
+            else:
+                await ctx.send("You need to give me a message that I can announce.")
+        else:
+            await ctx.send("There is no announce channel set!")
+            
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(ban_members=True)
+    async def ban(self, ctx, user: discord.Member, *, reason="No reason given."):
+        if (ctx.author != user and user != ctx.bot.user and ctx.author.top_role > user.top_role) or ctx.guild.owner == ctx.author:
+            await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id}) Reason: {reason}")
+            await ctx.send(f":ok_hand: {user.name}#{user.discriminator} (`{user.id}`) was banned. Reason: `{reason}`")
+        elif user == None:
+            await ctx.send("Please specific an user that you are wanting to ban.")
+        else:
+            await ctx.send(f":no_entry: You are not allowed to ban {user.name}#{user.discriminator}!")
+    
     @commands.command()
     @commands.guild_only()
     async def roles(self, ctx:commands.Context, *, page = ""):
@@ -136,22 +164,6 @@ class ModerationCog:
     async def rmv(self, ctx:commands.Context, role: discord.Role, permission):
         """Removes the given permission from the role."""
         await ctx.send(permissions.rmvPermission(ctx, role, permission))
-
-    @commands.command()
-    @commands.guild_only()
-    async def announce(self, ctx: commands.Context,*,announce = ""):
-        """Announces the given text in the set announcement channel."""
-        channel = ctx.bot.get_channel(int(Configuration.getConfigVar(ctx.guild.id, "ANNOUNCE")))
-        if channel != None:
-            if(announce != ""):
-                try:
-                    await channel.send(announce)
-                except:
-                    await ctx.send("I wasn't able to send a message in the set announce channel. Maybe check the permissions.")
-            else:
-                await ctx.send("You need to give me a message that I can announce.")
-        else:
-            await ctx.send("There is no announce channel set!")
 
     @commands.command()
     @commands.guild_only()
@@ -286,19 +298,14 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx, user: discord.Member, *, reason = "No reason given."):
-        """Kicks a user from the server"""
-        if user == ctx.bot.user:
-            await ctx.send("Why would you like to kick me? :disappointed_relieved:")
-        elif user == ctx.author:
-            await ctx.send("You have played yourself. But you cannot kick yourself!")
-        elif user.top_role > ctx.guild.me.top_role:
-            await ctx.send(f':no_entry_sign: {user.name} has a higher role than me, I can\'t kick them.')
-        elif user.top_role > ctx.author.top_role:
-            await ctx.send(f':no_entry_sign: {user.name} has a higher role than you, you can\'t kick them.')
+    async def kick(self, ctx, user: discord.Member, *, reason="No reason given."):
+        if (ctx.author != user and user != ctx.bot.user and ctx.author.top_role > user.top_role) or ctx.guild.owner == ctx.author:
+            await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id}) Reason: {reason}")
+            await ctx.send(f":boot: {user.name}#{user.discriminator} (`{user.id}`) was kicked. Reason: `{reason}`")
+        elif user == None:
+            await ctx.send("Please specific an user that you are wanting to kick.")
         else:
-            await ctx.guild.kick(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-            await ctx.send(f":ok_hand: {user.name} ({user.id}) was kicked. Reason: `{reason}`")
+            await ctx.send(f":no_entry: You are not allowed to kick {user.name}#{user.discriminator}!")
 
     @commands.command()
     @commands.guild_only()
@@ -339,23 +346,6 @@ class ModerationCog:
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx, user: discord.Member, *, reason = "No reason given"):
-        """Bans a user from the server."""
-        if user == ctx.bot.user:
-            await ctx.send("Why would you like to ban me? :disappointed_relieved:")
-        elif user == ctx.author:
-            await ctx.send("You have played yourself. But you cannot ban yourself!")
-        elif user.top_role > ctx.guild.me.top_role:
-            await ctx.send(f':no_entry_sign: {user.name} has a higher role than me, I can\'t kick them.')
-        elif user.top_role > ctx.author.top_role:
-            await ctx.send(f':no_entry_sign: {user.name} has a higher role than you, you can\'t kick them.')
-        else:
-            await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-            await ctx.send(f":ok_hand: {user.name} ({user.id}) was banned. Reason: `{reason}`")
-
-    @commands.command()
-    @commands.guild_only()
-    @commands.bot_has_permissions(ban_members=True)
     async def forceban(self, ctx, user_id: int, *, reason = "No reason given"):
         """Bans a user even if they are not in the server"""
         user = await ctx.bot.get_user_info(user_id)
@@ -392,32 +382,31 @@ class ModerationCog:
     @commands.bot_has_permissions(ban_members=True)
     async def tempban(self,ctx: commands.Context, user: discord.Member, durationNumber: int, durationIdentifier: str, *, reason="No reason provided."):
         """Temporarily bans someone."""
-        if user == ctx.bot.user:
-            await ctx.send("Why would you like to tempban me? :disappointed_relieved:")
-        elif user == ctx.author:
-            await ctx.send("You have played yourself. But you cannot tempban yourself!")
-        else:
+        if (ctx.author != user and user != ctx.bot.user and ctx.author.top_role > user.top_role) or ctx.guild.owner == ctx.author:
             duration = Util.convertToSeconds(durationNumber, durationIdentifier)
             until = time.time() + duration
             await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}), Duration: {durationNumber}{durationIdentifier} Reason: {reason}")
             await ctx.send(f":ok_hand: {user.name} ({user.id}) has been banned for {durationNumber}{durationIdentifier}(``{reason}``)")
             await asyncio.sleep(duration)
             await ctx.guild.unban(user, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}). Their temporary ban has expired.")
+        elif user == None:
+            await ctx.send("Please specific an user that you are wanting to ban.")
+        else:
+            await ctx.send(f":no_entry: You are not allowed to ban {user.name}#{user.discriminator}!")
 
     @commands.command()
     @commands.guild_only()
     @commands.bot_has_permissions(ban_members=True)
-    async def softban(self, ctx, member: discord.Member, *, reason = "No reason given"):
+    async def softban(self, ctx, user: discord.Member, *, reason="No reason given."):
         """Bans an user then unbans them afterwards, removing their messages."""
-        if member == ctx.bot.user:
-            await ctx.send("Please don't try to soft-ban me. Thank you")
-            return
-        elif member == ctx.author:
-            await ctx.send("Please don't try to soft-ban yourself.")
-            return
-        await ctx.guild.ban(member, reason=f"Moderator: {ctx.author.name} ({ctx.author.id}) Reason: {reason}")
-        await ctx.guild.unban(member)
-        await ctx.send(f":ok_hand: {member.name} ({member.id}) has been soft-banned. Reason: `{reason}`.")
+        if (ctx.author != user and user != ctx.bot.user and ctx.author.top_role > user.top_role) or ctx.guild.owner == ctx.author:
+            await ctx.guild.ban(user, reason=f"Moderator: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id}) Reason: {reason}")
+            await ctx.guild.unban(user)
+            await ctx.send(f":ok_hand: {user.name}#{user.discriminator} (`{user.id}`) was softbanned. Reason: `{reason}`")
+        elif user == None:
+            await ctx.send("Please specific an user that you are wanting to ban.")
+        else:
+            await ctx.send(f":no_entry: You are not allowed to ban {user.name}#{user.discriminator}!")
     
     @commands.command()
     @commands.guild_only()
