@@ -25,7 +25,7 @@ class FunExtras:
     async def catImg():
         html = await Util.grepFromWeb('https://thecatapi.com/api/images/get?format=html')
         html = html.split('src="')
-        url = html[1].replace('"></a>', '').replace('http', 'https')
+        url = html[1].replace('"></a>', '').replace('http:', 'https:')
         return url
 
     async def dogImg():
